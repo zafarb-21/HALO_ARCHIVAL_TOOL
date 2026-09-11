@@ -1,0 +1,646 @@
+HALO ARCHIVE TOOL COMMAND CHAIN
+Written notes for running the drone archival workflow
+
+This is the command chain I use to test the HALO archival tool from start to finish. The main idea is that every mission gets one official mission ID. That same mission ID is used on the ground computer, on the drone, and for the ReSpeaker/audio session. This keeps the audio, PX4 ULog, metadata, code state, and status logs tied to the same test.
+
+The workflow is:
+
+1. Confirm I can reach the drone.
+2. Create a mission archive on the ground computer.
+3. Initialize the matching mission folder on the drone.
+4. Start the drone-side mission agent automatically.
+5. Record ReSpeaker audio into the drone mission folder.
+6. Arm/disarm manually only when it is safe.
+7. Let PX4 generate the ULog.
+8. Automatically collect everything back into the ground archive.
+9. Verify that the archive contains audio, PX4 logs, metadata, and status files.
+
+
+============================================================
+1. GO TO THE ARCHIVE TOOL FOLDER
+============================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+
+============================================================
+2. CHECK WHICH DRONE NETWORK I AM USING
+============================================================
+
+At the lab, the drone usually uses:
+
+    192.168.0.20
+
+At home through the temporary hotspot, the drone used:
+
+    10.28.8.97
+
+For lab testing I use:
+
+    halo-d0012
+
+For home/hotspot testing I use:
+
+    halo-d0012-home
+
+
+============================================================
+3. SSH ALIASES USED
+============================================================
+
+My SSH config should have entries like this:
+
+nano ~/.ssh/config
+
+Lab network:
+
+Host halo-d0012
+    HostName 192.168.0.20
+    User root
+    IdentityFile ~/.ssh/halo_archive_ed25519
+    IdentitiesOnly yes
+    ServerAliveInterval 10
+
+Home/hotspot network:
+
+Host halo-d0012-home
+    HostName 10.28.8.97
+    User root
+    IdentityFile ~/.ssh/halo_archive_ed25519
+    IdentitiesOnly yes
+    ServerAliveInterval 10
+
+Then I test the connection:
+
+ssh halo-d0012 "hostname && date -u"
+
+or, if I am at home:
+
+ssh halo-d0012-home "hostname && date -u"
+
+
+============================================================
+4. IF THE DRONE IP CHANGES, CREATE A TEMP DRONE CONFIG
+============================================================
+
+If I am away from the lab network and the drone IP changes, I do not overwrite the main D0012 config. I create a temporary config instead.
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+cp drones/D0012.yaml drones/D0012_home_temp.yaml
+nano drones/D0012_home_temp.yaml
+
+Then I update the IP line to match the temporary hotspot IP:
+
+ip_address: 10.28.8.97   # temporary home hotspot IP
+
+
+============================================================
+5. CHECK THAT THE DRONE IS REACHABLE
+============================================================
+
+For home/hotspot testing:
+
+ping -c 3 10.28.8.97
+
+ssh halo-d0012-home "hostname && date -u && ip -br addr"
+
+For lab testing:
+
+ping -c 3 192.168.0.20
+
+ssh halo-d0012 "hostname && date -u && ip -br addr"
+
+
+============================================================
+6. SYNC THE DRONE CLOCK BEFORE REAL RECORDING TESTS
+============================================================
+
+The drone clock can reset, so before a real recording test I sync it from the ground computer.
+
+For lab:
+
+GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+echo "Setting drone UTC time to: $GROUND_UTC"
+ssh halo-d0012 "date -u -s '$GROUND_UTC'"
+
+echo "Ground:"
+date -u
+
+echo "Drone:"
+ssh halo-d0012 "date -u"
+
+For home/hotspot:
+
+GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+echo "Setting drone UTC time to: $GROUND_UTC"
+ssh halo-d0012-home "date -u -s '$GROUND_UTC'"
+
+echo "Ground:"
+date -u
+
+echo "Drone:"
+ssh halo-d0012-home "date -u"
+
+
+============================================================
+7. COMPILE CHECK THE PYTHON SCRIPTS
+============================================================
+
+Before running tests, I make sure the scripts do not have syntax errors.
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 -m py_compile scripts/create_mission_archive.py
+python3 -m py_compile scripts/collect_drone_data.py
+python3 -m py_compile scripts/run_halo_mission.py
+python3 -m py_compile scripts/halo_drone_mission_agent.py
+
+
+============================================================
+8. MAIN SCRIPTS IN THE TOOL
+============================================================
+
+There are four main scripts:
+
+scripts/create_mission_archive.py
+    Creates the ground archive, generates the mission ID, creates the matching drone folder, copies README/config/profile files, and saves code-state metadata.
+
+scripts/collect_drone_data.py
+    Pulls the drone-side mission folder back to the ground archive. It collects audio, metadata, status logs, ULog candidates, and PX4 logs when enabled.
+
+scripts/halo_drone_mission_agent.py
+    Runs on the drone. It creates the drone-side folders, starts ReSpeaker recording, writes status/final metadata, and prepares audio/bag/status outputs.
+
+scripts/run_halo_mission.py
+    Runs on the ground computer. This is the main orchestrator. It creates the mission archive, uploads/starts the drone agent, waits for completion, and runs collection automatically.
+
+
+============================================================
+9. DRY TEST: CREATE ARCHIVE AND DRONE FOLDER ONLY
+============================================================
+
+This test does not record audio and does not need arming. It only proves that the ground archive and drone folder use the same mission ID.
+
+Lab command:
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/create_mission_archive.py \
+  --mission-name "archive_backend_validation" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --initialize-drone \
+  --drone-host halo-d0012 \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+Home/hotspot command:
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/create_mission_archive.py \
+  --mission-name "home_hotspot_archive_test" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012_home_temp.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --initialize-drone \
+  --drone-host halo-d0012-home \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+
+============================================================
+10. CAPTURE THE MISSION DIRECTORY AND MISSION ID
+============================================================
+
+After creating a mission, I capture the latest archive folder like this:
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+echo "MISSION_DIR=$MISSION_DIR"
+echo "MISSION_ID=$MISSION_ID"
+
+The mission ID is the most important value. It is the official folder/session name.
+
+
+============================================================
+11. CONFIRM THE MATCHING FOLDER EXISTS ON THE DRONE
+============================================================
+
+Lab:
+
+ssh halo-d0012 "ls -ld /home/root/halo_sync_test/$MISSION_ID"
+ssh halo-d0012 "find /home/root/halo_sync_test/$MISSION_ID -maxdepth 3 -type f | sort"
+
+Home/hotspot:
+
+ssh halo-d0012-home "ls -ld /home/root/halo_sync_test/$MISSION_ID"
+ssh halo-d0012-home "find /home/root/halo_sync_test/$MISSION_ID -maxdepth 3 -type f | sort"
+
+I expect to see files like:
+
+README.md
+config/D0012.yaml
+config/audio_px4_sync_test.yaml
+metadata/mission_metadata.json
+
+
+============================================================
+12. DRY COLLECTION TEST
+============================================================
+
+This tests that the collection script can pull the drone mission folder back to the ground archive.
+
+Lab:
+
+python3 scripts/collect_drone_data.py \
+  --mission-dir "$MISSION_DIR" \
+  --drone-host halo-d0012 \
+  --termination-reason "dry_collection_test" \
+  --notes "Testing archive collection without recording or arming."
+
+Home/hotspot:
+
+python3 scripts/collect_drone_data.py \
+  --mission-dir "$MISSION_DIR" \
+  --drone-host halo-d0012-home \
+  --termination-reason "home_hotspot_dry_collection_test" \
+  --notes "Testing HALO archive workflow from home using temporary hotspot IP."
+
+
+============================================================
+13. VERIFY DRY COLLECTION OUTPUTS
+============================================================
+
+find "$MISSION_DIR" -maxdepth 5 -type f | sort
+
+I expect to see files such as:
+
+README.md
+metadata/mission_metadata.json
+metadata/code_state.json
+metadata/next_commands.sh
+metadata/<mission_id>_collection_manifest.json
+drone_data/status_logs/<mission_id>_remote_status_snapshot.json
+drone_data/status_logs/<mission_id>_drone_code_state.json
+
+
+============================================================
+14. AUTOMATED AUDIO-ONLY TEST
+============================================================
+
+This test proves that the ground orchestrator can start the drone-side mission agent, record ReSpeaker audio, and collect it back automatically.
+
+No arming is needed for this test.
+
+Home/hotspot example:
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "home_hotspot_audio_auto_test" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012_home_temp.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012-home \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 30 \
+  --enable-audio \
+  --no-auto-ulog
+
+Lab example:
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "lab_audio_auto_test" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012 \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 30 \
+  --enable-audio \
+  --no-auto-ulog
+
+For this test I expect the WAV file to be collected, but no PX4 ULog is expected because I did not arm the drone.
+
+
+============================================================
+15. VERIFY AUTOMATED AUDIO-ONLY TEST
+============================================================
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+echo "$MISSION_DIR"
+echo "$MISSION_ID"
+
+find "$MISSION_DIR" -name "respeaker_6ch.wav" -print -exec ls -lh {} \;
+find "$MISSION_DIR" -maxdepth 5 -type f | sort
+
+Expected audio path:
+
+$MISSION_DIR/drone_data/audio/$MISSION_ID/audio/respeaker_6ch.wav
+
+
+============================================================
+16. REAL AUDIO + PX4 ARMING TEST
+============================================================
+
+This is the important test. This one records ReSpeaker audio and also collects the PX4 ULog created after arming.
+
+Safety note:
+The script does not arm the drone. I still arm/disarm manually with the remote. For bench testing, props should be removed unless it is an approved prop/flight test.
+
+Home/hotspot example:
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "home_hotspot_arm_audio_px4_test" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012_home_temp.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012-home \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 180 \
+  --enable-audio \
+  --auto-ulog
+
+Lab example:
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "lab_arm_audio_px4_test" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012 \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 180 \
+  --enable-audio \
+  --auto-ulog
+
+
+============================================================
+17. WHEN EXACTLY TO ARM
+============================================================
+
+The script will print status lines. I wait for this:
+
+Status: phase=running, audio=True, rosbag=False, flight=unavailable
+
+That means:
+
+- the archive exists
+- the drone-side mission folder exists
+- the drone agent is running
+- the ReSpeaker audio recorder is active
+
+At that point, I arm manually with the remote.
+
+My sequence is:
+
+1. Start run_halo_mission.py.
+2. Wait for: Status: phase=running, audio=True.
+3. Arm manually with the remote.
+4. Let the motors run briefly.
+5. Disarm manually.
+6. Do not stop the terminal.
+7. Let the script finish and collect automatically.
+
+Since ROS2 flight state is currently unavailable, the script may not detect disarm yet. That is fine for now. I let it run until the duration ends, then it automatically collects the data.
+
+
+============================================================
+18. VERIFY REAL AUDIO + PX4 TEST
+============================================================
+
+After the script finishes:
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+echo "$MISSION_DIR"
+echo "$MISSION_ID"
+
+find "$MISSION_DIR" -name "respeaker_6ch.wav" -print -exec ls -lh {} \;
+find "$MISSION_DIR/drone_data/px4_logs" -type f -name "*.ulg" -print -exec ls -lh {} \;
+
+A successful real test should show both:
+
+respeaker_6ch.wav
+some PX4 .ulg file
+
+Example from the successful test:
+
+Mission:
+20260827_032634_UTC_home_hotspot_arm_audio_px4_test_002_D0012
+
+Audio:
+drone_data/audio/20260827_032634_UTC_home_hotspot_arm_audio_px4_test_002_D0012/audio/respeaker_6ch.wav
+Size was about 34 MB.
+
+PX4 ULog:
+drone_data/px4_logs/log104.ulg
+Size was about 9.7 MB.
+
+
+============================================================
+19. CHECK METADATA AFTER A TEST
+============================================================
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+python3 -m json.tool "$MISSION_DIR/metadata/mission_metadata.json" | less
+python3 -m json.tool "$MISSION_DIR/metadata/${MISSION_ID}_collection_manifest.json" | less
+python3 -m json.tool "$MISSION_DIR/metadata/ground_orchestrator_log.json" | less
+
+Useful files to check:
+
+metadata/mission_metadata.json
+metadata/code_state.json
+metadata/ground_orchestrator_log.json
+metadata/<mission_id>_collection_manifest.json
+metadata/ulog_candidates_remote.txt
+drone_data/status_logs/<mission_id>_remote_status_snapshot.json
+drone_data/status_logs/<mission_id>_drone_code_state.json
+
+
+============================================================
+20. CHECK AUDIO DETAILS
+============================================================
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+file "$MISSION_DIR/drone_data/audio/$MISSION_ID/audio/respeaker_6ch.wav"
+ls -lh "$MISSION_DIR/drone_data/audio/$MISSION_ID/audio/respeaker_6ch.wav"
+
+If sox is installed:
+
+soxi "$MISSION_DIR/drone_data/audio/$MISSION_ID/audio/respeaker_6ch.wav"
+
+
+============================================================
+21. CHECK PX4 ULOG DETAILS
+============================================================
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+
+find "$MISSION_DIR/drone_data/px4_logs" -type f -name "*.ulg" -print -exec ls -lh {} \;
+
+If I need to process the ULog:
+
+python3 ~/MIC_ARRAY_ROS/PX4/align_px4_esc_imu_v3_landing.py \
+  "$MISSION_DIR/drone_data/px4_logs/log104.ulg" \
+  --outdir "$MISSION_DIR/processed/log104_landing" \
+  --vibration-window-s 0.10
+
+Then check:
+
+find "$MISSION_DIR/processed/log104_landing" -maxdepth 2 -type f | sort
+
+
+============================================================
+22. CURRENT ROS2 TIMESYNC NOTE
+============================================================
+
+The archive workflow is working, but ROS2 flight-state/timesync topics were not visible during this test. The services were running, but ROS2 only showed:
+
+/parameter_events
+/rosout
+
+PX4 and MicroDDS logs showed that topics were being created internally, including timesync_status, but ROS2 CLI was not discovering the /fmu/out topics.
+
+For now, this does not block the archive workflow. It means:
+
+- audio recording works
+- mission folders work
+- automatic collection works
+- PX4 ULog collection works after arming
+- ROS2-based disarm/failsafe detection still needs more debugging
+
+Until ROS2 flight state is visible, I use duration-based finalization and manual arm/disarm.
+
+
+============================================================
+23. IMPORTANT SUCCESS CONDITION
+============================================================
+
+The final archive should contain:
+
+README.md
+metadata/mission_metadata.json
+metadata/code_state.json
+metadata/ground_orchestrator_log.json
+metadata/<mission_id>_collection_manifest.json
+drone_data/audio/<mission_id>/audio/respeaker_6ch.wav
+drone_data/px4_logs/*.ulg
+drone_data/status_logs/
+config/
+processed/ when post-processing is done
+plots/ when plots are generated
+reports/ when reports are generated
+
+
+============================================================
+24. WHAT HAS BEEN PROVEN SO FAR
+============================================================
+
+So far I have proven:
+
+1. The ground computer can create a unique mission archive.
+2. The drone can receive a matching mission folder with the same mission ID.
+3. SSH key login works and avoids repeated password prompts.
+4. The workflow works on the lab IP and also on a temporary home hotspot IP.
+5. The drone-side agent can be uploaded and started by the ground orchestrator.
+6. ReSpeaker audio can be recorded automatically into the drone mission folder.
+7. The collection script can pull the audio back into the ground archive.
+8. After manual arming/disarming, PX4 creates a ULog.
+9. The archive tool can collect both ReSpeaker WAV and PX4 ULog into the same mission archive.
+10. The mission ID ties the ground folder, drone folder, ReSpeaker session, metadata, and logs together.
+
+
+============================================================
+25. SHORT VERSION OF THE FULL COMMAND CHAIN
+============================================================
+
+For a real test at home/hotspot:
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+ssh halo-d0012-home "hostname && date -u && arecord -l"
+
+GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+ssh halo-d0012-home "date -u -s '$GROUND_UTC'"
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "home_hotspot_arm_audio_px4_test" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012_home_temp.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012-home \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 180 \
+  --enable-audio \
+  --auto-ulog
+
+When I see:
+
+Status: phase=running, audio=True
+
+I arm manually with the remote, let it run briefly, then disarm. I leave the terminal running until collection completes.
+
+Then I verify:
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+find "$MISSION_DIR" -name "respeaker_6ch.wav" -print -exec ls -lh {} \;
+find "$MISSION_DIR/drone_data/px4_logs" -type f -name "*.ulg" -print -exec ls -lh {} \;
+
+
+============================================================
+26. FILES TO SHARE WITH A COLLEAGUE
+============================================================
+
+The main scripts are:
+
+scripts/create_mission_archive.py
+scripts/collect_drone_data.py
+scripts/halo_drone_mission_agent.py
+scripts/run_halo_mission.py
+
+They should also receive:
+
+drones/
+profiles/
+docs/
+README.md
+
+Do not share:
+
+~/.ssh/
+private keys
+drone passwords
+unnecessary mission archives unless they specifically need test data
+
+
+============================================================
+27. PACKAGE THE TOOL FOR A COLLEAGUE
+============================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+zip -r HALO_ARCHIVE_TOOL_scripts_for_colleague.zip \
+  scripts \
+  drones \
+  profiles \
+  docs \
+  README.md \
+  -x "__pycache__/*" "*.pyc"

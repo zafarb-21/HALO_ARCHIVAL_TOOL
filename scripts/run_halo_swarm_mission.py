@@ -1,0 +1,1834 @@
+#!/usr/bin/env python3
+
+"""Create, run, monitor, and collect one synchronized HALO swarm mission."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import ipaddress
+import json
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any, Callable
+
+try:
+    from create_mission_archive import (
+        capture_base_station_code_state,
+        sanitize_id_component,
+    )
+except ImportError:
+    from scripts.create_mission_archive import (
+        capture_base_station_code_state,
+        sanitize_id_component,
+    )
+
+
+IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
+SSH_OPTIONS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10"]
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def add_unique(items: list[str], message: str) -> None:
+    if message not in items:
+        items.append(message)
+
+
+def save_json_atomic(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temporary.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def run_command(
+    command: list[str], timeout: float | None = None
+) -> dict[str, Any]:
+    try:
+        result = subprocess.run(
+            command,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=timeout,
+        )
+        return {
+            "command": shlex.join(command),
+            "return_code": result.returncode,
+            "stdout": result.stdout.strip(),
+            "stderr": result.stderr.strip(),
+            "ok": result.returncode == 0,
+        }
+    except subprocess.TimeoutExpired as exc:
+        stdout = (
+            exc.stdout.decode()
+            if isinstance(exc.stdout, bytes)
+            else (exc.stdout or "")
+        )
+        stderr = (
+            exc.stderr.decode()
+            if isinstance(exc.stderr, bytes)
+            else (exc.stderr or "")
+        )
+        return {
+            "command": shlex.join(command),
+            "return_code": 124,
+            "stdout": stdout.strip(),
+            "stderr": stderr.strip() or f"Timed out after {timeout:g} seconds",
+            "ok": False,
+        }
+    except OSError as exc:
+        return {
+            "command": shlex.join(command),
+            "return_code": 127,
+            "stdout": "",
+            "stderr": f"{type(exc).__name__}: {exc}",
+            "ok": False,
+        }
+
+
+def failure_detail(result: dict[str, Any]) -> str:
+    detail = result.get("stderr") or result.get("stdout")
+    if detail:
+        return str(detail).splitlines()[0]
+    return f"exit code {result.get('return_code')}"
+
+
+def remote_command(command: str) -> str:
+    return f"LC_ALL=C LANG=C sh -c {shlex.quote(command)}"
+
+
+def ssh_command(host: str, command: str) -> list[str]:
+    return ["ssh"] + SSH_OPTIONS + [host, remote_command(command)]
+
+
+def rsync_command(source: str, destination: str, archive: bool = True) -> list[str]:
+    flags = "-av" if archive else "-az"
+    return [
+        "rsync",
+        flags,
+        "-e",
+        "ssh -o BatchMode=yes -o ConnectTimeout=10",
+        "--rsync-path=LC_ALL=C LANG=C rsync",
+        source,
+        destination,
+    ]
+
+
+def log_event(
+    log: dict[str, Any],
+    event: str,
+    drone_id: str | None = None,
+    **details: Any,
+) -> None:
+    record: dict[str, Any] = {
+        "timestamp_utc": utc_now(),
+        "event": event,
+    }
+    if drone_id is not None:
+        record["drone_id"] = drone_id
+    record.update(details)
+    log.setdefault("events", []).append(record)
+
+
+def sync_log(path: Path, log: dict[str, Any]) -> None:
+    log["updated_utc"] = utc_now()
+    save_json_atomic(path, log)
+
+
+def strip_yaml_comment(line: str) -> str:
+    quote: str | None = None
+    escaped = False
+    for index, character in enumerate(line):
+        if escaped:
+            escaped = False
+            continue
+        if character == "\\" and quote == '"':
+            escaped = True
+            continue
+        if character in {"'", '"'}:
+            if quote is None:
+                quote = character
+            elif quote == character:
+                quote = None
+            continue
+        if character == "#" and quote is None:
+            if index == 0 or line[index - 1].isspace():
+                return line[:index]
+    return line
+
+
+def parse_yaml_scalar(value: str) -> Any:
+    value = value.strip()
+    if not value:
+        return ""
+    lowered = value.lower()
+    if lowered in {"true", "false"}:
+        return lowered == "true"
+    if lowered in {"null", "none", "~"}:
+        return None
+    if value.startswith(("'", '"')) and value.endswith(value[0]):
+        try:
+            return ast.literal_eval(value)
+        except (SyntaxError, ValueError):
+            return value[1:-1]
+    if re.fullmatch(r"[-+]?\d+", value):
+        return int(value)
+    if re.fullmatch(r"[-+]?(?:\d+\.\d*|\d*\.\d+)", value):
+        return float(value)
+    return value
+
+
+def split_yaml_mapping(text: str, path: Path, line_number: int) -> tuple[str, str]:
+    key, separator, value = text.partition(":")
+    if not separator or not key.strip():
+        raise ValueError(
+            f"{path}:{line_number}: expected a YAML key/value mapping"
+        )
+    return key.strip(), value.strip()
+
+
+def load_yaml_subset(path: Path) -> dict[str, Any]:
+    """Load the mapping/list subset used by HALO configs without PyYAML."""
+    records: list[tuple[int, str, int]] = []
+    for line_number, original in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if "\t" in original[: len(original) - len(original.lstrip())]:
+            raise ValueError(f"{path}:{line_number}: tabs are not allowed")
+        without_comment = strip_yaml_comment(original).rstrip()
+        if not without_comment.strip():
+            continue
+        indent = len(without_comment) - len(without_comment.lstrip(" "))
+        records.append((indent, without_comment.lstrip(" "), line_number))
+
+    if not records:
+        return {}
+
+    def parse_block(index: int, indent: int) -> tuple[Any, int]:
+        is_list = records[index][1].startswith("- ")
+        container: Any = [] if is_list else {}
+
+        while index < len(records):
+            current_indent, text, line_number = records[index]
+            if current_indent < indent:
+                break
+            if current_indent > indent:
+                raise ValueError(
+                    f"{path}:{line_number}: unexpected indentation"
+                )
+
+            if is_list:
+                if not text.startswith("- "):
+                    raise ValueError(
+                        f"{path}:{line_number}: mixed list and mapping block"
+                    )
+                item_text = text[2:].strip()
+                index += 1
+                if not item_text:
+                    if index < len(records) and records[index][0] > indent:
+                        item, index = parse_block(index, records[index][0])
+                    else:
+                        item = None
+                elif ":" in item_text:
+                    key, value = split_yaml_mapping(
+                        item_text, path, line_number
+                    )
+                    item = {}
+                    if value:
+                        item[key] = parse_yaml_scalar(value)
+                    elif index < len(records) and records[index][0] > indent:
+                        item[key], index = parse_block(
+                            index, records[index][0]
+                        )
+                    else:
+                        item[key] = {}
+                    if index < len(records) and records[index][0] > indent:
+                        extra, index = parse_block(index, records[index][0])
+                        if not isinstance(extra, dict):
+                            raise ValueError(
+                                f"{path}:{records[index - 1][2]}: "
+                                "list mapping continuation must be a mapping"
+                            )
+                        item.update(extra)
+                else:
+                    item = parse_yaml_scalar(item_text)
+                    if index < len(records) and records[index][0] > indent:
+                        raise ValueError(
+                            f"{path}:{records[index][2]}: "
+                            "scalar list item cannot have children"
+                        )
+                container.append(item)
+            else:
+                if text.startswith("- "):
+                    raise ValueError(
+                        f"{path}:{line_number}: mixed mapping and list block"
+                    )
+                key, value = split_yaml_mapping(text, path, line_number)
+                if key in container:
+                    raise ValueError(
+                        f"{path}:{line_number}: duplicate key {key!r}"
+                    )
+                index += 1
+                if value:
+                    container[key] = parse_yaml_scalar(value)
+                elif index < len(records) and records[index][0] > indent:
+                    container[key], index = parse_block(
+                        index, records[index][0]
+                    )
+                else:
+                    container[key] = {}
+        return container, index
+
+    parsed, final_index = parse_block(0, records[0][0])
+    if final_index != len(records) or not isinstance(parsed, dict):
+        raise ValueError(f"{path}: top-level YAML value must be a mapping")
+    return parsed
+
+
+def validate_identifier(value: Any, label: str) -> str:
+    if (
+        not isinstance(value, str)
+        or value in {"", ".", ".."}
+        or IDENTIFIER_PATTERN.fullmatch(value) is None
+    ):
+        raise ValueError(
+            f"{label} must contain only letters, numbers, periods, "
+            "underscores, and hyphens"
+        )
+    return value
+
+
+def validate_remote_root(value: Any, label: str) -> str:
+    if not isinstance(value, str) or re.fullmatch(
+        r"/[A-Za-z0-9._/-]*", value
+    ) is None:
+        raise ValueError(f"{label} must be a safe absolute POSIX path")
+    return value.rstrip("/") or "/"
+
+
+def resolve_input_path(
+    reference: str,
+    code_root: Path,
+    inventory_path: Path,
+) -> Path:
+    candidate = Path(reference).expanduser()
+    candidates = (
+        [candidate]
+        if candidate.is_absolute()
+        else [
+            code_root / candidate,
+            Path.cwd() / candidate,
+            inventory_path.parent / candidate,
+        ]
+    )
+    for item in candidates:
+        resolved = item.resolve()
+        if resolved.is_file():
+            return resolved
+    raise FileNotFoundError(
+        f"Could not resolve config reference {reference!r}; checked: "
+        + ", ".join(str(item.resolve()) for item in candidates)
+    )
+
+
+def normalize_swarm(
+    swarm_path: Path, code_root: Path
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    swarm_data = load_yaml_subset(swarm_path)
+    raw_drones = swarm_data.get("drones")
+    if not isinstance(raw_drones, list) or not raw_drones:
+        raise ValueError(f"{swarm_path}: drones must be a non-empty list")
+
+    normalized: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    seen_hosts: set[str] = set()
+    seen_ips: set[str] = set()
+    for index, raw in enumerate(raw_drones, start=1):
+        if not isinstance(raw, dict):
+            raise ValueError(
+                f"{swarm_path}: drones item {index} must be a mapping"
+            )
+        drone_id = validate_identifier(
+            raw.get("drone_id"), f"drones item {index} drone_id"
+        )
+        ssh_host = validate_identifier(
+            raw.get("ssh_host"), f"{drone_id} ssh_host"
+        )
+        ip_value = raw.get("ip_address")
+        try:
+            ip_address = str(ipaddress.ip_address(str(ip_value)))
+        except ValueError as exc:
+            raise ValueError(
+                f"{swarm_path}: invalid IP for {drone_id}: {ip_value!r}"
+            ) from exc
+        config_ref = raw.get("config")
+        if not isinstance(config_ref, str) or not config_ref:
+            raise ValueError(f"{swarm_path}: missing config for {drone_id}")
+        config_path = resolve_input_path(config_ref, code_root, swarm_path)
+        config = load_yaml_subset(config_path)
+
+        if config.get("drone_id") != drone_id:
+            raise ValueError(
+                f"{config_path}: drone_id does not match swarm entry {drone_id}"
+            )
+        if str(config.get("ip_address")) != ip_address:
+            raise ValueError(
+                f"{config_path}: ip_address does not match swarm entry "
+                f"{ip_address}"
+            )
+        if config.get("ssh_user") != "root":
+            raise ValueError(f"{config_path}: ssh_user must be root")
+        if drone_id in seen_ids or ssh_host in seen_hosts or ip_address in seen_ips:
+            raise ValueError(
+                f"{swarm_path}: duplicate drone ID, SSH host, or IP near "
+                f"{drone_id}"
+            )
+        seen_ids.add(drone_id)
+        seen_hosts.add(ssh_host)
+        seen_ips.add(ip_address)
+
+        paths = config.get("paths", {})
+        if not isinstance(paths, dict):
+            raise ValueError(f"{config_path}: paths must be a mapping")
+        remote_sync_root = validate_remote_root(
+            paths.get("drone_sync_folder"), f"{drone_id} drone_sync_folder"
+        )
+
+        audio = config.get("audio", {})
+        if not isinstance(audio, dict):
+            audio = {}
+        legacy_audio = (
+            config.get("sensors", {}).get("respeaker", {})
+            if isinstance(config.get("sensors"), dict)
+            else {}
+        )
+        if not isinstance(legacy_audio, dict):
+            legacy_audio = {}
+        audio_device = str(
+            audio.get(
+                "audio_device", legacy_audio.get("alsa_device", "hw:0,0")
+            )
+        )
+        sample_rate = int(
+            audio.get(
+                "sample_rate_hz",
+                legacy_audio.get("sample_rate_hz", 16000),
+            )
+        )
+        channels = int(
+            audio.get("channels", legacy_audio.get("channels", 6))
+        )
+        sample_format = str(
+            audio.get(
+                "sample_format",
+                legacy_audio.get("sample_format", "S16_LE"),
+            )
+        )
+        if sample_rate <= 0 or channels <= 0:
+            raise ValueError(
+                f"{config_path}: audio sample rate and channels must be positive"
+            )
+
+        normalized.append(
+            {
+                "drone_id": drone_id,
+                "ssh_host": ssh_host,
+                "ip_address": ip_address,
+                "config_path": str(config_path),
+                "config_reference": config_ref,
+                "config": config,
+                "remote_sync_root": remote_sync_root,
+                "audio_device": audio_device,
+                "sample_rate": sample_rate,
+                "channels": channels,
+                "sample_format": sample_format,
+            }
+        )
+    return normalized, swarm_data
+
+
+def remote_session_path(remote_root: str, session_id: str) -> str:
+    if remote_root == "/":
+        return "/" + session_id
+    return remote_root + "/" + session_id
+
+
+def run_parallel(
+    items: list[dict[str, Any]],
+    worker: Callable[[dict[str, Any]], dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    if not items:
+        return {}
+    results: dict[str, dict[str, Any]] = {}
+    with ThreadPoolExecutor(max_workers=len(items)) as executor:
+        futures = {executor.submit(worker, item): item for item in items}
+        for future in as_completed(futures):
+            item = futures[future]
+            drone_id = item["drone_id"]
+            try:
+                results[drone_id] = future.result()
+            except Exception as exc:
+                results[drone_id] = {
+                    "ok": False,
+                    "errors": [
+                        f"{type(exc).__name__}: {exc}"
+                    ],
+                    "warnings": [],
+                    "actions": [],
+                }
+    return results
+
+
+def upload_file(
+    host: str, source: Path, remote_directory: str
+) -> dict[str, Any]:
+    return run_command(
+        rsync_command(
+            str(source),
+            f"{host}:{remote_directory.rstrip('/')}/",
+        ),
+        timeout=90.0,
+    )
+
+
+def initialize_drone(
+    drone: dict[str, Any],
+    readme_path: Path,
+    metadata_path: Path,
+    profile_path: Path,
+    archived_configs: dict[str, Path],
+    agent_path: Path,
+) -> dict[str, Any]:
+    drone_id = drone["drone_id"]
+    host = drone["ssh_host"]
+    remote_dir = drone["remote_mission_dir"]
+    remote_metadata = remote_dir + "/metadata"
+    remote_config = remote_dir + "/config"
+    directories = [
+        remote_dir,
+        remote_dir + "/audio",
+        remote_metadata,
+        remote_dir + "/status_logs",
+        remote_config,
+        remote_dir + "/bags",
+        remote_dir + "/px4_logs",
+    ]
+    result: dict[str, Any] = {
+        "ok": False,
+        "drone_id": drone_id,
+        "ssh_host": host,
+        "remote_mission_dir": remote_dir,
+        "remote_agent": remote_metadata + "/halo_drone_mission_agent.py",
+        "actions": [],
+        "copied_files": [],
+        "warnings": [],
+        "errors": [],
+    }
+
+    preflight = run_command(
+        ssh_command(host, "hostname && date -u"), timeout=20.0
+    )
+    result["actions"].append(preflight)
+    result["ssh_preflight"] = preflight
+    if not preflight["ok"]:
+        result["errors"].append(
+            f"SSH preflight failed: {failure_detail(preflight)}"
+        )
+        return result
+
+    quoted = " ".join(shlex.quote(value) for value in directories)
+    mkdir_result = run_command(
+        ssh_command(host, f"mkdir -p -- {quoted}"), timeout=30.0
+    )
+    result["actions"].append(mkdir_result)
+    if not mkdir_result["ok"]:
+        result["errors"].append(
+            f"Remote folder creation failed: {failure_detail(mkdir_result)}"
+        )
+        return result
+
+    copies = [
+        ("README", readme_path, remote_dir),
+        ("mission metadata", metadata_path, remote_metadata),
+        ("profile", profile_path, remote_config),
+        (
+            "drone configuration",
+            archived_configs[drone_id],
+            remote_config,
+        ),
+        ("drone agent", agent_path, remote_metadata),
+    ]
+    for label, source, remote_destination in copies:
+        copy_result = upload_file(host, source, remote_destination)
+        result["actions"].append(copy_result)
+        if copy_result["ok"]:
+            result["copied_files"].append(
+                remote_destination + "/" + source.name
+            )
+        else:
+            result["errors"].append(
+                f"{label} copy failed: {failure_detail(copy_result)}"
+            )
+
+    if result["errors"]:
+        return result
+
+    compatibility = run_command(
+        ssh_command(
+            host,
+            "python3 {0} --help".format(
+                shlex.quote(result["remote_agent"])
+            ),
+        ),
+        timeout=25.0,
+    )
+    result["actions"].append(compatibility)
+    result["agent_compatibility_check"] = compatibility
+    if not compatibility["ok"]:
+        result["errors"].append(
+            "Drone agent Python compatibility check failed: "
+            + failure_detail(compatibility)
+        )
+        return result
+
+    result["ok"] = True
+    return result
+
+
+def build_agent_command(
+    args: argparse.Namespace,
+    drone: dict[str, Any],
+    start_at_utc: str,
+) -> list[str]:
+    command = [
+        "python3",
+        drone["remote_agent"],
+        "--mission-id",
+        args.mission_id,
+        "--drone-id",
+        drone["drone_id"],
+        "--drone-session-id",
+        drone["drone_session_id"],
+        "--mission-dir",
+        drone["remote_mission_dir"],
+        "--start-at-utc",
+        start_at_utc,
+        "--duration",
+        str(args.duration),
+        "--audio-device",
+        drone["audio_device"],
+        "--sample-rate",
+        str(drone["sample_rate"]),
+        "--channels",
+        str(drone["channels"]),
+        "--format",
+        drone["sample_format"],
+        "--status-interval-s",
+        str(args.status_interval_s),
+        "--post-disarm-wait-s",
+        str(args.post_disarm_wait_s),
+    ]
+    if args.enable_audio:
+        command.append("--enable-audio")
+    if args.enable_rosbag:
+        command.append("--enable-rosbag")
+        if args.rosbag_topics:
+            command.append("--rosbag-topics")
+            command.extend(args.rosbag_topics)
+    return command
+
+
+def launch_drone(
+    args: argparse.Namespace,
+    drone: dict[str, Any],
+    start_at_utc: str,
+    metadata_path: Path,
+) -> dict[str, Any]:
+    host = drone["ssh_host"]
+    result: dict[str, Any] = {
+        "ok": False,
+        "actions": [],
+        "pid": None,
+        "warnings": [],
+        "errors": [],
+    }
+    metadata_copy = upload_file(
+        host, metadata_path, drone["remote_mission_dir"] + "/metadata"
+    )
+    result["actions"].append(metadata_copy)
+    if not metadata_copy["ok"]:
+        result["errors"].append(
+            "Updated mission metadata copy failed: "
+            + failure_detail(metadata_copy)
+        )
+        return result
+
+    command = build_agent_command(args, drone, start_at_utc)
+    console_log = (
+        drone["remote_mission_dir"]
+        + "/status_logs/drone_agent_console.log"
+    )
+    launch_shell = (
+        f"nohup {shlex.join(command)} > {shlex.quote(console_log)} 2>&1 "
+        "< /dev/null & printf '%s\\n' $!"
+    )
+    launch_result = run_command(
+        ssh_command(host, launch_shell), timeout=25.0
+    )
+    result["actions"].append(launch_result)
+    result["agent_command"] = command
+    result["agent_command_shell"] = shlex.join(command)
+    if not launch_result["ok"]:
+        result["errors"].append(
+            "Drone agent launch failed: " + failure_detail(launch_result)
+        )
+        return result
+
+    pid: int | None = None
+    for line in reversed(launch_result["stdout"].splitlines()):
+        if line.strip().isdigit():
+            pid = int(line.strip())
+            break
+    if pid is None:
+        result["errors"].append("Remote launch did not return an agent PID")
+        return result
+    result["pid"] = pid
+    result["ok"] = True
+    return result
+
+
+def pull_agent_snapshot(drone: dict[str, Any]) -> dict[str, Any]:
+    remote_dir = drone["remote_mission_dir"]
+    pid = drone.get("pid")
+    if not isinstance(pid, int):
+        return {
+            "ok": False,
+            "agent_alive": False,
+            "kind": "missing",
+            "data": None,
+            "error": "No remote agent PID is available",
+        }
+    remote_start = remote_dir + "/metadata/drone_agent_start.json"
+    remote_status = remote_dir + "/metadata/drone_agent_status.json"
+    remote_final = remote_dir + "/metadata/drone_agent_final.json"
+    command = (
+        f"if kill -0 {pid} 2>/dev/null; then echo __HALO_AGENT_ALIVE__; "
+        "else echo __HALO_AGENT_EXITED__; fi; "
+        f"if test -f {shlex.quote(remote_final)}; then "
+        "echo __HALO_FINAL__; "
+        f"cat {shlex.quote(remote_final)}; "
+        f"elif test -f {shlex.quote(remote_status)}; then "
+        "echo __HALO_STATUS__; "
+        f"cat {shlex.quote(remote_status)}; "
+        f"elif test -f {shlex.quote(remote_start)}; then "
+        "echo __HALO_START__; "
+        f"cat {shlex.quote(remote_start)}; "
+        "else echo __HALO_NO_STATUS__; fi"
+    )
+    command_result = run_command(
+        ssh_command(drone["ssh_host"], command), timeout=20.0
+    )
+    snapshot: dict[str, Any] = {
+        "ok": command_result["ok"],
+        "command_result": command_result,
+        "agent_alive": None,
+        "kind": None,
+        "data": None,
+    }
+    if not command_result["ok"]:
+        snapshot["error"] = failure_detail(command_result)
+        return snapshot
+
+    lines = command_result["stdout"].splitlines()
+    snapshot["agent_alive"] = "__HALO_AGENT_ALIVE__" in lines
+    marker = None
+    for possible_marker, kind in (
+        ("__HALO_FINAL__", "final"),
+        ("__HALO_STATUS__", "status"),
+        ("__HALO_START__", "start"),
+        ("__HALO_NO_STATUS__", "missing"),
+    ):
+        if possible_marker in lines:
+            marker = possible_marker
+            snapshot["kind"] = kind
+            break
+    if marker is not None and marker != "__HALO_NO_STATUS__":
+        payload = "\n".join(lines[lines.index(marker) + 1 :]).strip()
+        try:
+            snapshot["data"] = json.loads(payload)
+        except json.JSONDecodeError as exc:
+            snapshot["ok"] = False
+            snapshot["error"] = (
+                f"Could not parse remote {snapshot['kind']} JSON: {exc}"
+            )
+    return snapshot
+
+
+def persist_snapshot(
+    drone: dict[str, Any], snapshot: dict[str, Any]
+) -> None:
+    data = snapshot.get("data")
+    if not isinstance(data, dict):
+        return
+    filenames = {
+        "start": "drone_agent_start.json",
+        "status": "drone_agent_status.json",
+        "final": "drone_agent_final.json",
+    }
+    filename = filenames.get(snapshot.get("kind"))
+    if filename:
+        save_json_atomic(
+            Path(drone["local_drone_dir"]) / "metadata" / filename,
+            data,
+        )
+
+
+def mirror_drone(drone: dict[str, Any]) -> dict[str, Any]:
+    destination = (
+        Path(drone["local_drone_dir"])
+        / "drone_data"
+        / "audio"
+        / drone["drone_session_id"]
+    )
+    destination.mkdir(parents=True, exist_ok=True)
+    return run_command(
+        rsync_command(
+            f"{drone['ssh_host']}:{drone['remote_mission_dir']}/",
+            str(destination) + "/",
+            archive=False,
+        ),
+        timeout=180.0,
+    )
+
+
+def stop_drone_agent(drone: dict[str, Any]) -> dict[str, Any]:
+    pid = drone.get("pid")
+    if not isinstance(pid, int):
+        return {
+            "ok": False,
+            "return_code": None,
+            "stdout": "",
+            "stderr": "No agent PID is available",
+            "command": None,
+        }
+    return run_command(
+        ssh_command(drone["ssh_host"], f"kill -INT {pid}"),
+        timeout=15.0,
+    )
+
+
+def stop_active_agents(
+    drones: list[dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    active = [
+        drone
+        for drone in drones
+        if isinstance(drone.get("pid"), int)
+        and not isinstance(drone.get("final_data"), dict)
+        and not drone.get("confirmed_agent_exit")
+    ]
+    return run_parallel(active, stop_drone_agent)
+
+
+def wait_for_final_snapshots(
+    drones: list[dict[str, Any]], wait_s: float
+) -> None:
+    deadline = time.monotonic() + wait_s
+    while time.monotonic() < deadline:
+        active = [
+            drone
+            for drone in drones
+            if isinstance(drone.get("pid"), int)
+            and not isinstance(drone.get("final_data"), dict)
+            and not drone.get("confirmed_agent_exit")
+        ]
+        if not active:
+            return
+        snapshots = run_parallel(active, pull_agent_snapshot)
+        for drone in active:
+            snapshot = snapshots.get(drone["drone_id"], {})
+            if snapshot.get("ok"):
+                persist_snapshot(drone, snapshot)
+                if snapshot.get("kind") == "final":
+                    drone["finalized"] = True
+                    drone["final_data"] = snapshot.get("data")
+                elif snapshot.get("agent_alive") is False:
+                    drone["finalized"] = True
+                    drone["confirmed_agent_exit"] = True
+        if all(
+            isinstance(drone.get("final_data"), dict)
+            or drone.get("confirmed_agent_exit")
+            for drone in active
+        ):
+            return
+        time.sleep(1.0)
+
+
+def create_archive(
+    args: argparse.Namespace,
+    drones: list[dict[str, Any]],
+    swarm_path: Path,
+    profile_path: Path,
+    script_path: Path,
+) -> tuple[Path, Path, Path, Path, dict[str, Path]]:
+    archive_root = Path(args.archive_root).expanduser().resolve()
+    archive_root.mkdir(parents=True, exist_ok=True)
+    mission_dir = archive_root / args.mission_id
+    if mission_dir.exists():
+        raise FileExistsError(
+            f"Mission archive already exists and was not changed: {mission_dir}"
+        )
+
+    code_root = Path(args.code_root).expanduser().resolve()
+    code_state = capture_base_station_code_state(script_path, code_root)
+    top_folders = [
+        mission_dir / "metadata",
+        mission_dir / "config" / "profiles",
+        mission_dir / "config" / "drones",
+    ]
+    for folder in top_folders:
+        folder.mkdir(parents=True, exist_ok=True)
+    for drone in drones:
+        drone_dir = mission_dir / "drones" / drone["drone_id"]
+        for folder in (
+            drone_dir / "drone_data" / "audio",
+            drone_dir / "drone_data" / "px4_logs",
+            drone_dir / "drone_data" / "ros_bags",
+            drone_dir / "drone_data" / "status_logs",
+            drone_dir / "drone_data" / "raw_sensor_data",
+            drone_dir / "metadata",
+            drone_dir / "processed",
+            drone_dir / "plots",
+            drone_dir / "reports",
+        ):
+            folder.mkdir(parents=True, exist_ok=True)
+        drone["local_drone_dir"] = str(drone_dir)
+
+    archived_swarm = mission_dir / "config" / "swarm_drones.yaml"
+    archived_profile = mission_dir / "config" / "profiles" / profile_path.name
+    shutil.copy2(swarm_path, archived_swarm)
+    shutil.copy2(profile_path, archived_profile)
+    archived_configs: dict[str, Path] = {}
+    for drone in drones:
+        source = Path(drone["config_path"])
+        destination = (
+            mission_dir / "config" / "drones" / source.name
+        )
+        shutil.copy2(source, destination)
+        archived_configs[drone["drone_id"]] = destination
+
+    code_state_path = mission_dir / "metadata" / "code_state.json"
+    save_json_atomic(code_state_path, code_state)
+    metadata_path = mission_dir / "metadata" / "mission_metadata.json"
+    log_path = mission_dir / "metadata" / "ground_orchestrator_log.json"
+    collection_path = (
+        mission_dir / "metadata" / "swarm_collection_manifest.json"
+    )
+
+    metadata: dict[str, Any] = {
+        "mission_id": args.mission_id,
+        "mission_name": args.mission_name,
+        "operator": args.operator,
+        "created_utc": args.created_utc,
+        "mission_archive_path": str(mission_dir),
+        "swarm_config_file": str(archived_swarm),
+        "flight_profile_file": str(archived_profile),
+        "code_root": str(code_root),
+        "code_state": {
+            "details_path": str(code_state_path),
+            "captured_utc": code_state["timestamp_utc"],
+            "hostname": code_state["hostname"],
+            "username": code_state["username"],
+            "git_repo_root": code_state["git_repo_root"],
+            "git_branch": code_state["git_branch"],
+            "git_commit_hash": code_state["git_commit_hash"],
+            "has_uncommitted_changes": code_state[
+                "has_uncommitted_changes"
+            ],
+            "script_path": code_state["script_path"],
+            "script_sha256": code_state["script_sha256"],
+        },
+        "ground_orchestrator": {
+            "started_utc": args.created_utc,
+            "start_at_utc": None,
+            "start_delay_s": args.start_delay_s,
+            "duration_s": args.duration,
+            "audio_enabled": args.enable_audio,
+            "rosbag_enabled": args.enable_rosbag,
+            "auto_ulog": not args.no_auto_ulog,
+            "mirror_interval_s": args.mirror_interval_s,
+            "safety": (
+                "Recording and collection only. This orchestrator never arms "
+                "or disarms a drone."
+            ),
+        },
+        "drones": {
+            drone["drone_id"]: {
+                "drone_id": drone["drone_id"],
+                "drone_session_id": drone["drone_session_id"],
+                "ssh_host": drone["ssh_host"],
+                "ip_address": drone["ip_address"],
+                "remote_mission_folder": drone["remote_mission_dir"],
+                "local_drone_dir": drone["local_drone_dir"],
+                "drone_config_file": str(
+                    archived_configs[drone["drone_id"]]
+                ),
+                "run_status": "pending_initialization",
+                "warnings": [],
+                "errors": [],
+            }
+            for drone in drones
+        },
+        "run_status": {
+            "current_status": "initialized",
+            "started": False,
+            "completed": False,
+            "warnings": list(code_state["capture_warnings"]),
+            "errors": [],
+        },
+        "expected_outputs": {
+            "per_drone_respeaker_audio": "pending",
+            "per_drone_px4_ulog": "pending",
+            "per_drone_ros2_bag": "optional",
+        },
+    }
+    save_json_atomic(metadata_path, metadata)
+
+    readme = f"""# HALO Swarm Mission Archive: {args.mission_id}
+
+This archive has one common mission ID for the complete swarm mission:
+
+    {args.mission_id}
+
+Every drone has an isolated session ID and remote folder:
+
+    <mission_id>__<drone_id>
+    /home/root/halo_sync_test/<mission_id>__<drone_id>/
+
+The ground orchestrator prepares and launches all reachable drones concurrently. It
+passes the same absolute UTC start barrier to every drone agent. It records and
+collects data only; it never arms or disarms a drone. Use the approved manual flight
+procedure for arming and disarming.
+
+Mission name: {args.mission_name}
+Operator: {args.operator}
+Created UTC: {args.created_utc}
+Swarm inventory: config/swarm_drones.yaml
+Profile: config/profiles/{profile_path.name}
+
+Archive layout:
+
+    metadata/
+      mission_metadata.json
+      ground_orchestrator_log.json
+      code_state.json
+      swarm_collection_manifest.json
+    config/
+      swarm_drones.yaml
+      profiles/
+      drones/
+    drones/
+      <drone_id>/
+        drone_data/
+          audio/<mission_id>__<drone_id>/
+          px4_logs/
+          ros_bags/
+          status_logs/
+          raw_sensor_data/
+        metadata/
+        processed/
+        plots/
+        reports/
+
+A failure on one drone is recorded independently and does not stop other drones.
+Collection may be rerun later for one drone with scripts/collect_drone_data.py and
+that drone's exact drone ID, session ID, SSH alias, and local drone folder.
+"""
+    readme_path = mission_dir / "README.md"
+    readme_path.write_text(readme, encoding="utf-8")
+
+    collection_manifest = {
+        "schema_version": 1,
+        "mission_id": args.mission_id,
+        "created_utc": args.created_utc,
+        "updated_utc": args.created_utc,
+        "collection_status": "pending",
+        "drones": {
+            drone["drone_id"]: {
+                "drone_id": drone["drone_id"],
+                "drone_session_id": drone["drone_session_id"],
+                "ssh_host": drone["ssh_host"],
+                "remote_drone_mission_folder": drone[
+                    "remote_mission_dir"
+                ],
+                "local_drone_dir": drone["local_drone_dir"],
+                "collection_status": "pending",
+                "warnings": [],
+                "errors": [],
+            }
+            for drone in drones
+        },
+        "collection_summary": {
+            "drone_count": len(drones),
+            "complete": 0,
+            "complete_with_warnings": 0,
+            "failed": 0,
+            "pending": len(drones),
+        },
+    }
+    save_json_atomic(collection_path, collection_manifest)
+    return (
+        mission_dir,
+        metadata_path,
+        log_path,
+        collection_path,
+        archived_configs,
+    )
+
+
+def update_metadata_from_states(
+    metadata_path: Path,
+    drones: list[dict[str, Any]],
+    status: str,
+    finished_utc: str | None = None,
+) -> None:
+    metadata = load_json(metadata_path)
+    for drone in drones:
+        record = metadata.setdefault("drones", {}).setdefault(
+            drone["drone_id"], {}
+        )
+        record["run_status"] = drone.get("run_status")
+        record["remote_agent_pid"] = drone.get("pid")
+        record["agent_startup_confirmed"] = drone.get(
+            "startup_confirmed", False
+        )
+        record["agent_finalized"] = drone.get("finalized", False)
+        record["termination_reason"] = drone.get("termination_reason")
+        record["warnings"] = list(drone.get("warnings", []))
+        record["errors"] = list(drone.get("errors", []))
+    run_status = metadata.setdefault("run_status", {})
+    run_status["current_status"] = status
+    run_status["started"] = any(
+        drone.get("startup_confirmed") for drone in drones
+    )
+    run_status["completed"] = finished_utc is not None
+    if finished_utc is not None:
+        run_status["finished_utc"] = finished_utc
+        metadata.setdefault("ground_orchestrator", {})[
+            "finished_utc"
+        ] = finished_utc
+    save_json_atomic(metadata_path, metadata)
+
+
+def collect_one_drone(
+    args: argparse.Namespace,
+    drone: dict[str, Any],
+    collector_path: Path,
+    mission_dir: Path,
+) -> dict[str, Any]:
+    termination_reason = (
+        drone.get("termination_reason")
+        or (
+            drone.get("final_data", {}).get("termination_reason")
+            if isinstance(drone.get("final_data"), dict)
+            else None
+        )
+        or "ground_orchestrator_collection_after_unknown_agent_state"
+    )
+    command = [
+        sys.executable,
+        str(collector_path),
+        "--mission-dir",
+        str(mission_dir),
+        "--drone-host",
+        drone["ssh_host"],
+        "--drone-id",
+        drone["drone_id"],
+        "--drone-session-id",
+        drone["drone_session_id"],
+        "--local-drone-dir",
+        drone["local_drone_dir"],
+        "--remote-sync-root",
+        drone["remote_sync_root"],
+        "--termination-reason",
+        str(termination_reason),
+        "--notes",
+        "Automatic collection by run_halo_swarm_mission.py",
+    ]
+    if args.no_auto_ulog or not isinstance(drone.get("pid"), int):
+        command.append("--no-auto-ulog")
+    else:
+        command.append("--auto-ulog")
+    result = run_command(command, timeout=360.0)
+    return {
+        "ok": result["ok"],
+        "collector_result": result,
+        "manifest_path": str(
+            Path(drone["local_drone_dir"])
+            / "metadata"
+            / f"{drone['drone_session_id']}_collection_manifest.json"
+        ),
+        "warnings": [],
+        "errors": (
+            []
+            if result["ok"]
+            else [
+                "Collector failed: " + failure_detail(result)
+            ]
+        ),
+    }
+
+
+def finalize_swarm_manifest(
+    path: Path,
+    drones: list[dict[str, Any]],
+    collection_results: dict[str, dict[str, Any]],
+    interrupted: bool,
+) -> dict[str, Any]:
+    manifest = load_json(path)
+    records = manifest.setdefault("drones", {})
+    for drone in drones:
+        drone_id = drone["drone_id"]
+        result = collection_results.get(drone_id, {})
+        record = records.setdefault(drone_id, {})
+        record["orchestrator_collection_result"] = result.get(
+            "collector_result"
+        )
+        manifest_path = Path(
+            result.get(
+                "manifest_path",
+                Path(drone["local_drone_dir"])
+                / "metadata"
+                / f"{drone['drone_session_id']}_collection_manifest.json",
+            )
+        )
+        if manifest_path.is_file():
+            per_drone = load_json(manifest_path)
+            record.update(
+                {
+                    "collection_status": per_drone.get(
+                        "collection_status", "failed"
+                    ),
+                    "collection_manifest_path": str(manifest_path),
+                    "respeaker_audio": per_drone.get(
+                        "collected_files", {}
+                    ).get("respeaker_audio"),
+                    "ros2_bags": per_drone.get(
+                        "collected_files", {}
+                    ).get("ros2_bags"),
+                    "px4_ulogs": per_drone.get(
+                        "collected_files", {}
+                    ).get("px4_ulogs", []),
+                    "selected_auto_ulog": per_drone.get(
+                        "ulog_discovery", {}
+                    ).get("selected_auto_ulog"),
+                    "warnings": per_drone.get("warnings", []),
+                    "errors": per_drone.get("errors", []),
+                }
+            )
+        elif not result.get("ok"):
+            record["collection_status"] = "failed"
+            record.setdefault("errors", []).extend(
+                result.get("errors", ["Collector did not create a manifest"])
+            )
+
+    statuses = [
+        record.get("collection_status")
+        for record in records.values()
+        if isinstance(record, dict)
+    ]
+    summary = {
+        "drone_count": len(records),
+        "complete": statuses.count("complete"),
+        "complete_with_warnings": statuses.count(
+            "complete_with_warnings"
+        ),
+        "failed": statuses.count("failed"),
+        "pending": sum(
+            value
+            not in {"complete", "complete_with_warnings", "failed"}
+            for value in statuses
+        ),
+    }
+    manifest["collection_summary"] = summary
+    if interrupted:
+        manifest["collection_status"] = "interrupted_collection_finished"
+    elif summary["failed"] or summary["pending"]:
+        manifest["collection_status"] = "complete_with_drone_failures"
+    elif summary["complete_with_warnings"]:
+        manifest["collection_status"] = "complete_with_warnings"
+    else:
+        manifest["collection_status"] = "complete"
+    manifest["updated_utc"] = utc_now()
+    save_json_atomic(path, manifest)
+    return manifest
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mission-name", required=True)
+    parser.add_argument("--operator", required=True)
+    parser.add_argument("--swarm", required=True)
+    parser.add_argument("--profile", required=True)
+    parser.add_argument("--code-root", required=True)
+    parser.add_argument("--duration", required=True, type=float)
+    parser.add_argument("--enable-audio", action="store_true")
+    parser.add_argument("--enable-rosbag", action="store_true")
+    ulog_group = parser.add_mutually_exclusive_group()
+    ulog_group.add_argument("--auto-ulog", action="store_true")
+    ulog_group.add_argument("--no-auto-ulog", action="store_true")
+    parser.add_argument("--start-delay-s", default=15.0, type=float)
+    parser.add_argument("--mirror-interval-s", default=0.0, type=float)
+    parser.add_argument(
+        "--archive-root",
+        default=str(Path.home() / "MIC_ARRAY_ROS" / "HALO_ARCHIVE"),
+    )
+    parser.add_argument("--status-interval-s", default=2.0, type=float)
+    parser.add_argument("--post-disarm-wait-s", default=10.0, type=float)
+    args = parser.parse_args()
+
+    if args.duration <= 0:
+        parser.error("--duration must be greater than zero")
+    if args.start_delay_s < 0:
+        parser.error("--start-delay-s cannot be negative")
+    if args.mirror_interval_s < 0:
+        parser.error("--mirror-interval-s cannot be negative")
+    if args.status_interval_s <= 0:
+        parser.error("--status-interval-s must be greater than zero")
+    if args.post_disarm_wait_s < 0:
+        parser.error("--post-disarm-wait-s cannot be negative")
+
+    code_root = Path(args.code_root).expanduser().resolve()
+    swarm_path = Path(args.swarm).expanduser().resolve()
+    profile_path = Path(args.profile).expanduser().resolve()
+    if not code_root.is_dir():
+        parser.error(f"--code-root is not a directory: {code_root}")
+    if not swarm_path.is_file():
+        parser.error(f"--swarm does not exist: {swarm_path}")
+    if not profile_path.is_file():
+        parser.error(f"--profile does not exist: {profile_path}")
+
+    try:
+        drones, _swarm_data = normalize_swarm(swarm_path, code_root)
+        profile = load_yaml_subset(profile_path)
+    except (FileNotFoundError, OSError, ValueError) as exc:
+        parser.error(str(exc))
+
+    rosbag_section = profile.get("rosbag", {})
+    if not isinstance(rosbag_section, dict):
+        parser.error(f"{profile_path}: rosbag must be a mapping")
+    raw_topics = rosbag_section.get("topics", [])
+    if not isinstance(raw_topics, list) or not all(
+        isinstance(topic, str) and topic.startswith("/")
+        for topic in raw_topics
+    ):
+        parser.error(f"{profile_path}: rosbag topics must be a list")
+    args.rosbag_topics = list(raw_topics)
+
+    created = datetime.now(timezone.utc)
+    args.created_utc = created.isoformat()
+    args.mission_id = (
+        created.strftime("%Y%m%d_%H%M%S_UTC")
+        + "_"
+        + sanitize_id_component(args.mission_name)
+    )
+    for drone in drones:
+        session_id = args.mission_id + "__" + drone["drone_id"]
+        drone["drone_session_id"] = session_id
+        drone["remote_mission_dir"] = remote_session_path(
+            drone["remote_sync_root"], session_id
+        )
+        drone["warnings"] = []
+        drone["errors"] = []
+        drone["run_status"] = "pending_initialization"
+        drone["startup_confirmed"] = False
+        drone["finalized"] = False
+        drone["termination_reason"] = None
+        drone["consecutive_poll_failures"] = 0
+
+    script_path = Path(__file__).resolve()
+    collector_path = script_path.with_name("collect_drone_data.py")
+    agent_path = script_path.with_name("halo_drone_mission_agent.py")
+    try:
+        (
+            mission_dir,
+            metadata_path,
+            log_path,
+            collection_path,
+            archived_configs,
+        ) = create_archive(
+            args,
+            drones,
+            swarm_path,
+            profile_path,
+            script_path,
+        )
+    except (FileExistsError, OSError, ValueError) as exc:
+        parser.exit(1, f"ERROR: {exc}\n")
+
+    log: dict[str, Any] = {
+        "mission_id": args.mission_id,
+        "mission_name": args.mission_name,
+        "operator": args.operator,
+        "mission_dir": str(mission_dir),
+        "started_utc": args.created_utc,
+        "start_at_utc": None,
+        "start_delay_s": args.start_delay_s,
+        "duration_s": args.duration,
+        "audio_enabled": args.enable_audio,
+        "rosbag_enabled": args.enable_rosbag,
+        "rosbag_topics": list(args.rosbag_topics),
+        "auto_ulog": not args.no_auto_ulog,
+        "mirror_interval_s": args.mirror_interval_s,
+        "safety": (
+            "This script never arms or disarms a drone. Manual flight "
+            "procedures remain mandatory."
+        ),
+        "events": [],
+        "warnings": [],
+        "errors": [],
+        "drones": {},
+    }
+    log_event(log, "swarm_archive_created")
+    sync_log(log_path, log)
+
+    print(f"Common mission ID: {args.mission_id}")
+    print(f"Ground swarm archive: {mission_dir}")
+    print(
+        "Preparing all drones concurrently. This tool never arms or "
+        "disarms a drone."
+    )
+
+    interrupted = False
+    orchestration_exception: str | None = None
+    try:
+        initialization_results = run_parallel(
+            drones,
+            lambda drone: initialize_drone(
+                drone,
+                mission_dir / "README.md",
+                metadata_path,
+                profile_path,
+                archived_configs,
+                agent_path,
+            ),
+        )
+        ready: list[dict[str, Any]] = []
+        for drone in drones:
+            drone_id = drone["drone_id"]
+            result = initialization_results.get(drone_id, {})
+            drone["initialization"] = result
+            log["drones"].setdefault(drone_id, {})[
+                "initialization"
+            ] = result
+            if result.get("ok"):
+                drone["remote_agent"] = result["remote_agent"]
+                drone["run_status"] = "ready_at_start_barrier"
+                ready.append(drone)
+                print(f"{drone_id}: prepared")
+            else:
+                drone["run_status"] = "initialization_failed"
+                drone["termination_reason"] = "initialization_failed"
+                drone["errors"].extend(result.get("errors", []))
+                print(
+                    f"{drone_id}: preparation failed; other drones continue",
+                    file=sys.stderr,
+                )
+            log_event(
+                log,
+                "drone_initialization_finished",
+                drone_id,
+                ok=bool(result.get("ok")),
+            )
+        update_metadata_from_states(
+            metadata_path, drones, "swarm_preparation_complete"
+        )
+        sync_log(log_path, log)
+
+        start_at = datetime.now(timezone.utc) + timedelta(
+            seconds=args.start_delay_s
+        )
+        start_at_utc = start_at.isoformat()
+        args.start_at_utc = start_at_utc
+        log["start_at_utc"] = start_at_utc
+        metadata = load_json(metadata_path)
+        metadata["start_at_utc"] = start_at_utc
+        metadata.setdefault("ground_orchestrator", {})[
+            "start_at_utc"
+        ] = start_at_utc
+        save_json_atomic(metadata_path, metadata)
+        log_event(log, "start_barrier_set", start_at_utc=start_at_utc)
+        sync_log(log_path, log)
+
+        print(f"Common capture start barrier (UTC): {start_at_utc}")
+        print("Launching every prepared drone agent concurrently ...")
+        launch_results = run_parallel(
+            ready,
+            lambda drone: launch_drone(
+                args, drone, start_at_utc, metadata_path
+            ),
+        )
+        for drone in ready:
+            drone_id = drone["drone_id"]
+            result = launch_results.get(drone_id, {})
+            drone["launch"] = result
+            log["drones"].setdefault(drone_id, {})["launch"] = result
+            if result.get("ok"):
+                drone["pid"] = result["pid"]
+                drone["launched_monotonic"] = time.monotonic()
+                drone["run_status"] = "agent_starting"
+                print(
+                    f"{drone_id}: agent PID {drone['pid']} launched; "
+                    "waiting at common barrier"
+                )
+            else:
+                drone["run_status"] = "launch_failed"
+                drone["termination_reason"] = "drone_agent_launch_failed"
+                drone["errors"].extend(result.get("errors", []))
+                print(
+                    f"{drone_id}: launch failed; other drones continue",
+                    file=sys.stderr,
+                )
+            log_event(
+                log,
+                "drone_launch_finished",
+                drone_id,
+                ok=bool(result.get("ok")),
+                pid=result.get("pid"),
+            )
+
+        update_metadata_from_states(
+            metadata_path, drones, "swarm_agents_launched"
+        )
+        sync_log(log_path, log)
+
+        active = [
+            drone for drone in drones if isinstance(drone.get("pid"), int)
+        ]
+        if active:
+            print(
+                "Agents launched. Arm/disarm manually only under the "
+                "approved flight procedure."
+            )
+        deadline = (
+            time.monotonic()
+            + max(0.0, start_at.timestamp() - time.time())
+            + args.duration
+            + args.post_disarm_wait_s
+            + 90.0
+        )
+        next_mirror = (
+            time.monotonic() + args.mirror_interval_s
+            if args.mirror_interval_s > 0
+            else None
+        )
+
+        while any(not drone.get("finalized") for drone in active):
+            polling = [
+                drone for drone in active if not drone.get("finalized")
+            ]
+            snapshots = run_parallel(polling, pull_agent_snapshot)
+            for drone in polling:
+                drone_id = drone["drone_id"]
+                snapshot = snapshots.get(drone_id, {})
+                if not snapshot.get("ok"):
+                    drone["consecutive_poll_failures"] += 1
+                    add_unique(
+                        drone["warnings"],
+                        "Status poll failed: "
+                        + str(snapshot.get("error", "unknown error")),
+                    )
+                    if drone["consecutive_poll_failures"] >= 3:
+                        drone["finalized"] = True
+                        drone["run_status"] = "status_connection_lost"
+                        drone["termination_reason"] = (
+                            "ssh_status_connection_lost"
+                        )
+                        add_unique(
+                            drone["warnings"],
+                            "Three consecutive status polls failed; "
+                            "collection will still be attempted.",
+                        )
+                    continue
+
+                drone["consecutive_poll_failures"] = 0
+                persist_snapshot(drone, snapshot)
+                data = snapshot.get("data")
+                if isinstance(data, dict):
+                    if snapshot.get("kind") in {
+                        "start",
+                        "status",
+                        "final",
+                    }:
+                        drone["startup_confirmed"] = True
+                    for warning in data.get("warnings", []):
+                        add_unique(drone["warnings"], str(warning))
+                    for error in data.get("errors", []):
+                        add_unique(drone["errors"], str(error))
+                    state_signature = (
+                        data.get("phase"),
+                        data.get("audio_process_running"),
+                        data.get("rosbag_process_running"),
+                        data.get("current_detected_flight_state"),
+                    )
+                    if state_signature != drone.get(
+                        "last_reported_state"
+                    ):
+                        print(
+                            f"{drone_id}: phase={state_signature[0]}, "
+                            f"audio={state_signature[1]}, "
+                            f"rosbag={state_signature[2]}, "
+                            f"flight={state_signature[3]}"
+                        )
+                        drone["last_reported_state"] = state_signature
+                if snapshot.get("kind") == "final":
+                    drone["finalized"] = True
+                    drone["final_data"] = data
+                    drone["termination_reason"] = (
+                        data.get("termination_reason")
+                        if isinstance(data, dict)
+                        else "agent_finalized"
+                    )
+                    drone["run_status"] = "agent_finalized"
+                    log_event(
+                        log,
+                        "drone_agent_finalized",
+                        drone_id,
+                        termination_reason=drone[
+                            "termination_reason"
+                        ],
+                    )
+                elif snapshot.get("agent_alive") is False:
+                    drone["finalized"] = True
+                    drone["confirmed_agent_exit"] = True
+                    drone["termination_reason"] = (
+                        "agent_exited_without_final_status"
+                    )
+                    drone["run_status"] = (
+                        "agent_exited_without_final_status"
+                    )
+                    add_unique(
+                        drone["warnings"],
+                        "Agent exited without a readable final status.",
+                    )
+
+            if (
+                next_mirror is not None
+                and time.monotonic() >= next_mirror
+            ):
+                mirror_targets = [
+                    drone
+                    for drone in active
+                    if drone.get("startup_confirmed")
+                ]
+                mirror_results = run_parallel(
+                    mirror_targets, mirror_drone
+                )
+                for drone in mirror_targets:
+                    result = mirror_results.get(drone["drone_id"], {})
+                    log_event(
+                        log,
+                        "periodic_mirror",
+                        drone["drone_id"],
+                        result=result,
+                    )
+                    if not result.get("ok"):
+                        add_unique(
+                            drone["warnings"],
+                            "Periodic mirror failed: "
+                            + failure_detail(result),
+                        )
+                next_mirror = (
+                    time.monotonic() + args.mirror_interval_s
+                )
+
+            update_metadata_from_states(
+                metadata_path, drones, "swarm_mission_running"
+            )
+            sync_log(log_path, log)
+            if time.monotonic() >= deadline:
+                add_unique(
+                    log["warnings"],
+                    "Ground wait deadline expired; active agents were "
+                    "asked to finalize before collection.",
+                )
+                stop_results = stop_active_agents(active)
+                for drone_id, result in stop_results.items():
+                    log_event(
+                        log,
+                        "ground_timeout_agent_stop",
+                        drone_id,
+                        result=result,
+                    )
+                wait_for_final_snapshots(active, 15.0)
+                for drone in active:
+                    if not drone.get("finalized"):
+                        drone["termination_reason"] = (
+                            "ground_orchestrator_timeout"
+                        )
+                        drone["run_status"] = "ground_timeout"
+                        drone["finalized"] = True
+                break
+            time.sleep(args.status_interval_s)
+
+    except KeyboardInterrupt:
+        interrupted = True
+        add_unique(
+            log["warnings"],
+            "Ground orchestrator interrupted; best-effort agent stop "
+            "and collection were requested for every drone.",
+        )
+        print(
+            "\nInterrupt received. Asking reachable agents to finalize, "
+            "then collecting every drone ..."
+        )
+    except Exception as exc:
+        orchestration_exception = f"{type(exc).__name__}: {exc}"
+        add_unique(
+            log["errors"],
+            "Unhandled ground orchestration error: "
+            + orchestration_exception,
+        )
+        print(
+            "Ground orchestration error; best-effort collection will "
+            "still run: " + orchestration_exception,
+            file=sys.stderr,
+        )
+
+    if interrupted or orchestration_exception is not None:
+        stop_results = stop_active_agents(drones)
+        for drone_id, result in stop_results.items():
+            log_event(
+                log,
+                "best_effort_agent_stop",
+                drone_id,
+                result=result,
+            )
+        wait_for_final_snapshots(
+            drones, args.post_disarm_wait_s + 20.0
+        )
+        for drone in drones:
+            if (
+                isinstance(drone.get("pid"), int)
+                and not drone.get("termination_reason")
+            ):
+                drone["termination_reason"] = (
+                    "ground_orchestrator_interrupted"
+                    if interrupted
+                    else "ground_orchestrator_error"
+                )
+
+    print("Starting best-effort parallel collection from all drones ...")
+    update_metadata_from_states(
+        metadata_path, drones, "swarm_collection_running"
+    )
+    sync_log(log_path, log)
+    collection_results = run_parallel(
+        drones,
+        lambda drone: collect_one_drone(
+            args, drone, collector_path, mission_dir
+        ),
+    )
+    for drone in drones:
+        drone_id = drone["drone_id"]
+        result = collection_results.get(drone_id, {})
+        log["drones"].setdefault(drone_id, {})[
+            "collection"
+        ] = result
+        if result.get("ok"):
+            print(f"{drone_id}: collection finished")
+        else:
+            add_unique(
+                drone["errors"],
+                "Automatic collection failed: "
+                + (
+                    failure_detail(result["collector_result"])
+                    if isinstance(
+                        result.get("collector_result"), dict
+                    )
+                    else "unknown collector error"
+                ),
+            )
+            print(
+                f"{drone_id}: collection failed; it can be rerun later",
+                file=sys.stderr,
+            )
+        log_event(
+            log,
+            "drone_collection_finished",
+            drone_id,
+            ok=bool(result.get("ok")),
+        )
+
+    final_manifest = finalize_swarm_manifest(
+        collection_path, drones, collection_results, interrupted
+    )
+    summary = final_manifest["collection_summary"]
+    failed_drones = [
+        drone
+        for drone in drones
+        if final_manifest.get("drones", {})
+        .get(drone["drone_id"], {})
+        .get("collection_status")
+        == "failed"
+        or drone.get("errors")
+    ]
+    finished_utc = utc_now()
+    final_status = (
+        "swarm_collection_complete_after_interrupt"
+        if interrupted
+        else (
+            "swarm_collection_complete"
+            if not failed_drones and orchestration_exception is None
+            else "swarm_collection_complete_with_drone_failures"
+        )
+    )
+    update_metadata_from_states(
+        metadata_path, drones, final_status, finished_utc
+    )
+    log["finished_utc"] = finished_utc
+    log["final_status"] = final_status
+    log["collection_summary"] = summary
+    sync_log(log_path, log)
+
+    print(f"Ground mission folder: {mission_dir}")
+    print(f"Ground orchestrator log: {log_path}")
+    print(f"Swarm collection manifest: {collection_path}")
+    print(
+        "Collection summary: "
+        f"{summary['complete']} complete, "
+        f"{summary['complete_with_warnings']} with warnings, "
+        f"{summary['failed']} failed, "
+        f"{summary['pending']} pending"
+    )
+    if failed_drones:
+        print(
+            "One or more drone sessions need review or later collection; "
+            "successful drone archives were retained."
+        )
+    if interrupted:
+        return 130
+    return 1 if failed_drones or orchestration_exception else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
