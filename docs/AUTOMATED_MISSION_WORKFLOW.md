@@ -63,12 +63,14 @@ startup confirmation before this gate. A failure triggers log collection with
    metadata before calling startup successful.
 7. With `--enable-audio`, the agent runs `arecord` and writes
    `audio/respeaker_6ch.wav` using the configured 6-channel, 16 kHz, S16_LE format.
-8. With `--enable-rosbag`, it records all visible ROS2 topics into `bags/`. If no ROS2
-   topics are visible, it records a warning and continues.
+8. With `--enable-rosbag`, it records the available requested ROS2 topics into
+   `bags/`. Missing topics are recorded as warnings. If no requested topics are
+   visible, it records a warning and continues without failing the PX4 workflow.
 9. The agent refreshes `metadata/drone_agent_status.json` while the ground orchestrator
    pulls a lightweight copy into the ground archive.
-10. The agent finalizes on an armed-to-disarmed transition, detected failsafe/emergency,
-    loss of flight state after arming, duration timeout, or an interrupt signal.
+10. The agent finalizes on an armed-to-disarmed transition, a reliable landed signal,
+    detected failsafe/emergency, loss of flight state after arming, duration timeout,
+    or an interrupt signal.
 11. Finalization stops recording cleanly, writes final metadata, and lists recent PX4
     ULog candidates.
 12. The ground orchestrator automatically runs `collect_drone_data.py`, which copies the
@@ -99,6 +101,54 @@ auditable. Use `--auto-ulog` only to explicitly allow an automatic ULog copy. Th
 normally reports `duration_complete_no_flight_state` when flight-state telemetry is
 unavailable, and collection starts automatically afterward.
 
+## Single-drone ROS bag + PX4 only test
+
+Start this command before the partner arms or enters offboard mode. The archive tool
+records and collects data only; it never arms or disarms the drone.
+
+```bash
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "lab_single_drone_rosbag_px4_test_001" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012 \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 300 \
+  --enable-rosbag \
+  --auto-ulog
+```
+
+Audio is intentionally disabled because `--enable-audio` is absent. The profile's
+requested ROS2 topics are filtered against the topics visible on D0012, so available
+topics are recorded and missing topics become non-fatal metadata warnings. The maximum
+recording/monitoring window is 300 seconds. A detected armed-to-disarmed transition
+ends it earlier after `--post-disarm-wait-s`; without reliable vehicle status, the
+duration timeout remains the fallback.
+
+Verify the newest archive with:
+
+```bash
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+echo "$MISSION_DIR"
+echo "$MISSION_ID"
+
+find "$MISSION_DIR" -path "*/bags/*" -print | head -50
+find "$MISSION_DIR" -path "*/ros_bags/*" -print | head -50
+find "$MISSION_DIR" -path "*/px4_logs/*.ulg" -print -exec ls -lh {} \;
+python3 -m json.tool "$MISSION_DIR/metadata/${MISSION_ID}_collection_manifest.json" | less
+python3 -m json.tool "$MISSION_DIR/metadata/ground_orchestrator_log.json" | less
+```
+
+The collected drone session, including any bag, is under
+`drone_data/audio/<mission_id>/`; selected ULogs are under
+`drone_data/px4_logs/`. The legacy `audio` path name remains for archive
+compatibility even when no WAV was requested.
+
 ## ReSpeaker/PX4 mission with manual arming
 
 ```bash
@@ -122,8 +172,11 @@ crew, and test area are ready. The operator then arms and disarms manually. Afte
 agent observes armed→disarmed, it keeps recording for the default 10-second post-disarm
 period, finalizes, and triggers collection.
 
-`--duration` is also a safety timeout. The software stops recording at the timeout but
-does not command the vehicle to disarm.
+`--duration` is the maximum recording/monitoring window, not a required flight
+duration. `--max-duration-s` is an equivalent alias, and argparse rejects a command
+that supplies both. A detected armed-to-disarmed transition can finalize earlier after
+the post-disarm wait. If flight-state monitoring is unavailable, the maximum duration
+is the fallback. The software never commands the vehicle to arm or disarm.
 
 ## Drone-side mission contents
 
@@ -134,7 +187,7 @@ does not command the vehicle to disarm.
 ├── audio/
 │   └── respeaker_6ch.wav
 ├── bags/
-│   └── rosbag2_<UTC timestamp>/                 # when enabled and available
+│   └── rosbag2_<mission_id>/                    # when enabled and available
 ├── metadata/
 │   ├── halo_drone_mission_agent.py
 │   ├── drone_agent_start.json
@@ -142,6 +195,8 @@ does not command the vehicle to disarm.
 │   ├── drone_agent_final.json
 │   ├── audio_start_utc.txt
 │   ├── audio_stop_utc.txt
+│   ├── arecord_command.txt
+│   ├── rosbag_command.txt
 │   ├── termination_reason.txt
 │   └── px4_ulog_candidates.txt
 ├── px4_logs/
@@ -172,7 +227,9 @@ If ROS2 topics or the timesync topic are unavailable:
 - ReSpeaker audio continues normally when audio is enabled.
 - Missing topics are warnings in `drone_agent_status.json` and
   `drone_agent_final.json`, not fatal errors.
-- ROS2 bag recording starts only if ROS2 topics are visible.
+- ROS2 bag recording includes only available requested topics.
+- If none of the requested topics are visible, no bag process starts and the reason is
+  recorded clearly in agent and collection metadata.
 - Without usable vehicle-status messages, the agent cannot detect disarm and uses the
   configured duration, recording `duration_complete_no_flight_state`.
 - PX4 ULog discovery and collection are still attempted independently over SSH.
@@ -180,8 +237,11 @@ If ROS2 topics or the timesync topic are unavailable:
 ## Automatic collection and ULogs
 
 After agent finalization, collection always rsyncs the complete matching drone folder.
-It verifies `audio/respeaker_6ch.wav` and records its byte size in the collection
-manifest.
+It verifies `audio/respeaker_6ch.wav` and records its byte size only when audio was
+requested. An intentionally audio-disabled mission records `not_requested` and does
+not produce a missing-WAV warning. The collection manifest also records whether ROS bag
+capture was requested and started, its remote and collected paths, requested/selected/
+missing topics, command, return code, and ROS warnings or errors.
 
 When no `--ulog` is supplied, the collector runs:
 
@@ -203,6 +263,10 @@ and does not discard the successfully copied mission folder.
 The drone agent writes locally inside the mission folder. A temporary SSH loss does not
 delete that data. After three consecutive polling failures, the orchestrator records a
 warning, leaves both archives in place, and attempts collection.
+
+Pressing Ctrl+C after an archive exists requests a clean agent stop and a best-effort
+collection before exit. The ground log and mission metadata record
+`user_interrupt_collection_attempted` for this path.
 
 If the drone loses power, immediate copying and clean WAV/bag finalization may be
 impossible. If its storage survives, reconnect and rerun the standalone collector with

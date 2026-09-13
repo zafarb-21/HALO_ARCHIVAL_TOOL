@@ -110,6 +110,11 @@ def save_json(path: Path, data: dict) -> None:
     os.replace(temporary, path)
 
 
+def add_unique(items: list[str], message: str) -> None:
+    if message not in items:
+        items.append(message)
+
+
 def update_swarm_collection_manifest(
     path: Path, mission_id: str, drone_id: str, record: dict
 ) -> None:
@@ -240,6 +245,31 @@ def mission_start_record(metadata: dict) -> dict:
                 "epoch": epoch,
             }
     return {"source": None, "timestamp_utc": None, "epoch": None}
+
+
+def recording_request(
+    metadata: dict, key: str, legacy_default: bool
+) -> dict:
+    """Resolve an orchestrator capture flag while preserving old archives."""
+    ground_orchestrator = metadata.get("ground_orchestrator", {})
+    if isinstance(ground_orchestrator, dict):
+        value = ground_orchestrator.get(key)
+        if isinstance(value, bool):
+            return {
+                "requested": value,
+                "source": f"ground_orchestrator.{key}",
+            }
+
+    recording_requests = metadata.get("recording_requests", {})
+    if isinstance(recording_requests, dict):
+        value = recording_requests.get(key)
+        if isinstance(value, bool):
+            return {"requested": value, "source": f"recording_requests.{key}"}
+
+    return {
+        "requested": legacy_default,
+        "source": "legacy_archive_default",
+    }
 
 
 def capture_drone_code_state(
@@ -497,6 +527,8 @@ def main() -> int:
     local_session = audio_dir / (session_id if swarm_mode else mission_id)
 
     mission_start = mission_start_record(metadata)
+    audio_request = recording_request(metadata, "audio_enabled", True)
+    rosbag_request = recording_request(metadata, "rosbag_enabled", False)
 
     manifest = {
         "collection_started_utc": collection_started.isoformat(),
@@ -518,10 +550,43 @@ def main() -> int:
         "termination_reason": args.termination_reason,
         "notes": args.notes,
         "ssh_connection_check": ssh_connection_check,
+        "recording_requests": {
+            "audio": dict(audio_request),
+            "rosbag": dict(rosbag_request),
+            "px4_ulog": {
+                "requested": not args.no_auto_ulog or bool(args.ulog),
+                "auto_ulog_enabled": not args.no_auto_ulog,
+                "explicit_auto_ulog_requested": args.auto_ulog,
+                "explicit_ulog_paths": list(args.ulog),
+            },
+        },
+        "rosbag_capture": {
+            "requested": rosbag_request["requested"],
+            "start_attempted": False,
+            "started": False,
+            "started_inferred_from_collected_bag": False,
+            "output_path_remote": None,
+            "collected_path": None,
+            "collected": False,
+            "requested_topics": [],
+            "selected_topics": [],
+            "missing_topics": [],
+            "command": None,
+            "command_shell": None,
+            "return_code": None,
+            "warnings": [],
+            "errors": [],
+        },
+        "agent_metadata": {
+            "start_path": None,
+            "final_path": None,
+        },
         "actions": [],
         "collected_files": {
             "respeaker_session": None,
             "respeaker_audio": {
+                "requested": audio_request["requested"],
+                "disabled_intentionally": not audio_request["requested"],
                 "path": str(local_session / "audio" / "respeaker_6ch.wav"),
                 "exists": False,
                 "size_bytes": None,
@@ -566,6 +631,10 @@ def main() -> int:
         ],
         "errors": [],
     }
+    # Keep a short top-level alias for consumers that do not know the richer
+    # rosbag_capture field name; both entries are updated together.
+    manifest["rosbag"] = manifest["rosbag_capture"]
+
     # 1. Copy the complete drone mission folder. The local folder remains canonical.
     local_session.mkdir(parents=True, exist_ok=True)
 
@@ -580,16 +649,126 @@ def main() -> int:
         manifest["collected_files"]["respeaker_session"] = str(local_session)
     else:
         manifest["errors"].append(
-            "Failed to copy ReSpeaker/session folder "
+            "Failed to copy drone mission/session folder "
             f"{remote_session}: {failure_detail(result)}"
+        )
+
+    agent_start_path = local_session / "metadata" / "drone_agent_start.json"
+    agent_final_path = local_session / "metadata" / "drone_agent_final.json"
+    agent_start = load_json(agent_start_path)
+    agent_final = load_json(agent_final_path)
+    if agent_start:
+        manifest["agent_metadata"]["start_path"] = str(agent_start_path)
+    if agent_final:
+        manifest["agent_metadata"]["final_path"] = str(agent_final_path)
+    agent_record = agent_final if agent_final else agent_start
+
+    if agent_record:
+        agent_audio_requested = agent_record.get("audio_enabled")
+        agent_audio = agent_record.get("audio", {})
+        if (
+            not isinstance(agent_audio_requested, bool)
+            and isinstance(agent_audio, dict)
+        ):
+            agent_audio_requested = agent_audio.get(
+                "requested", agent_audio.get("enabled")
+            )
+        if isinstance(agent_audio_requested, bool):
+            audio_request = {
+                "requested": agent_audio_requested,
+                "source": (
+                    "drone_agent_final.json"
+                    if agent_final
+                    else "drone_agent_start.json"
+                ),
+            }
+            manifest["recording_requests"]["audio"] = dict(audio_request)
+
+        agent_rosbag = agent_record.get("rosbag", {})
+        agent_rosbag_requested = agent_record.get("rosbag_enabled")
+        if (
+            not isinstance(agent_rosbag_requested, bool)
+            and isinstance(agent_rosbag, dict)
+        ):
+            agent_rosbag_requested = agent_rosbag.get(
+                "requested", agent_rosbag.get("enabled")
+            )
+        if isinstance(agent_rosbag_requested, bool):
+            rosbag_request = {
+                "requested": agent_rosbag_requested,
+                "source": (
+                    "drone_agent_final.json"
+                    if agent_final
+                    else "drone_agent_start.json"
+                ),
+            }
+            manifest["recording_requests"]["rosbag"] = dict(rosbag_request)
+            manifest["rosbag_capture"]["requested"] = agent_rosbag_requested
+
+        if isinstance(agent_rosbag, dict):
+            for source_key, target_key in (
+                ("start_attempted", "start_attempted"),
+                ("started", "started"),
+                ("started_utc", "started_utc"),
+                ("requested_topics", "requested_topics"),
+                ("selected_topics", "selected_topics"),
+                ("missing_topics", "missing_topics"),
+                ("command", "command"),
+                ("command_shell", "command_shell"),
+                ("return_code", "return_code"),
+            ):
+                if source_key in agent_rosbag:
+                    manifest["rosbag_capture"][target_key] = agent_rosbag[
+                        source_key
+                    ]
+            remote_bag_path = agent_rosbag.get(
+                "output_path", agent_rosbag.get("path")
+            )
+            if remote_bag_path is not None:
+                manifest["rosbag_capture"]["output_path_remote"] = (
+                    remote_bag_path
+                )
+
+            for warning in (agent_rosbag.get("warnings") or []):
+                add_unique(manifest["rosbag_capture"]["warnings"], str(warning))
+            for error in (agent_rosbag.get("errors") or []):
+                add_unique(manifest["rosbag_capture"]["errors"], str(error))
+
+        for warning in (agent_record.get("warnings") or []):
+            warning_text = str(warning)
+            if (
+                "ros" in warning_text.lower()
+                or "topic" in warning_text.lower()
+                or "bag" in warning_text.lower()
+            ):
+                add_unique(
+                    manifest["rosbag_capture"]["warnings"], warning_text
+                )
+        for error in (agent_record.get("errors") or []):
+            error_text = str(error)
+            if (
+                "ros" in error_text.lower()
+                or "topic" in error_text.lower()
+                or "bag" in error_text.lower()
+            ):
+                add_unique(manifest["rosbag_capture"]["errors"], error_text)
+
+    for warning in manifest["rosbag_capture"]["warnings"]:
+        add_unique(manifest["warnings"], warning)
+    for error in manifest["rosbag_capture"]["errors"]:
+        add_unique(
+            manifest["warnings"],
+            "Drone-agent ROS bag error (non-fatal): " + error,
         )
 
     expected_audio_path = local_session / "audio" / "respeaker_6ch.wav"
     audio_record = manifest["collected_files"]["respeaker_audio"]
+    audio_record["requested"] = audio_request["requested"]
+    audio_record["disabled_intentionally"] = not audio_request["requested"]
     if expected_audio_path.is_file():
         audio_record["exists"] = True
         audio_record["size_bytes"] = expected_audio_path.stat().st_size
-    else:
+    elif audio_request["requested"]:
         manifest["warnings"].append(
             "Expected ReSpeaker audio was not found after mission-folder copy: "
             f"{expected_audio_path}"
@@ -623,6 +802,40 @@ def main() -> int:
     )
     manifest["collected_files"]["ros2_bags"]["exists"] = bool(bag_entries)
     manifest["collected_files"]["ros2_bags"]["entries"] = bag_entries
+    remote_bag_output = manifest["rosbag_capture"]["output_path_remote"]
+    if remote_bag_output:
+        manifest["rosbag_capture"]["collected_path"] = str(
+            collected_bags_path / Path(str(remote_bag_output)).name
+        )
+    else:
+        manifest["rosbag_capture"]["collected_path"] = str(collected_bags_path)
+    manifest["rosbag_capture"]["collected"] = bool(bag_entries)
+    if (
+        bag_entries
+        and manifest["rosbag_capture"]["requested"]
+        and not manifest["rosbag_capture"]["started"]
+    ):
+        manifest["rosbag_capture"]["started"] = True
+        manifest["rosbag_capture"]["start_attempted"] = True
+        manifest["rosbag_capture"][
+            "started_inferred_from_collected_bag"
+        ] = True
+
+    if (
+        manifest["rosbag_capture"]["requested"]
+        and not manifest["rosbag_capture"]["started"]
+    ):
+        add_unique(
+            manifest["warnings"],
+            "ROS bag recording was requested but did not start; review "
+            "rosbag_capture warnings and missing_topics.",
+        )
+    elif manifest["rosbag_capture"]["started"] and not bag_entries:
+        add_unique(
+            manifest["warnings"],
+            "ROS bag recording started, but no bag files were found after "
+            "mission-folder collection.",
+        )
 
     source_status_dir = local_session / "status_logs"
     if swarm_mode and source_status_dir.is_dir():
@@ -848,6 +1061,8 @@ def main() -> int:
                     manifest["collected_files"]["respeaker_audio"]
                 ),
                 "ros2_bags": dict(manifest["collected_files"]["ros2_bags"]),
+                "recording_requests": dict(manifest["recording_requests"]),
+                "rosbag_capture": dict(manifest["rosbag_capture"]),
                 "px4_ulogs": list(
                     manifest["collected_files"]["px4_ulogs"]
                 ),
@@ -903,6 +1118,8 @@ def main() -> int:
         ],
         "respeaker_audio": dict(manifest["collected_files"]["respeaker_audio"]),
         "ros2_bags": dict(manifest["collected_files"]["ros2_bags"]),
+        "recording_requests": dict(manifest["recording_requests"]),
+        "rosbag_capture": dict(manifest["rosbag_capture"]),
         "remote_status_snapshot_path": str(status_path),
         "status_snapshot": str(status_path),
         "drone_code_state_path": (
@@ -934,10 +1151,16 @@ def main() -> int:
     expected_outputs = metadata.setdefault("expected_outputs", {})
     if manifest["collected_files"]["respeaker_audio"]["exists"]:
         expected_outputs["respeaker_audio"] = "collected"
+    elif not audio_request["requested"]:
+        expected_outputs["respeaker_audio"] = "not_requested"
     elif manifest["collected_files"]["respeaker_session"]:
         expected_outputs["respeaker_audio"] = "session_collected_audio_missing"
     if manifest["collected_files"]["ros2_bags"]["exists"]:
         expected_outputs["ros2_bag"] = "collected"
+    elif not rosbag_request["requested"]:
+        expected_outputs["ros2_bag"] = "not_requested"
+    else:
+        expected_outputs["ros2_bag"] = "requested_not_collected"
     if manifest["collected_files"]["px4_ulogs"]:
         expected_outputs["px4_ulog"] = "collected"
 

@@ -17,6 +17,19 @@ from pathlib import Path
 from typing import Any
 
 
+DEFAULT_ROSBAG_TOPICS = (
+    "/fmu/out/vehicle_status",
+    "/fmu/out/sensor_combined",
+    "/fmu/out/vehicle_local_position",
+    "/fmu/out/vehicle_attitude",
+    "/fmu/out/vehicle_odometry",
+    "/fmu/out/battery_status",
+    "/fmu/out/timesync_status",
+)
+
+_interrupt_recovery_context: dict[str, Any] | None = None
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -36,6 +49,72 @@ def save_json_atomic(path: Path, data: dict[str, Any]) -> None:
     temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
     temporary.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     os.replace(temporary, path)
+
+
+def load_profile_rosbag_topics(path: Path) -> list[str] | None:
+    """Read the block-style rosbag.topics list without requiring PyYAML."""
+    rosbag_indent: int | None = None
+    topics_indent: int | None = None
+    topics: list[str] = []
+
+    for line_number, original in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        # ROS topic names cannot contain '#', so stripping YAML comments here is
+        # intentionally narrow and sufficient for this profile field.
+        line = original.split("#", 1)[0].rstrip()
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        text = line.strip()
+
+        if rosbag_indent is None:
+            if text == "rosbag:":
+                rosbag_indent = indent
+            continue
+
+        if indent <= rosbag_indent:
+            break
+
+        if topics_indent is None:
+            match = re.fullmatch(r"topics\s*:\s*(.*)", text)
+            if match is None:
+                continue
+            topics_indent = indent
+            inline_value = match.group(1).strip()
+            if inline_value == "[]":
+                return []
+            if inline_value:
+                raise ValueError(
+                    f"{path}:{line_number}: rosbag.topics must use a YAML block list"
+                )
+            continue
+
+        if indent <= topics_indent:
+            break
+        match = re.fullmatch(r"-\s+(.+)", text)
+        if match is None:
+            raise ValueError(
+                f"{path}:{line_number}: invalid rosbag.topics list entry"
+            )
+        topic = match.group(1).strip().strip("'\"")
+        topics.append(topic)
+
+    return topics if topics_indent is not None else None
+
+
+def normalize_rosbag_topics(
+    topics: list[str], parser: argparse.ArgumentParser
+) -> list[str]:
+    normalized: list[str] = []
+    for topic in topics:
+        if not topic.startswith("/"):
+            parser.error(
+                f"ROS bag topic {topic!r} must be an absolute ROS2 topic name"
+            )
+        if topic not in normalized:
+            normalized.append(topic)
+    return normalized
 
 
 def run_command(cmd: list[str], timeout: float | None = None) -> dict[str, Any]:
@@ -132,8 +211,11 @@ def merge_mission_metadata(
             "agent_startup_confirmation_failed", False
         ),
         "duration_s": log.get("duration_s"),
+        "max_duration_s": log.get("duration_s"),
+        "duration_semantics": "maximum_recording_and_monitoring_window",
         "audio_enabled": log.get("audio_enabled"),
         "rosbag_enabled": log.get("rosbag_enabled"),
+        "rosbag_topics": list(log.get("rosbag_topics", [])),
         "no_auto_ulog": log.get("no_auto_ulog"),
         "mirror_interval_s": log.get("mirror_interval_s"),
         "agent_termination_reason": log.get("agent_termination_reason"),
@@ -200,6 +282,9 @@ def launch_agent(
         command.append("--enable-audio")
     if args.enable_rosbag:
         command.append("--enable-rosbag")
+        if args.rosbag_topics:
+            command.append("--rosbag-topics")
+            command.extend(args.rosbag_topics)
 
     console_log = f"{remote_mission_dir}/status_logs/drone_agent_console.log"
     launch = (
@@ -332,7 +417,141 @@ def stop_remote_agent(
     )
 
 
-def main() -> int:
+def recover_after_unhandled_interrupt() -> int:
+    """Attempt agent shutdown and collection after an uncaught Ctrl+C."""
+    context = _interrupt_recovery_context
+    if context is None:
+        print("\nInterrupted before a recoverable mission archive was created.")
+        return 130
+
+    args = context["args"]
+    mission_dir = context["mission_dir"]
+    metadata_path = context["metadata_path"]
+    log_path = context["log_path"]
+    log = context["log"]
+    collector_path = context["collector_path"]
+    remote_mission_dir = context["remote_mission_dir"]
+    agent_pid = context.get("agent_pid")
+
+    add_unique(
+        log["warnings"],
+        "Ground orchestrator interrupted by the user; clean shutdown and final "
+        "collection were attempted.",
+    )
+    log_event(log, "unhandled_user_interrupt_recovery_started")
+    print("\nInterrupt received. Attempting clean agent shutdown and collection ...")
+
+    if not isinstance(agent_pid, int):
+        pid_result = run_command(
+            [
+                "ssh",
+                args.drone_host,
+                remote_command(
+                    "if test -f {0}/metadata/drone_agent_pid.txt; then "
+                    "cat {0}/metadata/drone_agent_pid.txt; fi".format(
+                        shlex.quote(remote_mission_dir)
+                    )
+                ),
+            ],
+            timeout=10.0,
+        )
+        log_event(log, "user_interrupt_agent_pid_lookup", result=pid_result)
+        if pid_result["ok"]:
+            for line in reversed(pid_result["stdout"].splitlines()):
+                if line.strip().isdigit():
+                    agent_pid = int(line.strip())
+                    break
+
+    if isinstance(agent_pid, int):
+        stop_result = stop_remote_agent(args.drone_host, agent_pid)
+        log_event(log, "user_interrupt_agent_stop", result=stop_result)
+        if not stop_result["ok"]:
+            add_unique(
+                log["warnings"],
+                "Could not signal drone agent during interrupt recovery: "
+                + failure_detail(stop_result),
+            )
+        else:
+            final_deadline = time.monotonic() + args.post_disarm_wait_s + 20.0
+            while time.monotonic() < final_deadline:
+                snapshot = pull_agent_snapshot(
+                    args.drone_host, remote_mission_dir, agent_pid
+                )
+                if snapshot["ok"]:
+                    persist_agent_snapshot(mission_dir, snapshot, log)
+                    if snapshot["kind"] == "final" or snapshot["agent_alive"] is False:
+                        break
+                time.sleep(min(args.status_interval_s, 2.0))
+
+    termination_reason = "user_interrupt_collection_attempted"
+    log["remote_agent_pid"] = agent_pid
+    log["agent_termination_reason"] = termination_reason
+    log["automatic_collection_attempted"] = True
+    sync_log(log_path, log)
+    merge_mission_metadata(
+        metadata_path,
+        log_path,
+        log,
+        "user_interrupt_collection_attempted",
+    )
+
+    collector_command = [
+        sys.executable,
+        str(collector_path),
+        "--mission-dir",
+        str(mission_dir),
+        "--drone-host",
+        args.drone_host,
+        "--remote-sync-root",
+        args.remote_sync_root,
+        "--termination-reason",
+        termination_reason,
+        "--notes",
+        "Best-effort collection after Ctrl+C in run_halo_mission.py",
+    ]
+    if context["effective_no_auto_ulog"] or not isinstance(agent_pid, int):
+        collector_command.append("--no-auto-ulog")
+    elif args.auto_ulog:
+        collector_command.append("--auto-ulog")
+
+    collector_result = run_command(collector_command)
+    log["collection_result"] = collector_result
+    log["automatic_collection_successful"] = collector_result["ok"]
+    log_event(
+        log,
+        "user_interrupt_collection_finished",
+        ok=collector_result["ok"],
+    )
+    log["finished_utc"] = utc_now()
+    sync_log(log_path, log)
+    merge_mission_metadata(
+        metadata_path,
+        log_path,
+        log,
+        (
+            "automatic_collection_complete"
+            if collector_result["ok"]
+            else "automatic_collection_pending_retry"
+        ),
+    )
+
+    if collector_result["stdout"]:
+        print(collector_result["stdout"])
+    if not collector_result["ok"]:
+        if collector_result["stderr"]:
+            print(collector_result["stderr"], file=sys.stderr)
+        print(
+            "Collection needs a retry; no remote or archived mission data was deleted.",
+            file=sys.stderr,
+        )
+    print(f"Ground mission folder: {mission_dir}")
+    print(f"Orchestrator log: {log_path}")
+    return 130 if collector_result["ok"] else 1
+
+
+def _run_mission() -> int:
+    global _interrupt_recovery_context
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mission-name", required=True)
     parser.add_argument("--operator", required=True)
@@ -340,9 +559,29 @@ def main() -> int:
     parser.add_argument("--profile", required=True)
     parser.add_argument("--drone-host", default="root@192.168.0.20")
     parser.add_argument("--code-root")
-    parser.add_argument("--duration", required=True, type=float)
+    duration_group = parser.add_mutually_exclusive_group(required=True)
+    duration_group.add_argument(
+        "--duration",
+        dest="duration",
+        type=float,
+        help="Maximum recording/monitoring window in seconds.",
+    )
+    duration_group.add_argument(
+        "--max-duration-s",
+        dest="duration",
+        type=float,
+        help="Alias for --duration; the two options cannot be supplied together.",
+    )
     parser.add_argument("--enable-audio", action="store_true")
     parser.add_argument("--enable-rosbag", action="store_true")
+    parser.add_argument(
+        "--rosbag-topics",
+        nargs="+",
+        help=(
+            "ROS2 topics to record. Defaults to profile rosbag.topics, then the "
+            "HALO PX4 topic set."
+        ),
+    )
     ulog_group = parser.add_mutually_exclusive_group()
     ulog_group.add_argument(
         "--no-auto-ulog",
@@ -372,6 +611,22 @@ def main() -> int:
         parser.error("--status-interval-s must be greater than zero")
     if args.post_disarm_wait_s < 0 or args.mirror_interval_s < 0:
         parser.error("wait and mirror intervals cannot be negative")
+
+    profile_path = Path(args.profile).expanduser().resolve()
+    try:
+        profile_topics = load_profile_rosbag_topics(profile_path)
+    except (OSError, ValueError) as exc:
+        parser.error(f"Could not read ROS bag topics from {profile_path}: {exc}")
+    selected_topics = (
+        list(args.rosbag_topics)
+        if args.rosbag_topics is not None
+        else (
+            list(profile_topics)
+            if profile_topics
+            else list(DEFAULT_ROSBAG_TOPICS)
+        )
+    )
+    args.rosbag_topics = normalize_rosbag_topics(selected_topics, parser)
 
     audio_only_mode = args.enable_audio and not args.enable_rosbag
     effective_no_auto_ulog = args.no_auto_ulog or (
@@ -403,7 +658,7 @@ def main() -> int:
         "--drone",
         str(Path(args.drone).expanduser().resolve()),
         "--profile",
-        str(Path(args.profile).expanduser().resolve()),
+        str(profile_path),
         "--archive-root",
         str(archive_root),
         "--initialize-drone",
@@ -448,8 +703,11 @@ def main() -> int:
         "remote_mission_dir": remote_mission_dir,
         "started_utc": utc_now(),
         "duration_s": args.duration,
+        "max_duration_s": args.duration,
+        "duration_semantics": "maximum_recording_and_monitoring_window",
         "audio_enabled": args.enable_audio,
         "rosbag_enabled": args.enable_rosbag,
+        "rosbag_topics": list(args.rosbag_topics),
         "audio_only_mode": audio_only_mode,
         "no_auto_ulog": effective_no_auto_ulog,
         "no_auto_ulog_requested": args.no_auto_ulog,
@@ -467,6 +725,18 @@ def main() -> int:
     }
     log_event(log, "archive_created")
     sync_log(log_path, log)
+    _interrupt_recovery_context = {
+        "args": args,
+        "mission_id": mission_id,
+        "mission_dir": mission_dir,
+        "metadata_path": metadata_path,
+        "log_path": log_path,
+        "log": log,
+        "collector_path": collector_path,
+        "remote_mission_dir": remote_mission_dir,
+        "agent_pid": None,
+        "effective_no_auto_ulog": effective_no_auto_ulog,
+    }
 
     metadata = load_json(metadata_path)
     if not metadata.get("drone_initialization", {}).get("successful"):
@@ -520,6 +790,7 @@ def main() -> int:
                 agent_pid = None
 
     log["remote_agent_pid"] = agent_pid
+    _interrupt_recovery_context["agent_pid"] = agent_pid
     sync_log(log_path, log)
     merge_mission_metadata(metadata_path, log_path, log, "mission_agent_starting")
 
@@ -578,6 +849,18 @@ def main() -> int:
                 "Waiting for recording/finalization status."
             )
             print("This tool does not arm the drone; arm and disarm manually only when safe.")
+            print("Mission agent is running.")
+            print("ROS bag capture is active or attempted when --enable-rosbag is set.")
+            print("--duration/--max-duration-s is the maximum recording window.")
+            print(
+                "If disarm is detected, collection may happen earlier after "
+                "the post-disarm wait."
+            )
+            print(
+                "If flight-state detection is unavailable, duration is the "
+                "fallback stop condition."
+            )
+            print("Partner may arm/offboard the drone when safe.")
             log_event(log, "agent_startup_confirmed", minimum_survival_s=1.0)
         else:
             startup_confirmation_failed = True
@@ -715,10 +998,16 @@ def main() -> int:
                     break
                 time.sleep(min(args.status_interval_s, 2.0))
 
-    if final_data:
-        termination_reason = str(final_data.get("termination_reason") or "drone_agent_complete")
-    elif interrupted:
-        termination_reason = "ground_orchestrator_interrupted"
+    if interrupted:
+        if final_data:
+            log["drone_agent_reported_termination_reason"] = final_data.get(
+                "termination_reason"
+            )
+        termination_reason = "user_interrupt_collection_attempted"
+    elif final_data:
+        termination_reason = str(
+            final_data.get("termination_reason") or "drone_agent_complete"
+        )
     elif connection_lost:
         termination_reason = "ssh_connection_lost_collection_pending"
     elif preflight_failed:
@@ -751,6 +1040,8 @@ def main() -> int:
     ]
     if effective_no_auto_ulog or mission_start_failed:
         collector_command.append("--no-auto-ulog")
+    elif args.auto_ulog:
+        collector_command.append("--auto-ulog")
     log["automatic_collection_attempted"] = True
     collector_result = run_command(collector_command)
     log["collection_result"] = collector_result
@@ -788,6 +1079,13 @@ def main() -> int:
     if mission_start_failed:
         return 1
     return 130 if interrupted else 0
+
+
+def main() -> int:
+    try:
+        return _run_mission()
+    except KeyboardInterrupt:
+        return recover_after_unhandled_interrupt()
 
 
 if __name__ == "__main__":

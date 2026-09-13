@@ -18,6 +18,7 @@ rosbag:
     - /fmu/out/sensor_combined
     - /fmu/out/vehicle_local_position
     - /fmu/out/vehicle_attitude
+    - /fmu/out/vehicle_odometry
     - /fmu/out/battery_status
     - /fmu/out/timesync_status
   fallback_record_all_if_topics_unavailable: false

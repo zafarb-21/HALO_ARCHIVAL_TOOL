@@ -20,6 +20,15 @@ from pathlib import Path
 
 VEHICLE_STATUS_TOPIC = "/fmu/out/vehicle_status"
 TIMESYNC_TOPIC = "/fmu/out/timesync_status"
+DEFAULT_ROSBAG_TOPICS = (
+    VEHICLE_STATUS_TOPIC,
+    "/fmu/out/sensor_combined",
+    "/fmu/out/vehicle_local_position",
+    "/fmu/out/vehicle_attitude",
+    "/fmu/out/vehicle_odometry",
+    "/fmu/out/battery_status",
+    TIMESYNC_TOPIC,
+)
 ROS2_FOXY_SETUP = "/opt/ros/foxy/setup.bash"
 _termination_signal = None
 
@@ -208,6 +217,10 @@ def parse_vehicle_status(output):
             emergency = True
             emergency_fields[key] = value
 
+    landed = fields.get("landed")
+    if not isinstance(landed, bool):
+        landed = None
+
     if failsafe:
         state = "failsafe"
     elif emergency:
@@ -229,6 +242,7 @@ def parse_vehicle_status(output):
         "nav_state": fields.get("nav_state"),
         "failsafe": failsafe,
         "emergency": emergency,
+        "landed": landed,
         "emergency_fields": emergency_fields,
         "fields": fields,
         "raw": output[-12000:],
@@ -256,6 +270,7 @@ def read_vehicle_status(status_interval_s):
             "armed": None,
             "failsafe": False,
             "emergency": False,
+            "landed": None,
             "error": result["stderr"] or result["stdout"] or "vehicle_status read failed",
             "command": result["command"],
         }
@@ -385,7 +400,11 @@ def build_status(
         "current_utc": utc_now(),
         "phase": phase,
         "termination_reason": termination_reason,
+        "duration_s": args.duration,
+        "max_duration_s": args.duration,
+        "duration_semantics": "maximum_recording_and_monitoring_window",
         "audio_enabled": args.enable_audio,
+        "audio_disabled_intentionally": not args.enable_audio,
         "audio_process_running": process_running(audio_process),
         "audio_process_return_code": (
             audio_process.poll() if audio_process is not None else None
@@ -413,7 +432,19 @@ def main():
     parser.add_argument("--drone-session-id")
     parser.add_argument("--mission-dir", required=True)
     parser.add_argument("--start-at-utc")
-    parser.add_argument("--duration", required=True, type=float)
+    duration_group = parser.add_mutually_exclusive_group(required=True)
+    duration_group.add_argument(
+        "--duration",
+        dest="duration",
+        type=float,
+        help="Maximum recording/monitoring window in seconds.",
+    )
+    duration_group.add_argument(
+        "--max-duration-s",
+        dest="duration",
+        type=float,
+        help="Alias for --duration; the two options cannot be supplied together.",
+    )
     parser.add_argument("--audio-device", default="hw:0,0")
     parser.add_argument("--sample-rate", default=16000, type=int)
     parser.add_argument("--channels", default=6, type=int)
@@ -423,8 +454,11 @@ def main():
     parser.add_argument(
         "--rosbag-topics",
         nargs="+",
-        default=[],
-        help="Optional ROS2 topic list. When omitted, all visible topics are recorded.",
+        default=list(DEFAULT_ROSBAG_TOPICS),
+        help=(
+            "ROS2 topics to record. Defaults to the HALO PX4 topic set; only "
+            "currently available requested topics are recorded."
+        ),
     )
     parser.add_argument("--status-interval-s", default=2.0, type=float)
     parser.add_argument("--post-disarm-wait-s", default=10.0, type=float)
@@ -473,7 +507,10 @@ def main():
         "python_version_info": list(sys.version_info[:3]),
         "python_executable": sys.executable,
         "duration_s": args.duration,
+        "max_duration_s": args.duration,
+        "duration_semantics": "maximum_recording_and_monitoring_window",
         "audio_enabled": args.enable_audio,
+        "audio_disabled_intentionally": not args.enable_audio,
         "rosbag_enabled": args.enable_rosbag,
     }
     save_json_atomic(start_path, bootstrap_start_record)
@@ -515,6 +552,10 @@ def main():
     rosbag_command, rosbag_selected_topics, rosbag_missing_topics = (
         build_rosbag_plan(args, topics, rosbag_path)
     )
+    if not args.enable_rosbag:
+        rosbag_command = None
+        rosbag_selected_topics = []
+        rosbag_missing_topics = []
     if args.enable_rosbag and rosbag_missing_topics:
         add_unique(
             warnings,
@@ -522,6 +563,28 @@ def main():
                 ", ".join(rosbag_missing_topics)
             ),
         )
+
+    arecord_command_used = arecord_command if args.enable_audio else None
+    write_text_atomic(
+        metadata_dir / "arecord_command.txt",
+        (
+            shell_join(arecord_command) + "\n"
+            if args.enable_audio
+            else "DISABLED: --enable-audio was not supplied.\n"
+        ),
+    )
+    write_text_atomic(
+        metadata_dir / "rosbag_command.txt",
+        (
+            shell_join(rosbag_command) + "\n"
+            if args.enable_rosbag and rosbag_command is not None
+            else (
+                "UNAVAILABLE: no requested ROS2 topics were visible.\n"
+                if args.enable_rosbag
+                else "DISABLED: --enable-rosbag was not supplied.\n"
+            )
+        ),
+    )
 
     start_record = {
         "mission_id": args.mission_id,
@@ -536,20 +599,31 @@ def main():
         "python_version_info": list(sys.version_info[:3]),
         "python_executable": sys.executable,
         "duration_s": args.duration,
+        "max_duration_s": args.duration,
+        "duration_semantics": "maximum_recording_and_monitoring_window",
         "status_interval_s": args.status_interval_s,
         "post_disarm_wait_s": args.post_disarm_wait_s,
         "audio": {
             "enabled": args.enable_audio,
+            "requested": args.enable_audio,
+            "disabled_intentionally": not args.enable_audio,
+            "started": False,
             "device": args.audio_device,
             "sample_rate": args.sample_rate,
             "channels": args.channels,
             "format": args.format,
             "output_path": str(audio_path),
-            "command": arecord_command,
-            "command_shell": shell_join(arecord_command),
+            "command": arecord_command_used,
+            "command_shell": (
+                shell_join(arecord_command) if args.enable_audio else None
+            ),
         },
         "rosbag": {
             "enabled": args.enable_rosbag,
+            "requested": args.enable_rosbag,
+            "start_attempted": False,
+            "started": False,
+            "started_utc": None,
             "requested_topics": list(args.rosbag_topics),
             "selected_topics": list(rosbag_selected_topics),
             "missing_topics": list(rosbag_missing_topics),
@@ -558,6 +632,8 @@ def main():
             "command_shell": (
                 shell_join(rosbag_command) if rosbag_command is not None else None
             ),
+            "warnings": [],
+            "errors": [],
         },
         "ros2_topics_at_start": topics,
         "flight_state_topic": VEHICLE_STATUS_TOPIC,
@@ -573,6 +649,9 @@ def main():
     rosbag_log_handle = None
     audio_started_utc = None
     audio_stopped_utc = None
+    rosbag_start_attempted = False
+    rosbag_started = False
+    rosbag_started_utc = None
     critical_error = False
     pre_capture_termination_reason = None
     barrier_reached_utc = None
@@ -641,6 +720,9 @@ def main():
                     start_new_session=True,
                 )
                 audio_started_utc = utc_now()
+                start_record["audio"]["started"] = True
+                start_record["audio"]["started_utc"] = audio_started_utc
+                save_json_atomic(start_path, start_record)
                 write_text_atomic(
                     metadata_dir / "audio_start_utc.txt", audio_started_utc + "\n"
                 )
@@ -654,6 +736,8 @@ def main():
         and pre_capture_termination_reason is None
     ):
         try:
+            rosbag_start_attempted = True
+            start_record["rosbag"]["start_attempted"] = True
             rosbag_log_handle = (status_logs_dir / "ros2_bag.log").open(
                 "a", encoding="utf-8"
             )
@@ -664,13 +748,20 @@ def main():
                 universal_newlines=True,
                 start_new_session=True,
             )
+            rosbag_started = True
+            rosbag_started_utc = utc_now()
+            start_record["rosbag"]["started"] = True
+            start_record["rosbag"]["started_utc"] = rosbag_started_utc
+            save_json_atomic(start_path, start_record)
         except OSError as exc:
-            add_unique(
-                warnings,
+            rosbag_error = (
                 "Could not start ROS2 bag recording: {0}: {1}".format(
                     type(exc).__name__, exc
-                ),
+                )
             )
+            add_unique(warnings, rosbag_error)
+            add_unique(start_record["rosbag"]["errors"], rosbag_error)
+            save_json_atomic(start_path, start_record)
     elif args.enable_rosbag and pre_capture_termination_reason is None:
         add_unique(
             warnings,
@@ -695,11 +786,13 @@ def main():
         "armed": None,
         "failsafe": False,
         "emergency": False,
+        "landed": None,
     }
     previous_armed = None
     armed_seen = False
     disarm_detected_utc = None
     disarm_deadline = None
+    post_capture_stop_reason = None
     consecutive_state_failures = 0
     rosbag_exit_recorded = False
     next_topic_retry = time.monotonic() + 10.0
@@ -769,8 +862,14 @@ def main():
                         start_record["rosbag"]["missing_topics"] = list(
                             rosbag_missing_topics
                         )
+                        write_text_atomic(
+                            metadata_dir / "rosbag_command.txt",
+                            shell_join(rosbag_command) + "\n",
+                        )
                         save_json_atomic(start_path, start_record)
                         try:
+                            rosbag_start_attempted = True
+                            start_record["rosbag"]["start_attempted"] = True
                             if rosbag_log_handle is None:
                                 rosbag_log_handle = (
                                     status_logs_dir / "ros2_bag.log"
@@ -782,13 +881,24 @@ def main():
                                 universal_newlines=True,
                                 start_new_session=True,
                             )
+                            rosbag_started = True
+                            rosbag_started_utc = utc_now()
+                            start_record["rosbag"]["started"] = True
+                            start_record["rosbag"]["started_utc"] = (
+                                rosbag_started_utc
+                            )
+                            save_json_atomic(start_path, start_record)
                         except OSError as exc:
-                            add_unique(
-                                warnings,
+                            rosbag_error = (
                                 "Could not start ROS2 bag recording: {0}: {1}".format(
                                     type(exc).__name__, exc
-                                ),
+                                )
                             )
+                            add_unique(warnings, rosbag_error)
+                            add_unique(
+                                start_record["rosbag"]["errors"], rosbag_error
+                            )
+                            save_json_atomic(start_path, start_record)
 
             if vehicle_topic_available:
                 last_flight_state = read_vehicle_status(args.status_interval_s)
@@ -797,13 +907,24 @@ def main():
                     current_armed = last_flight_state.get("armed")
                     if current_armed is True:
                         armed_seen = True
-                        if disarm_deadline is not None:
+                        if disarm_deadline is not None and last_flight_state.get("landed") is not True:
                             add_unique(warnings, "Re-arm detected during post-disarm wait; finalization was deferred.")
                             disarm_deadline = None
                             disarm_detected_utc = None
+                            post_capture_stop_reason = None
                     elif previous_armed is True and current_armed is False:
                         disarm_detected_utc = utc_now()
                         disarm_deadline = time.monotonic() + args.post_disarm_wait_s
+                        post_capture_stop_reason = "armed_to_disarmed"
+
+                    if (
+                        armed_seen
+                        and last_flight_state.get("landed") is True
+                        and disarm_deadline is None
+                    ):
+                        disarm_detected_utc = utc_now()
+                        disarm_deadline = time.monotonic() + args.post_disarm_wait_s
+                        post_capture_stop_reason = "landed_detected"
 
                     if last_flight_state.get("failsafe"):
                         termination_reason = "failsafe_detected"
@@ -821,9 +942,9 @@ def main():
 
             if termination_reason is None and disarm_deadline is not None:
                 if time.monotonic() >= disarm_deadline:
-                    termination_reason = "armed_to_disarmed"
+                    termination_reason = post_capture_stop_reason or "armed_to_disarmed"
 
-            if termination_reason is None and elapsed >= args.duration and disarm_deadline is None:
+            if termination_reason is None and elapsed >= args.duration:
                 if not vehicle_topic_available or not last_flight_state.get("available"):
                     termination_reason = "duration_complete_no_flight_state"
                 elif last_flight_state.get("armed") is True:
@@ -914,17 +1035,29 @@ def main():
         "lateness_s": barrier_lateness_s,
     }
     final_status["audio"] = {
+        "enabled": args.enable_audio,
+        "requested": args.enable_audio,
+        "disabled_intentionally": not args.enable_audio,
+        "started": audio_started_utc is not None,
         "path": str(audio_path),
         "exists": audio_path.is_file(),
         "size_bytes": audio_path.stat().st_size if audio_path.is_file() else None,
         "started_utc": audio_started_utc,
         "stopped_utc": audio_stopped_utc,
         "return_code": audio_return_code,
-        "command": arecord_command,
-        "command_shell": shell_join(arecord_command),
+        "command": arecord_command_used,
+        "command_shell": (
+            shell_join(arecord_command) if args.enable_audio else None
+        ),
     }
     final_status["rosbag"] = {
+        "enabled": args.enable_rosbag,
+        "requested": args.enable_rosbag,
+        "start_attempted": rosbag_start_attempted,
+        "started": rosbag_started,
+        "started_utc": rosbag_started_utc,
         "path": str(rosbag_path),
+        "output_path": str(rosbag_path),
         "exists": rosbag_path.exists(),
         "return_code": rosbag_return_code,
         "requested_topics": list(args.rosbag_topics),
@@ -934,6 +1067,16 @@ def main():
         "command_shell": (
             shell_join(rosbag_command) if rosbag_command is not None else None
         ),
+        "warnings": [
+            warning
+            for warning in warnings
+            if "ros" in warning.lower() or "topic" in warning.lower() or "bag" in warning.lower()
+        ],
+        "errors": [
+            error
+            for error in errors
+            if "ros" in error.lower() or "topic" in error.lower() or "bag" in error.lower()
+        ],
     }
     final_status["px4_ulog_candidates"] = ulog_candidates
     save_json_atomic(status_path, final_status)
