@@ -1,0 +1,451 @@
+HALO ARCHIVE TOOL LAB TEST GUIDE
+Single-drone ROS bag + PX4 ULog test, no audio
+
+These are my step-by-step notes for testing the latest archive tool update in the lab. For this specific test I am not using ReSpeaker audio. I only want ROS bags, PX4 ULogs, metadata, status logs, and the archive structure. Audio is still supported by the tool, but I am intentionally not enabling it for this run.
+
+The main idea is:
+
+1. Start the archive tool before my partner arms/offboards the drone.
+2. The tool creates the mission archive on the ground computer.
+3. The tool creates the matching mission folder on the drone.
+4. The drone-side agent attempts ROS bag recording.
+5. My partner arms/offboards/disarms the drone manually.
+6. PX4 creates a ULog during the armed/offboard test.
+7. The archive tool collects the ROS bag if available, the PX4 ULog, metadata, and status logs automatically afterward.
+
+============================================================
+1. GO TO THE TOOL FOLDER
+============================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+============================================================
+2. CONFIRM I AM USING THE LAB DRONE
+============================================================
+
+For the lab, D0012 should be:
+
+Drone ID: D0012
+IP address: 192.168.0.20
+SSH alias: halo-d0012
+Drone config: drones/D0012.yaml
+
+Quick connection test:
+
+ssh halo-d0012 "hostname && date -u && ip -br addr"
+
+============================================================
+3. OPTIONAL: CHECK ALL LAB DRONES
+============================================================
+
+If I am testing only D0012, I only need halo-d0012.
+
+If we want to confirm all lab drone aliases later:
+
+ssh halo-d0012 "hostname && date -u"
+ssh halo-d0013 "hostname && date -u"
+ssh halo-d0014 "hostname && date -u"
+ssh halo-d0015 "hostname && date -u"
+ssh halo-d0016 "hostname && date -u"
+
+If any one fails, that drone is either offline, on a different IP, not on the same network, or SSH key setup is missing.
+
+============================================================
+4. SYNC THE DRONE CLOCK BEFORE THE TEST
+============================================================
+
+The drone clock can reset, so I sync it before collecting real data.
+
+GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+echo "Setting drone UTC time to: $GROUND_UTC"
+ssh halo-d0012 "date -u -s '$GROUND_UTC'"
+
+echo "Ground:"
+date -u
+
+echo "Drone:"
+ssh halo-d0012 "date -u"
+
+The two times should be close. A few seconds difference is fine.
+
+============================================================
+5. COMPILE CHECK THE SCRIPTS
+============================================================
+
+Before testing, I check that the scripts have no syntax errors.
+
+python3 -m py_compile scripts/create_mission_archive.py
+python3 -m py_compile scripts/collect_drone_data.py
+python3 -m py_compile scripts/halo_drone_mission_agent.py
+python3 -m py_compile scripts/run_halo_mission.py
+
+If the swarm script is present:
+
+python3 -m py_compile scripts/run_halo_swarm_mission.py
+
+============================================================
+6. CHECK THAT THE RELEVANT FILES EXIST
+============================================================
+
+ls scripts
+ls drones
+ls profiles
+
+Expected important scripts:
+
+scripts/create_mission_archive.py
+scripts/collect_drone_data.py
+scripts/halo_drone_mission_agent.py
+scripts/run_halo_mission.py
+
+Expected config/profile:
+
+drones/D0012.yaml
+profiles/audio_px4_sync_test.yaml
+
+============================================================
+7. OPTIONAL: CHECK ROS2 TOPICS BEFORE THE TEST
+============================================================
+
+This is not required for PX4 ULog collection, but it tells me whether ROS bag recording has a chance to capture /fmu/out topics.
+
+ssh halo-d0012 "systemctl start voxl-microdds-agent"
+
+ssh halo-d0012 "bash -lc 'source /opt/ros/foxy/setup.bash && ros2 topic list -t | sort'"
+
+If I see topics like these, ROS bag recording should work better:
+
+/fmu/out/vehicle_status
+/fmu/out/sensor_combined
+/fmu/out/vehicle_local_position
+/fmu/out/vehicle_attitude
+/fmu/out/vehicle_odometry
+/fmu/out/battery_status
+/fmu/out/timesync_status
+
+If I only see:
+
+/parameter_events
+/rosout
+
+then ROS bag recording may not capture PX4 topics, but the archive workflow should still continue and collect PX4 ULogs.
+
+============================================================
+8. RUN THE SINGLE-DRONE ROS BAG + PX4 ONLY TEST
+============================================================
+
+This is the main command for today.
+
+Important:
+- I am not passing --enable-audio.
+- I am passing --enable-rosbag.
+- I am passing --auto-ulog.
+- The tool must not arm the drone.
+- My partner arms/offboards/disarms manually.
+- --duration is the maximum recording/monitoring window, not the exact flight duration.
+
+Command:
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "lab_single_drone_rosbag_px4_test_001" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012 \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 300 \
+  --enable-rosbag \
+  --auto-ulog
+
+============================================================
+9. WHAT I SHOULD WATCH FOR IN THE TERMINAL
+============================================================
+
+The tool should print that it created a mission archive and a matching drone folder.
+
+It should show something like:
+
+HALO mission archive created successfully.
+Mission/session ID: <mission_id>
+Ground folder     : /home/zafar/MIC_ARRAY_ROS/HALO_ARCHIVE/<mission_id>
+Drone folder      : halo-d0012:/home/root/halo_sync_test/<mission_id>/
+Mission agent startup confirmed.
+
+For this no-audio test, I should NOT expect audio=True.
+
+I should expect something about ROS bag being active, attempted, or unavailable.
+
+The tool should print a readiness message similar to:
+
+Mission agent is running.
+ROS bag capture is active or attempted.
+--duration is the maximum recording window.
+Partner may arm/offboard the drone when safe.
+
+============================================================
+10. WHEN TO TELL MY PARTNER TO ARM/OFFBOARD
+============================================================
+
+When I see that the mission agent is running and ROS bag capture has been started or attempted, I tell my partner:
+
+Archive is running. You can arm/offboard now.
+
+Then I let my partner run the offboard test.
+
+The sequence should be:
+
+1. I start run_halo_mission.py.
+2. I wait for the agent-running/readiness line.
+3. I tell my partner to arm/offboard.
+4. Partner runs the test.
+5. Partner lands/disarms.
+6. I wait about 10 to 15 seconds after disarm.
+7. I let the archive tool finalize and collect.
+
+Safety note:
+The script does not arm the drone. Arming is still done manually/offboard by the proper operator. For bench tests, props should be removed unless this is an approved prop/flight test.
+
+============================================================
+11. WHAT IF THE DRONE LANDS BEFORE 300 SECONDS?
+============================================================
+
+The --duration value is a maximum window.
+
+If flight-state detection is working:
+- the tool may detect landing/disarm
+- it should wait the post-disarm delay
+- then stop rosbag/audio if running
+- then collect data early
+
+If flight-state detection is not working:
+- the tool will not know the drone landed
+- it will keep running until 300 seconds
+- then it will finalize and collect
+
+If Ctrl+C safe handling was implemented:
+- after the drone has landed/disarmed
+- wait 10 to 15 seconds
+- press Ctrl+C once
+- the tool should attempt clean finalization and collection
+
+If I am not sure Ctrl+C safe handling is working, I should just let the 300 seconds finish.
+
+============================================================
+12. AFTER THE SCRIPT FINISHES, CAPTURE THE LATEST MISSION
+============================================================
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+echo "MISSION_DIR=$MISSION_DIR"
+echo "MISSION_ID=$MISSION_ID"
+
+============================================================
+13. VERIFY PX4 ULOG COLLECTION
+============================================================
+
+find "$MISSION_DIR" -path "*/px4_logs/*.ulg" -print -exec ls -lh {} \;
+
+Success means I see at least one .ulg file copied into the archive.
+
+Example expected location:
+
+$MISSION_DIR/drone_data/px4_logs/<some_log>.ulg
+
+or, if the newer per-drone folder structure is used:
+
+$MISSION_DIR/drones/D0012/drone_data/px4_logs/<some_log>.ulg
+
+============================================================
+14. VERIFY ROS BAG COLLECTION
+============================================================
+
+Check both possible bag folder styles:
+
+find "$MISSION_DIR" -path "*/bags/*" -print | head -50
+find "$MISSION_DIR" -path "*/ros_bags/*" -print | head -50
+
+If ROS2 topics were visible, I expect rosbag files or a rosbag folder.
+
+If no /fmu/out topics were visible, it is acceptable for the archive to contain a warning saying ROS bag recording could not start or no requested topics were available. The important thing is that the tool should not crash, and PX4 ULog collection should still happen.
+
+============================================================
+15. VERIFY THAT AUDIO WAS NOT REQUIRED
+============================================================
+
+For this test, I intentionally disabled audio. So I should not see a warning saying ReSpeaker audio was missing.
+
+Check the collection manifest:
+
+python3 -m json.tool "$MISSION_DIR/metadata/${MISSION_ID}_collection_manifest.json" | less
+
+Look for fields/warnings related to:
+
+audio requested: false
+audio disabled intentionally
+no missing respeaker_6ch.wav warning
+
+If the archive has a warning about missing audio, that is a bug for this no-audio test mode.
+
+============================================================
+16. CHECK ORCHESTRATOR LOG
+============================================================
+
+python3 -m json.tool "$MISSION_DIR/metadata/ground_orchestrator_log.json" | less
+
+I want to confirm:
+- mission_id
+- mission_dir
+- drone_host
+- duration_s
+- audio_enabled false
+- rosbag_enabled true
+- auto_ulog true
+- agent launch result
+- collection result
+- warnings/errors
+
+============================================================
+17. CHECK MISSION METADATA
+============================================================
+
+python3 -m json.tool "$MISSION_DIR/metadata/mission_metadata.json" | less
+
+I want to confirm:
+- mission name
+- mission ID
+- drone ID
+- operator
+- archive path
+- code state
+- run status
+- warnings/errors
+- termination reason
+
+============================================================
+18. CHECK ULOG CANDIDATES
+============================================================
+
+cat "$MISSION_DIR/metadata/ulog_candidates_remote.txt"
+
+This file should show the remote ULog candidates found on the drone.
+
+The selected/copied ULog should ideally be one created or modified after the mission started.
+
+============================================================
+19. OPTIONAL: CHECK DRONE-SIDE FOLDER AFTER TEST
+============================================================
+
+ssh halo-d0012 "find /home/root/halo_sync_test/$MISSION_ID -maxdepth 5 -type f | sort"
+
+This confirms what was left on the drone-side mission folder.
+
+============================================================
+20. OPTIONAL: CHECK DRONE STATUS SNAPSHOT
+============================================================
+
+find "$MISSION_DIR" -path "*/status_logs/*" -type f -print -exec ls -lh {} \;
+
+Common files may include:
+
+remote_status_snapshot.json
+drone_code_state.json
+drone_agent_console.log
+
+============================================================
+21. IF ROS BAG IS MISSING
+============================================================
+
+If PX4 ULog exists but ROS bag is missing, I should check ROS2 topic visibility:
+
+ssh halo-d0012 "bash -lc 'source /opt/ros/foxy/setup.bash && ros2 topic list -t | sort'"
+
+If only /parameter_events and /rosout are visible, then the ROS bag issue is a ROS2/MicroDDS topic discovery issue, not an archive failure.
+
+I should also check:
+
+ssh halo-d0012 "systemctl is-active voxl-px4 voxl-microdds-agent voxl-mavlink-server"
+
+ssh halo-d0012 "voxl-inspect-services | grep -Ei 'px4|dds|micro|mavlink'"
+
+ssh halo-d0012 "journalctl -u voxl-microdds-agent -n 80 --no-pager"
+
+============================================================
+22. IF PX4 ULOG IS MISSING
+============================================================
+
+If no .ulg was collected, first check whether the drone was actually armed during the test.
+
+Then check ULogs manually:
+
+ssh halo-d0012 "find /data/px4/log -name '*.ulg' -printf '%T@ %p\n' | sort -n | tail -20"
+
+If I see the right ULog, I can run collection again with the explicit path:
+
+ULOG_REMOTE="/data/px4/log/sessXXX/logYYY.ulg"
+
+python3 scripts/collect_drone_data.py \
+  --mission-dir "$MISSION_DIR" \
+  --drone-host halo-d0012 \
+  --ulog "$ULOG_REMOTE" \
+  --termination-reason "manual_ulog_collection_after_test" \
+  --notes "Explicitly collecting the PX4 ULog after the ROS bag + PX4 test."
+
+============================================================
+23. SUCCESS CONDITION FOR TODAY
+============================================================
+
+This no-audio ROS bag + PX4 test is successful if:
+
+1. The mission archive is created.
+2. The matching drone folder is created.
+3. The drone-side agent starts.
+4. Audio is disabled cleanly.
+5. No missing-audio warning appears.
+6. ROS bag is collected if ROS2 topics are available.
+7. PX4 ULog is collected after the armed/offboard test.
+8. Metadata is saved.
+9. Code state is saved.
+10. Collection manifest is saved.
+11. Ground orchestrator log is saved.
+
+============================================================
+24. SHORT COMMAND CHAIN FOR TODAY
+============================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+ssh halo-d0012 "hostname && date -u && ip -br addr"
+
+GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+ssh halo-d0012 "date -u -s '$GROUND_UTC'"
+
+python3 -m py_compile scripts/create_mission_archive.py
+python3 -m py_compile scripts/collect_drone_data.py
+python3 -m py_compile scripts/halo_drone_mission_agent.py
+python3 -m py_compile scripts/run_halo_mission.py
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "lab_single_drone_rosbag_px4_test_001" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012 \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 300 \
+  --enable-rosbag \
+  --auto-ulog
+
+When ready line appears:
+Tell partner: "Archive is running. You can arm/offboard now."
+
+After it finishes:
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+find "$MISSION_DIR" -path "*/px4_logs/*.ulg" -print -exec ls -lh {} \;
+find "$MISSION_DIR" -path "*/bags/*" -print | head -50
+find "$MISSION_DIR" -path "*/ros_bags/*" -print | head -50
+python3 -m json.tool "$MISSION_DIR/metadata/${MISSION_ID}_collection_manifest.json" | less
+python3 -m json.tool "$MISSION_DIR/metadata/ground_orchestrator_log.json" | less

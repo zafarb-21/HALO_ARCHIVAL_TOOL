@@ -1,0 +1,482 @@
+HALO ARCHIVE TOOL — REPEATABLE SINGLE-DRONE GROUND ROSBAG + PX4 ULOG TEST
+Updated with the missing static-peer discovery setup.
+
+Drone: D0012
+Current home IP: 10.249.98.97
+SSH alias: halo-d0012-home
+ROS_DOMAIN_ID: 3
+Required DDS static peer: 10.249.98.97
+Ground ROS distro: Jazzy
+Drone ROS distro: Foxy
+Goal: Start the archival tool, record ROS bags directly into the ground mission archive folder, and automatically collect PX4 ULogs from the drone.
+
+================================================================================
+WHY THIS VERSION IS DIFFERENT
+================================================================================
+
+The previous issue was not PX4 and not ULogs.
+
+PX4 ULogs were working because PX4 was logging internally.
+
+The ROS bag issue was caused by ROS2 discovery on the ground PC. The drone could see /fmu topics, and multicast packets could reach the ground PC, but the ground PC did not reliably discover the PX4 ROS2 topics until the drone IP was added as a static peer.
+
+The missing key is:
+
+export ROS_STATIC_PEERS=10.249.98.97
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+This file includes that setup before every ROS2 topic check, rosbag test, and archive-tool run.
+
+================================================================================
+SECTION 1 — GO TO THE ARCHIVE TOOL FOLDER
+================================================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+================================================================================
+SECTION 2 — CONFIRM DRONE CONNECTION
+================================================================================
+
+ssh halo-d0012-home "hostname && date -u && ip -br addr"
+
+Expected:
+- hostname should respond
+- wlan0 should show 10.249.98.97/24 or the current home IP
+- SSH should work without asking for the password
+
+================================================================================
+SECTION 3 — SYNC DRONE CLOCK
+================================================================================
+
+GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+echo "Setting drone UTC time to: $GROUND_UTC"
+ssh halo-d0012-home "date -u -s '$GROUND_UTC'"
+
+echo "Ground UTC:"
+date -u
+
+echo "Drone UTC:"
+ssh halo-d0012-home "date -u"
+
+================================================================================
+SECTION 4 — COMPILE CHECK THE ARCHIVE SCRIPTS
+================================================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 -m py_compile scripts/create_mission_archive.py
+python3 -m py_compile scripts/collect_drone_data.py
+python3 -m py_compile scripts/halo_drone_mission_agent.py
+python3 -m py_compile scripts/run_halo_mission.py
+
+================================================================================
+SECTION 5 — LOAD THE CORRECT ROS2 ENVIRONMENT ON THE GROUND PC
+================================================================================
+
+Run this in the SAME terminal that will run the archival tool.
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+source /opt/ros/jazzy/setup.bash
+source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+
+export ROS_DOMAIN_ID=3
+export ROS_LOCALHOST_ONLY=0
+export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+export ROS_STATIC_PEERS=10.249.98.97
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+echo "ROS_DISTRO=$ROS_DISTRO"
+echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID"
+echo "ROS_LOCALHOST_ONLY=$ROS_LOCALHOST_ONLY"
+echo "ROS_AUTOMATIC_DISCOVERY_RANGE=$ROS_AUTOMATIC_DISCOVERY_RANGE"
+echo "ROS_STATIC_PEERS=$ROS_STATIC_PEERS"
+echo "RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION"
+
+ros2 pkg prefix px4_msgs
+
+================================================================================
+SECTION 6 — CHECK /fmu TOPICS ON THE DRONE FIRST
+================================================================================
+
+IMPORTANT:
+Run this drone-side topic check BEFORE checking ROS2 topics on the ground PC.
+
+We observed that checking the ground PC first can produce:
+
+NO FMU TOPICS SEEN
+
+The repeatable order that worked is:
+
+1. Confirm /fmu topics on the drone.
+2. Restart the ground-PC ROS2 daemon.
+3. Check /fmu topics on the ground PC with ROS_DOMAIN_ID=3 and the static peer.
+4. Only then run the archival tool.
+
+Run this from the GROUND PC:
+
+ssh halo-d0012-home "bash -lc '
+source /opt/ros/foxy/setup.bash
+export ROS_DOMAIN_ID=3
+export ROS_LOCALHOST_ONLY=0
+
+ros2 daemon stop >/dev/null 2>&1 || true
+sleep 1
+ros2 daemon start >/dev/null 2>&1 || true
+sleep 3
+
+echo \"===== DRONE FMU TOPICS =====\"
+ros2 topic list -t | sort | grep fmu || echo \"NO FMU TOPICS ON DRONE\"
+'"
+
+Expected good output includes:
+
+/fmu/out/battery_status
+/fmu/out/sensor_combined
+/fmu/out/timesync_status
+/fmu/out/vehicle_attitude
+/fmu/out/vehicle_local_position
+/fmu/out/vehicle_odometry
+/fmu/out/vehicle_status
+
+If the drone does NOT show /fmu topics, stop here and do not continue to the ground-PC check.
+
+================================================================================
+SECTION 7 — RESTART ROS2 DAEMON AND CONFIRM /fmu TOPICS ON GROUND PC
+================================================================================
+
+ros2 daemon stop >/dev/null 2>&1 || true
+sleep 2
+ros2 daemon start
+sleep 8
+
+echo "===== GROUND FMU TOPICS WITH STATIC PEER ====="
+ros2 topic list -t | sort | grep fmu || echo "NO FMU TOPICS SEEN"
+
+Expected good output includes topics like:
+
+/fmu/out/battery_status
+/fmu/out/sensor_combined
+/fmu/out/timesync_status
+/fmu/out/vehicle_attitude
+/fmu/out/vehicle_local_position
+/fmu/out/vehicle_odometry
+/fmu/out/vehicle_status
+
+Do not run the archival test until /fmu topics appear here.
+
+================================================================================
+SECTION 8 — CONFIRM ONE TOPIC CAN BE DECODED
+================================================================================
+
+Run this from the same ground-PC terminal:
+
+ros2 topic echo /fmu/out/sensor_combined px4_msgs/msg/SensorCombined --qos-reliability best_effort --once
+
+Expected:
+- timestamp
+- gyro_rad
+- accelerometer_m_s2
+- other SensorCombined fields
+
+If this works, ground-side ROS bag recording is ready.
+
+================================================================================
+SECTION 9 — OPTIONAL QUICK MANUAL ROSBAG TEST BEFORE ARCHIVE TOOL
+================================================================================
+
+This test records directly into the latest mission archive folder. Only run this if a mission folder already exists.
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+mkdir -p "$MISSION_DIR/drone_data/ros_bags"
+
+ros2 bag record -a \
+  -o "$MISSION_DIR/drone_data/ros_bags/${MISSION_ID}_ground_rosbag_static_peer_test"
+
+Let it run for 20 to 30 seconds, then press Ctrl+C.
+
+Then check:
+
+ros2 bag info "$MISSION_DIR/drone_data/ros_bags/${MISSION_ID}_ground_rosbag_static_peer_test"
+
+Good output should show /fmu/out topics with nonzero message counts.
+
+================================================================================
+SECTION 10 — MAIN ARCHIVAL TOOL RUN
+================================================================================
+
+Run this from the SAME terminal where the ROS environment and static peer were exported.
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "home_ground_rosbag_px4_test_001" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012_home_temp.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012-home \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 300 \
+  --enable-ground-rosbag \
+  --ros-domain-id 3 \
+  --px4-msgs-workspace ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash \
+  --auto-ulog
+
+Important:
+- This does not arm the drone.
+- ReSpeaker audio is intentionally disabled because --enable-audio is not used.
+- Ground ROS bag should start directly inside the mission archive folder.
+- PX4 ULogs should be collected automatically from the drone after the mission.
+
+================================================================================
+SECTION 11 — WHEN TO ARM/OFFBOARD
+================================================================================
+
+Wait until the terminal confirms that the mission archive is created and ground rosbag recording has started.
+
+Look for something like:
+
+Ground ROS bag recording started.
+Output folder: <mission_dir>/drone_data/ros_bags/<mission_id>_ground_rosbag
+Partner may arm/offboard when safe.
+
+Only after that, arm/offboard the drone.
+
+If flight-state detection is not available, the tool may continue until the full duration expires. That is okay. The duration is the fallback mission window.
+
+================================================================================
+SECTION 12 — VERIFY OUTPUTS AFTER THE RUN
+================================================================================
+
+After the archival tool finishes:
+
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+echo "MISSION_DIR=$MISSION_DIR"
+echo "MISSION_ID=$MISSION_ID"
+
+1. Check ROS bags:
+
+find "$MISSION_DIR" -path "*/ros_bags/*/metadata.yaml" -print
+
+for BAG_META in $(find "$MISSION_DIR" -path "*/ros_bags/*/metadata.yaml" -print); do
+    BAG_DIR="$(dirname "$BAG_META")"
+    echo
+    echo "============================================================"
+    echo "BAG_DIR=$BAG_DIR"
+    ros2 bag info "$BAG_DIR"
+done
+
+Expected:
+- bag exists
+- /fmu/out/sensor_combined has nonzero messages
+- /fmu/out/vehicle_attitude has nonzero messages
+- /fmu/out/vehicle_local_position has nonzero messages
+- /fmu/out/vehicle_odometry has nonzero messages
+- /fmu/out/timesync_status has nonzero messages
+- /fmu/out/vehicle_status has nonzero messages
+
+2. Check PX4 ULogs:
+
+find "$MISSION_DIR" -path "*/px4_logs/*.ulg" -print -exec ls -lh {} \;
+
+Expected:
+- at least one .ulg file collected after the drone was armed
+
+3. Check collection manifest:
+
+find "$MISSION_DIR" -iname "*manifest*.json" -print -exec ls -lh {} \;
+
+MANIFEST=$(find "$MISSION_DIR" -iname "*manifest*.json" | head -1)
+python3 -m json.tool "$MANIFEST" | less
+
+Expected:
+- ground_rosbag_enabled true
+- ground_rosbag_started true
+- ros domain recorded as 3
+- px4_msgs workspace path recorded
+- PX4 ULog collection actions recorded
+- no missing-audio warning
+
+4. Check ground orchestrator log:
+
+python3 -m json.tool "$MISSION_DIR/metadata/ground_orchestrator_log.json" | less
+
+Expected:
+- mission ID
+- drone host
+- ground rosbag command
+- ROS_DOMAIN_ID=3
+- ROS_STATIC_PEERS=10.249.98.97
+- RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+- collection result
+- warnings/errors if any
+
+5. Check for accidental missing-audio warnings:
+
+grep -Rni "missing.*audio\|respeaker.*missing\|wav.*missing" "$MISSION_DIR" || echo "No missing-audio warning found."
+
+Expected:
+- no missing ReSpeaker warning, because audio was disabled intentionally
+
+================================================================================
+SECTION 13 — ONE-BLOCK REPEATABLE COMMAND FOR TODAY
+================================================================================
+
+Copy and run this whole block from the GROUND PC.
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+set -e
+
+echo "1. Checking drone SSH..."
+ssh halo-d0012-home "hostname && date -u && ip -br addr"
+
+echo "2. Syncing drone clock..."
+GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+ssh halo-d0012-home "date -u -s '$GROUND_UTC'"
+date -u
+ssh halo-d0012-home "date -u"
+
+echo "3. Compile-checking scripts..."
+python3 -m py_compile scripts/create_mission_archive.py
+python3 -m py_compile scripts/collect_drone_data.py
+python3 -m py_compile scripts/halo_drone_mission_agent.py
+python3 -m py_compile scripts/run_halo_mission.py
+
+echo "4. Loading ROS2 + px4_msgs + static peer..."
+source /opt/ros/jazzy/setup.bash
+source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+
+export ROS_DOMAIN_ID=3
+export ROS_LOCALHOST_ONLY=0
+export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+export ROS_STATIC_PEERS=10.249.98.97
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+echo "ROS_DISTRO=$ROS_DISTRO"
+echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID"
+echo "ROS_LOCALHOST_ONLY=$ROS_LOCALHOST_ONLY"
+echo "ROS_AUTOMATIC_DISCOVERY_RANGE=$ROS_AUTOMATIC_DISCOVERY_RANGE"
+echo "ROS_STATIC_PEERS=$ROS_STATIC_PEERS"
+echo "RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION"
+ros2 pkg prefix px4_msgs
+
+echo "5. Checking /fmu topics on the DRONE FIRST..."
+ssh halo-d0012-home "bash -lc '
+source /opt/ros/foxy/setup.bash
+export ROS_DOMAIN_ID=3
+export ROS_LOCALHOST_ONLY=0
+ros2 daemon stop >/dev/null 2>&1 || true
+sleep 1
+ros2 daemon start >/dev/null 2>&1 || true
+sleep 3
+ros2 topic list -t | sort | grep fmu
+'" || {
+    echo "ERROR: No /fmu topics visible on the drone. Do not continue."
+    exit 1
+}
+
+echo "6. Restarting ground-PC ROS2 daemon..."
+ros2 daemon stop >/dev/null 2>&1 || true
+sleep 2
+ros2 daemon start
+sleep 8
+
+echo "7. Checking /fmu topics on ground PC..."
+ros2 topic list -t | sort | grep fmu || {
+    echo "ERROR: No /fmu topics seen on ground PC. Do not run archive tool."
+    exit 1
+}
+
+echo "8. Checking sensor_combined decode..."
+timeout 10 ros2 topic echo /fmu/out/sensor_combined px4_msgs/msg/SensorCombined --qos-reliability best_effort --once >/tmp/halo_sensor_combined_echo.txt
+
+echo "9. Running archive tool with ground-side rosbag + PX4 ULog collection..."
+python3 scripts/run_halo_mission.py \
+  --mission-name "home_ground_rosbag_px4_test_001" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012_home_temp.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012-home \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 300 \
+  --enable-ground-rosbag \
+  --ros-domain-id 3 \
+  --px4-msgs-workspace ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash \
+  --auto-ulog
+
+echo "10. Verifying latest archive..."
+MISSION_DIR=$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)
+MISSION_ID=$(basename "$MISSION_DIR")
+
+echo "MISSION_DIR=$MISSION_DIR"
+echo "MISSION_ID=$MISSION_ID"
+
+echo "ROS bag files:"
+find "$MISSION_DIR" -path "*/ros_bags/*" -print | head -80
+
+echo "ROS bag info:"
+for BAG_META in $(find "$MISSION_DIR" -path "*/ros_bags/*/metadata.yaml" -print); do
+    BAG_DIR="$(dirname "$BAG_META")"
+    echo
+    echo "BAG_DIR=$BAG_DIR"
+    ros2 bag info "$BAG_DIR"
+done
+
+echo "PX4 ULogs:"
+find "$MISSION_DIR" -path "*/px4_logs/*.ulg" -print -exec ls -lh {} \;
+
+echo "Manifests:"
+find "$MISSION_DIR" -iname "*manifest*.json" -print -exec ls -lh {} \;
+
+echo "Ground orchestrator log:"
+find "$MISSION_DIR" -iname "ground_orchestrator_log.json" -print -exec ls -lh {} \;
+
+echo "Missing-audio warning check:"
+grep -Rni "missing.*audio\|respeaker.*missing\|wav.*missing" "$MISSION_DIR" || echo "No missing-audio warning found."
+
+echo "DONE."
+
+================================================================================
+SECTION 14 — IF THE HOME IP CHANGES
+================================================================================
+
+If the drone home IP changes, update both places:
+
+1. ~/.ssh/config
+
+Host halo-d0012-home
+    HostName NEW.IP.ADDRESS.HERE
+    User root
+    IdentityFile ~/.ssh/halo_archive_ed25519
+    IdentitiesOnly yes
+    ServerAliveInterval 10
+
+2. Static peer export
+
+export ROS_STATIC_PEERS=NEW.IP.ADDRESS.HERE
+
+3. drones/D0012_home_temp.yaml
+
+ip_address: NEW.IP.ADDRESS.HERE
+
+================================================================================
+SECTION 15 — AFTER THIS WORKS
+================================================================================
+
+Once the single-drone run works, the swarm version should use the same ROS2 discovery principle:
+
+- each drone needs the correct ROS_DOMAIN_ID
+- each drone IP should be included in ROS_STATIC_PEERS
+- ground-side rosbag can record all visible ROS2 topics
+- PX4 ULogs/audio/metadata can still be collected per drone
+
+For swarm with D0012-D0016, the static peers may look like:
+
+export ROS_STATIC_PEERS=192.168.0.20,192.168.0.21,192.168.0.22,192.168.0.23,192.168.0.24
+
+or whatever syntax the installed ROS2 Jazzy accepts for multiple peers.

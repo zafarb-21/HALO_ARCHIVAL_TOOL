@@ -126,7 +126,9 @@ requested ROS2 topics are filtered against the topics visible on D0012, so avail
 topics are recorded and missing topics become non-fatal metadata warnings. The maximum
 recording/monitoring window is 300 seconds. A detected armed-to-disarmed transition
 ends it earlier after `--post-disarm-wait-s`; without reliable vehicle status, the
-duration timeout remains the fallback.
+duration timeout remains the fallback. When both ROS bag and flight-state
+telemetry are unavailable, the agent reports `phase=monitoring_px4_ulog_window` and
+keeps the PX4 ULog window alive until that maximum duration expires.
 
 Verify the newest archive with:
 
@@ -148,6 +150,34 @@ The collected drone session, including any bag, is under
 `drone_data/audio/<mission_id>/`; selected ULogs are under
 `drone_data/px4_logs/`. The legacy `audio` path name remains for archive
 compatibility even when no WAV was requested.
+
+## Ground-PC ROS bag capture with PX4 ULog collection
+
+When PX4 topics are published with `ROS_DOMAIN_ID=3`, enable ground-side capture
+before the partner arms/offboards. The orchestrator sources Jazzy and the optional
+`px4_msgs` workspace, runs `ros2 topic list -t`, then starts `ros2 bag record -a` in
+`drone_data/ros_bags/`. The ground bag is stopped with SIGINT before ULog collection
+so MCAP metadata is finalized.
+
+```bash
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+python3 scripts/run_halo_mission.py \
+  --mission-name "home_ground_rosbag_px4_test_001" \
+  --operator "Victor Basvi" \
+  --drone drones/D0012_home_temp.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --drone-host halo-d0012-home \
+  --code-root ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL \
+  --duration 300 \
+  --enable-ground-rosbag \
+  --ros-domain-id 3 \
+  --px4-msgs-workspace ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash \
+  --auto-ulog
+```
+
+If the preflight sees no `/fmu` topics, it records a warning and continues; the
+archive and remote PX4 ULog collection remain non-fatal.
 
 ## ReSpeaker/PX4 mission with manual arming
 

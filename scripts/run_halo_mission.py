@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shlex
+import signal
 import subprocess
 import sys
 import time
@@ -154,6 +155,284 @@ def run_command(cmd: list[str], timeout: float | None = None) -> dict[str, Any]:
         }
 
 
+def ground_rosbag_setup_lines(args: argparse.Namespace) -> list[str]:
+    """Build the shell setup used by ground-side ROS2 commands."""
+    lines = [
+        "set -e",
+        "source /opt/ros/jazzy/setup.bash",
+    ]
+    if args.px4_msgs_workspace:
+        workspace = str(Path(args.px4_msgs_workspace).expanduser())
+        lines.append("source " + shlex.quote(workspace))
+    lines.extend(
+        [
+            "export ROS_DOMAIN_ID={0}".format(args.ros_domain_id),
+            "export ROS_LOCALHOST_ONLY=0",
+            "export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET",
+        ]
+    )
+    return lines
+
+
+def ground_rosbag_shell(args: argparse.Namespace, command: str) -> str:
+    return "\n".join(ground_rosbag_setup_lines(args) + [command])
+
+
+def parse_ros2_topic_list(output: str) -> list[str]:
+    topics = []
+    for line in output.splitlines():
+        fields = line.strip().split(None, 1)
+        if not fields or not fields[0].startswith("/"):
+            continue
+        if fields[0] not in topics:
+            topics.append(fields[0])
+    return sorted(topics)
+
+
+def ground_rosbag_record_template(
+    args: argparse.Namespace, mission_id: str, mission_dir: Path
+) -> dict[str, Any]:
+    output_name = args.ground_rosbag_output_name or (mission_id + "_ground_rosbag")
+    output_path = mission_dir / "drone_data" / "ros_bags" / output_name
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    bag_command = "exec ros2 bag record -a -o {0}".format(
+        shlex.quote(str(output_path))
+    )
+    return {
+        "enabled": bool(args.enable_ground_rosbag),
+        "start_attempted": False,
+        "started": False,
+        "active": False,
+        "all_topics": True,
+        "all_topics_flag_requested": bool(args.ground_rosbag_all),
+        "command": ground_rosbag_shell(args, bag_command),
+        "output_path": str(output_path),
+        "ros_domain_id": args.ros_domain_id,
+        "ros_localhost_only": "0",
+        "ros_automatic_discovery_range": "SUBNET",
+        "px4_msgs_setup_path": (
+            str(Path(args.px4_msgs_workspace).expanduser())
+            if args.px4_msgs_workspace
+            else None
+        ),
+        "px4_msgs_workspace": (
+            str(Path(args.px4_msgs_workspace).expanduser())
+            if args.px4_msgs_workspace
+            else None
+        ),
+        "preflight_command": ground_rosbag_shell(args, "ros2 topic list -t"),
+        "preflight_topics": [],
+        "preflight_fmu_topics": [],
+        "preflight_return_code": None,
+        "start_utc": None,
+        "stop_utc": None,
+        "return_code": None,
+        "termination_reason": None,
+        "console_log_path": str(
+            mission_dir / "metadata" / "ground_rosbag_console.log"
+        ),
+        "warnings": [],
+        "errors": [],
+    }
+
+
+def start_ground_rosbag(
+    args: argparse.Namespace,
+    mission_dir: Path,
+    log: dict[str, Any],
+    state: dict[str, Any],
+) -> dict[str, Any]:
+    """Run a non-fatal ROS2 topic preflight and start the local bag recorder."""
+    record = state["record"]
+    if not record["enabled"]:
+        return record
+
+    preflight = run_command(
+        ["bash", "-lc", record["preflight_command"]], timeout=20.0
+    )
+    record["preflight_return_code"] = preflight.get("return_code")
+    record["preflight_topics"] = parse_ros2_topic_list(preflight.get("stdout", ""))
+    record["preflight_fmu_topics"] = [
+        topic for topic in record["preflight_topics"] if topic.startswith("/fmu")
+    ]
+    record["preflight_result"] = preflight
+    if not preflight["ok"]:
+        warning = (
+            "Ground ROS2 topic preflight failed; ground rosbag will still be "
+            "attempted: {0}".format(failure_detail(preflight))
+        )
+        add_unique(record["warnings"], warning)
+        add_unique(log["warnings"], warning)
+    elif not record["preflight_fmu_topics"]:
+        warning = (
+            "Ground ROS2 topic preflight found no /fmu topics; ground rosbag "
+            "recording may contain no PX4 topics, but the mission continues."
+        )
+        add_unique(record["warnings"], warning)
+        add_unique(log["warnings"], warning)
+
+    console_path = Path(record["console_log_path"])
+    console_path.parent.mkdir(parents=True, exist_ok=True)
+    record["start_attempted"] = True
+    try:
+        handle = console_path.open("a", encoding="utf-8")
+        process = subprocess.Popen(
+            ["bash", "-lc", record["command"]],
+            stdout=handle,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            start_new_session=True,
+        )
+    except OSError as exc:
+        if "handle" in locals():
+            handle.close()
+        error = "Could not start ground ROS bag recording: {0}: {1}".format(
+            type(exc).__name__, exc
+        )
+        add_unique(record["errors"], error)
+        add_unique(log["warnings"], error)
+        # Keep flat log aliases in sync even when Popen fails before the normal
+        # startup bookkeeping block is reached.
+        log["ground_rosbag"] = record
+        log["ground_rosbag_enabled"] = record["enabled"]
+        log["ground_rosbag_start_attempted"] = record["start_attempted"]
+        log["ground_rosbag_started"] = record["started"]
+        log["ground_rosbag_output_path"] = record["output_path"]
+        log["ground_rosbag_command"] = record["command"]
+        log["ground_rosbag_ros_domain_id"] = record["ros_domain_id"]
+        log["ground_rosbag_px4_msgs_setup_path"] = record["px4_msgs_setup_path"]
+        log["ground_rosbag_px4_msgs_workspace"] = record["px4_msgs_workspace"]
+        log["ground_rosbag_start_utc"] = record["start_utc"]
+        log["ground_rosbag_stop_utc"] = record["stop_utc"]
+        log["ground_rosbag_return_code"] = record["return_code"]
+        log["ground_rosbag_warnings"] = list(record["warnings"])
+        log["ground_rosbag_errors"] = list(record["errors"])
+        log["ground_rosbag_preflight_topics"] = list(record["preflight_topics"])
+        log["ground_rosbag_preflight_fmu_topics"] = list(record["preflight_fmu_topics"])
+        return record
+
+    state["process"] = process
+    state["log_handle"] = handle
+    record["started"] = True
+    record["active"] = True
+    record["start_utc"] = utc_now()
+    # Let an immediately failing shell (missing ROS setup/ros2) report itself
+    # before the readiness message, while keeping startup non-fatal.
+    time.sleep(0.2)
+    return_code = process.poll()
+    if return_code is not None:
+        record["started"] = False
+        record["active"] = False
+        record["return_code"] = return_code
+        warning = (
+            "Ground ROS bag process exited during startup with return code "
+            "{0}; PX4 ULog/audio collection continues.".format(return_code)
+        )
+        add_unique(record["warnings"], warning)
+        add_unique(log["warnings"], warning)
+    log["ground_rosbag"] = record
+    log["ground_rosbag_enabled"] = record["enabled"]
+    log["ground_rosbag_start_attempted"] = record["start_attempted"]
+    log["ground_rosbag_started"] = record["started"]
+    log["ground_rosbag_output_path"] = record["output_path"]
+    log["ground_rosbag_command"] = record["command"]
+    log["ground_rosbag_ros_domain_id"] = record["ros_domain_id"]
+    log["ground_rosbag_px4_msgs_setup_path"] = record["px4_msgs_setup_path"]
+    log["ground_rosbag_px4_msgs_workspace"] = record["px4_msgs_workspace"]
+    log["ground_rosbag_start_utc"] = record["start_utc"]
+    log["ground_rosbag_stop_utc"] = record["stop_utc"]
+    log["ground_rosbag_return_code"] = record["return_code"]
+    log["ground_rosbag_warnings"] = list(record["warnings"])
+    log["ground_rosbag_errors"] = list(record["errors"])
+    log["ground_rosbag_preflight_topics"] = list(record["preflight_topics"])
+    log["ground_rosbag_preflight_fmu_topics"] = list(record["preflight_fmu_topics"])
+    log_event(
+        log,
+        "ground_rosbag_started",
+        started=record["started"],
+        active=record["active"],
+        output_path=record["output_path"],
+        preflight_fmu_topics=record["preflight_fmu_topics"],
+    )
+    return record
+
+
+def stop_ground_rosbag(
+    state: dict[str, Any] | None,
+    log: dict[str, Any],
+    reason: str,
+) -> dict[str, Any] | None:
+    """Stop the local ros2 bag with SIGINT first so metadata is finalized."""
+    if not isinstance(state, dict) or not isinstance(state.get("record"), dict):
+        return None
+    record = state["record"]
+    if not record.get("enabled"):
+        return record
+    process = state.get("process")
+    if process is not None and process.poll() is None:
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGINT)
+            process.wait(timeout=20.0)
+        except subprocess.TimeoutExpired:
+            warning = "Ground ROS bag did not stop after SIGINT; SIGTERM was sent."
+            add_unique(record["warnings"], warning)
+            add_unique(log["warnings"], warning)
+            try:
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                process.wait(timeout=5.0)
+            except Exception as exc:
+                error = "Ground ROS bag force-stop failed: {0}: {1}".format(
+                    type(exc).__name__, exc
+                )
+                add_unique(record["errors"], error)
+                add_unique(log["warnings"], error)
+        except ProcessLookupError:
+            pass
+        except OSError as exc:
+            error = "Could not signal ground ROS bag: {0}: {1}".format(
+                type(exc).__name__, exc
+            )
+            add_unique(record["errors"], error)
+            add_unique(log["warnings"], error)
+    if process is not None:
+        record["return_code"] = process.poll()
+    record["active"] = False
+    record["stop_utc"] = utc_now()
+    record["termination_reason"] = reason
+    handle = state.get("log_handle")
+    if handle is not None:
+        try:
+            handle.close()
+        except Exception:
+            pass
+    state["process"] = None
+    state["log_handle"] = None
+    log["ground_rosbag"] = record
+    log["ground_rosbag_enabled"] = record["enabled"]
+    log["ground_rosbag_start_attempted"] = record["start_attempted"]
+    log["ground_rosbag_started"] = record["started"]
+    log["ground_rosbag_output_path"] = record["output_path"]
+    log["ground_rosbag_command"] = record["command"]
+    log["ground_rosbag_ros_domain_id"] = record["ros_domain_id"]
+    log["ground_rosbag_px4_msgs_setup_path"] = record["px4_msgs_setup_path"]
+    log["ground_rosbag_px4_msgs_workspace"] = record["px4_msgs_workspace"]
+    log["ground_rosbag_start_utc"] = record["start_utc"]
+    log["ground_rosbag_stop_utc"] = record["stop_utc"]
+    log["ground_rosbag_return_code"] = record["return_code"]
+    log["ground_rosbag_warnings"] = list(record["warnings"])
+    log["ground_rosbag_errors"] = list(record["errors"])
+    log["ground_rosbag_preflight_topics"] = list(record["preflight_topics"])
+    log["ground_rosbag_preflight_fmu_topics"] = list(record["preflight_fmu_topics"])
+    log_event(
+        log,
+        "ground_rosbag_stopped",
+        reason=reason,
+        return_code=record.get("return_code"),
+        output_path=record.get("output_path"),
+    )
+    return record
+
+
 def remote_command(command: str) -> str:
     return f"LC_ALL=C LANG=C sh -c {shlex.quote(command)}"
 
@@ -214,9 +493,27 @@ def merge_mission_metadata(
         "max_duration_s": log.get("duration_s"),
         "duration_semantics": "maximum_recording_and_monitoring_window",
         "audio_enabled": log.get("audio_enabled"),
+        "audio_disabled_intentionally": log.get("audio_enabled") is False,
         "rosbag_enabled": log.get("rosbag_enabled"),
         "rosbag_topics": list(log.get("rosbag_topics", [])),
+        "ground_rosbag": dict(log.get("ground_rosbag", {})),
+        "ground_rosbag_enabled": log.get("ground_rosbag_enabled", False),
+        "ground_rosbag_start_attempted": log.get("ground_rosbag_start_attempted", False),
+        "ground_rosbag_started": log.get("ground_rosbag_started", False),
+        "ground_rosbag_output_path": log.get("ground_rosbag_output_path"),
+        "ground_rosbag_ros_domain_id": log.get("ground_rosbag_ros_domain_id"),
+        "ground_rosbag_px4_msgs_setup_path": log.get("ground_rosbag_px4_msgs_setup_path"),
+        "ground_rosbag_px4_msgs_workspace": log.get("ground_rosbag_px4_msgs_workspace"),
+        "ground_rosbag_start_utc": log.get("ground_rosbag_start_utc"),
+        "ground_rosbag_stop_utc": log.get("ground_rosbag_stop_utc"),
+        "ground_rosbag_return_code": log.get("ground_rosbag_return_code"),
+        "ground_rosbag_warnings": list(log.get("ground_rosbag_warnings", [])),
+        "ground_rosbag_errors": list(log.get("ground_rosbag_errors", [])),
+        "ground_rosbag_preflight_topics": list(log.get("ground_rosbag_preflight_topics", [])),
+        "ground_rosbag_preflight_fmu_topics": list(log.get("ground_rosbag_preflight_fmu_topics", [])),
+        "monitor_only_px4_ulog_mode": log.get("monitor_only_px4_ulog_mode", False),
         "no_auto_ulog": log.get("no_auto_ulog"),
+        "auto_ulog_requested": log.get("auto_ulog_requested", False),
         "mirror_interval_s": log.get("mirror_interval_s"),
         "agent_termination_reason": log.get("agent_termination_reason"),
         "automatic_collection_attempted": log.get("automatic_collection_attempted", False),
@@ -432,6 +729,7 @@ def recover_after_unhandled_interrupt() -> int:
     collector_path = context["collector_path"]
     remote_mission_dir = context["remote_mission_dir"]
     agent_pid = context.get("agent_pid")
+    ground_rosbag_state = context.get("ground_rosbag_state")
 
     add_unique(
         log["warnings"],
@@ -439,6 +737,9 @@ def recover_after_unhandled_interrupt() -> int:
         "collection were attempted.",
     )
     log_event(log, "unhandled_user_interrupt_recovery_started")
+    stop_ground_rosbag(
+        ground_rosbag_state, log, "user_interrupt_collection_attempted"
+    )
     print("\nInterrupt received. Attempting clean agent shutdown and collection ...")
 
     if not isinstance(agent_pid, int):
@@ -575,6 +876,30 @@ def _run_mission() -> int:
     parser.add_argument("--enable-audio", action="store_true")
     parser.add_argument("--enable-rosbag", action="store_true")
     parser.add_argument(
+        "--enable-ground-rosbag",
+        action="store_true",
+        help="Record all visible ROS2 topics from the ground computer.",
+    )
+    parser.add_argument(
+        "--ros-domain-id",
+        type=int,
+        default=3,
+        help="ROS_DOMAIN_ID for ground-side ROS2 discovery (default: 3).",
+    )
+    parser.add_argument(
+        "--ground-rosbag-all",
+        action="store_true",
+        help="Document that ground rosbag records all topics (the default).",
+    )
+    parser.add_argument(
+        "--ground-rosbag-output-name",
+        help="Ground bag output folder name; defaults to <mission_id>_ground_rosbag.",
+    )
+    parser.add_argument(
+        "--px4-msgs-workspace",
+        help="Optional px4_msgs setup.bash to source for ground ROS2 commands.",
+    )
+    parser.add_argument(
         "--rosbag-topics",
         nargs="+",
         help=(
@@ -607,6 +932,15 @@ def _run_mission() -> int:
 
     if args.duration <= 0:
         parser.error("--duration must be greater than zero")
+    if args.ros_domain_id < 0 or args.ros_domain_id > 232:
+        parser.error("--ros-domain-id must be between 0 and 232")
+    if args.ground_rosbag_output_name is not None and re.fullmatch(
+        r"[A-Za-z0-9._-]+", args.ground_rosbag_output_name
+    ) is None:
+        parser.error(
+            "--ground-rosbag-output-name must be a simple folder name "
+            "containing only letters, numbers, periods, underscores, and hyphens"
+        )
     if args.status_interval_s <= 0:
         parser.error("--status-interval-s must be greater than zero")
     if args.post_disarm_wait_s < 0 or args.mirror_interval_s < 0:
@@ -629,6 +963,11 @@ def _run_mission() -> int:
     args.rosbag_topics = normalize_rosbag_topics(selected_topics, parser)
 
     audio_only_mode = args.enable_audio and not args.enable_rosbag
+    monitor_only_px4_ulog_mode = (
+        not args.enable_audio
+        and args.enable_rosbag
+        and args.auto_ulog
+    )
     effective_no_auto_ulog = args.no_auto_ulog or (
         audio_only_mode and not args.auto_ulog
     )
@@ -695,6 +1034,12 @@ def _run_mission() -> int:
     )
     remote_agent = f"{remote_mission_dir}/metadata/halo_drone_mission_agent.py"
     local_session_dir = mission_dir / "drone_data" / "audio" / mission_id
+    ground_rosbag_state: dict[str, Any] = {
+        "process": None,
+        "log_handle": None,
+        "record": ground_rosbag_record_template(args, mission_id, mission_dir),
+    }
+    ground_rosbag_record = ground_rosbag_state["record"]
 
     log: dict[str, Any] = {
         "mission_id": mission_id,
@@ -708,7 +1053,24 @@ def _run_mission() -> int:
         "audio_enabled": args.enable_audio,
         "rosbag_enabled": args.enable_rosbag,
         "rosbag_topics": list(args.rosbag_topics),
+        "ground_rosbag": ground_rosbag_record,
+        "ground_rosbag_enabled": args.enable_ground_rosbag,
+        "ground_rosbag_start_attempted": ground_rosbag_record["start_attempted"],
+        "ground_rosbag_started": ground_rosbag_record["started"],
+        "ground_rosbag_output_path": ground_rosbag_record["output_path"],
+        "ground_rosbag_command": ground_rosbag_record["command"],
+        "ground_rosbag_ros_domain_id": args.ros_domain_id,
+        "ground_rosbag_px4_msgs_setup_path": ground_rosbag_record["px4_msgs_setup_path"],
+        "ground_rosbag_px4_msgs_workspace": ground_rosbag_record["px4_msgs_workspace"],
+        "ground_rosbag_start_utc": ground_rosbag_record["start_utc"],
+        "ground_rosbag_stop_utc": ground_rosbag_record["stop_utc"],
+        "ground_rosbag_return_code": ground_rosbag_record["return_code"],
+        "ground_rosbag_warnings": list(ground_rosbag_record["warnings"]),
+        "ground_rosbag_errors": list(ground_rosbag_record["errors"]),
+        "ground_rosbag_preflight_topics": list(ground_rosbag_record["preflight_topics"]),
+        "ground_rosbag_preflight_fmu_topics": list(ground_rosbag_record["preflight_fmu_topics"]),
         "audio_only_mode": audio_only_mode,
+        "monitor_only_px4_ulog_mode": monitor_only_px4_ulog_mode,
         "no_auto_ulog": effective_no_auto_ulog,
         "no_auto_ulog_requested": args.no_auto_ulog,
         "auto_ulog_requested": args.auto_ulog,
@@ -736,6 +1098,7 @@ def _run_mission() -> int:
         "remote_mission_dir": remote_mission_dir,
         "agent_pid": None,
         "effective_no_auto_ulog": effective_no_auto_ulog,
+        "ground_rosbag_state": ground_rosbag_state,
     }
 
     metadata = load_json(metadata_path)
@@ -829,6 +1192,22 @@ def _run_mission() -> int:
                         final_data = data
                         break
                 if snapshot.get("agent_alive") is False:
+                    active_status = (
+                        isinstance(data, dict)
+                        and data.get("termination_reason") in (None, "")
+                        and data.get("phase") not in ("finalized", "finalizing")
+                    )
+                    if monitor_only_px4_ulog_mode and active_status:
+                        add_unique(
+                            log["warnings"],
+                            "Agent PID was not reported alive during startup, but its active monitor-only status remains; continuing the PX4 ULog window.",
+                        )
+                        startup_confirmed = True
+                        log_event(
+                            log,
+                            "agent_liveness_unconfirmed_startup_monitor_window_continued",
+                        )
+                        break
                     last_startup_error = "agent process exited before startup confirmation"
                     break
                 if (
@@ -841,15 +1220,61 @@ def _run_mission() -> int:
             sync_log(log_path, log)
             time.sleep(min(args.status_interval_s, 0.5))
 
+        startup_data = (
+            last_startup_snapshot.get("data")
+            if isinstance(last_startup_snapshot, dict)
+            else None
+        )
+        if not isinstance(startup_data, dict):
+            startup_data = {}
+        startup_rosbag_active = startup_data.get("rosbag_process_running")
+        startup_rosbag_record = startup_data.get("rosbag")
+        if not isinstance(startup_rosbag_record, dict):
+            startup_rosbag_record = {}
+        if not isinstance(startup_rosbag_active, bool):
+            startup_rosbag_active = bool(startup_rosbag_record.get("started"))
+        startup_flight_available = bool(
+            startup_data.get("flight_state_monitoring_available", False)
+        )
         if final_data is not None:
             print("Drone agent finalized during startup; collection will begin.")
         elif startup_confirmed:
+            if args.enable_ground_rosbag:
+                start_ground_rosbag(
+                    args, mission_dir, log, ground_rosbag_state
+                )
+                ground_rosbag_record = ground_rosbag_state["record"]
+                sync_log(log_path, log)
+                merge_mission_metadata(
+                    metadata_path,
+                    log_path,
+                    log,
+                    (
+                        "ground_rosbag_started"
+                        if ground_rosbag_record["started"]
+                        else "ground_rosbag_start_attempted"
+                    ),
+                )
             print(
                 "Mission agent startup confirmed. "
                 "Waiting for recording/finalization status."
             )
             print("This tool does not arm the drone; arm and disarm manually only when safe.")
             print("Mission agent is running.")
+            if args.enable_ground_rosbag and ground_rosbag_record["started"] and ground_rosbag_record["active"]:
+                print("Ground ROS bag recording started.")
+                print("Output folder: {0}".format(ground_rosbag_record["output_path"]))
+            elif args.enable_ground_rosbag:
+                print("Ground ROS bag recording was attempted but is not active.")
+                print("Output folder: {0}".format(ground_rosbag_record["output_path"]))
+            print("Audio enabled: {0}".format(str(bool(args.enable_audio)).lower()))
+            print("ROS bag requested: {0}".format(str(bool(args.enable_rosbag)).lower()))
+            print("ROS bag active: {0}".format(str(bool(startup_rosbag_active)).lower()))
+            print("Flight state available: {0}".format(str(startup_flight_available).lower()))
+            if monitor_only_px4_ulog_mode:
+                if not startup_rosbag_active:
+                    print("ROS bag unavailable; continuing monitor-only window for PX4 ULog collection.")
+                print("Continuing monitor-only window for PX4 ULog collection.")
             print("ROS bag capture is active or attempted when --enable-rosbag is set.")
             print("--duration/--max-duration-s is the maximum recording window.")
             print(
@@ -918,7 +1343,14 @@ def _run_mission() -> int:
                             "were left in place and automatic collection will still be attempted."
                         )
                         add_unique(log["warnings"], warning)
-                        break
+                        if monitor_only_px4_ulog_mode:
+                            log_event(
+                                log,
+                                "ssh_polling_unavailable_monitor_window_continued",
+                            )
+                            consecutive_ssh_failures = 0
+                        else:
+                            break
                 else:
                     consecutive_ssh_failures = 0
                     data = persist_agent_snapshot(mission_dir, snapshot, log)
@@ -947,11 +1379,26 @@ def _run_mission() -> int:
                         final_data = data
                         break
                     if snapshot["agent_alive"] is False:
-                        add_unique(
-                            log["warnings"],
-                            "Drone agent exited without a readable final status; collection was triggered.",
+                        active_status = (
+                            isinstance(data, dict)
+                            and data.get("termination_reason") in (None, "")
+                            and data.get("phase") not in ("finalized", "finalizing")
                         )
-                        break
+                        if monitor_only_px4_ulog_mode and active_status:
+                            add_unique(
+                                log["warnings"],
+                                "Agent PID was not reported alive, but its active monitor-only status remains; continuing until the PX4 ULog window ends.",
+                            )
+                            log_event(
+                                log,
+                                "agent_liveness_unconfirmed_monitor_window_continued",
+                            )
+                        else:
+                            add_unique(
+                                log["warnings"],
+                                "Drone agent exited without a readable final status; collection was triggered.",
+                            )
+                            break
 
                 if args.mirror_interval_s > 0:
                     now_monotonic = time.monotonic()
@@ -977,6 +1424,9 @@ def _run_mission() -> int:
         except KeyboardInterrupt:
             interrupted = True
             add_unique(log["warnings"], "Ground orchestrator interrupted by the user; final collection was requested.")
+            stop_ground_rosbag(
+                ground_rosbag_state, log, "user_interrupt_collection_attempted"
+            )
             print("\nInterrupt received. Asking the drone agent to finalize before collection ...")
             stop_result = stop_remote_agent(args.drone_host, agent_pid)
             log_event(log, "user_interrupt_agent_stop", result=stop_result)
@@ -1023,6 +1473,11 @@ def _run_mission() -> int:
         preflight_failed or startup_confirmation_failed or agent_pid is None
     )
 
+    stop_ground_rosbag(ground_rosbag_state, log, termination_reason)
+    sync_log(log_path, log)
+    merge_mission_metadata(
+        metadata_path, log_path, log, "mission_collection_starting"
+    )
     print("Starting automatic mission collection ...")
     collector_command = [
         sys.executable,

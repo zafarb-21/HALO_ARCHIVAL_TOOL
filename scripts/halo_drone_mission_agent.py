@@ -411,6 +411,15 @@ def build_status(
         ),
         "rosbag_enabled": args.enable_rosbag,
         "rosbag_process_running": process_running(rosbag_process),
+        "rosbag_active": process_running(rosbag_process),
+        "monitor_only_px4_ulog_window": (
+            not args.enable_audio
+            and args.enable_rosbag
+            and (
+                not flight_monitoring_available
+                or not process_running(rosbag_process)
+            )
+        ),
         "rosbag_process_return_code": (
             rosbag_process.poll() if rosbag_process is not None else None
         ),
@@ -769,6 +778,25 @@ def main():
             "topics were available; audio/PX4 workflow continues.",
         )
 
+    initial_monitor_only = (
+        not args.enable_audio
+        and args.enable_rosbag
+        and (
+            not vehicle_topic_available
+            or not process_running(rosbag_process)
+        )
+    )
+    if initial_monitor_only:
+        if not process_running(rosbag_process):
+            add_unique(
+                warnings,
+                "ROS bag unavailable; continuing monitor-only window for PX4 ULog collection.",
+            )
+        add_unique(
+            warnings,
+            "Partner may arm/offboard when safe; duration is the fallback stop condition when flight state is unavailable.",
+        )
+
     if audio_process is not None:
         time.sleep(0.25)
         if audio_process.poll() is not None:
@@ -954,7 +982,31 @@ def main():
                 else:
                     termination_reason = "duration_complete_no_arm_detected"
 
-            phase = "post_disarm_wait" if disarm_deadline is not None else "running"
+            monitor_only = (
+                not args.enable_audio
+                and args.enable_rosbag
+                and (
+                    not vehicle_topic_available
+                    or not last_flight_state.get("available")
+                    or not process_running(rosbag_process)
+                )
+            )
+            if monitor_only:
+                if args.enable_rosbag and not process_running(rosbag_process):
+                    add_unique(
+                        warnings,
+                        "ROS bag unavailable; continuing monitor-only window for PX4 ULog collection.",
+                    )
+                add_unique(
+                    warnings,
+                    "Continuing monitor-only window for PX4 ULog collection; duration is the fallback stop condition when flight state is unavailable.",
+                )
+            if disarm_deadline is not None:
+                phase = "post_disarm_wait"
+            elif monitor_only:
+                phase = "monitoring_px4_ulog_window"
+            else:
+                phase = "running"
             status = build_status(
                 args,
                 hostname,

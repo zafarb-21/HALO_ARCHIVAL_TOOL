@@ -3,7 +3,7 @@ drone_name: starling2-max
 platform: ModalAI Starling 2 Max
 flight_computer: PX4 on VOXL2
 companion_computer: VOXL2
-ip_address: 192.168.0.20
+ip_address: 10.249.98.97
 ssh_user: root
 
 paths:

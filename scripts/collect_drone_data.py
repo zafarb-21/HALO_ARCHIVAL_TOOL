@@ -9,6 +9,7 @@ import os
 import re
 import shlex
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -113,6 +114,55 @@ def save_json(path: Path, data: dict) -> None:
 def add_unique(items: list[str], message: str) -> None:
     if message not in items:
         items.append(message)
+
+
+_active_collection_state = None
+
+
+def save_partial_collection_manifest(reason: str, error: str | None = None) -> None:
+    """Persist an in-progress collection manifest after an interruption/error."""
+    state = _active_collection_state
+    if not isinstance(state, dict):
+        return
+    manifest = state.get("manifest")
+    manifest_path = state.get("manifest_path")
+    if not isinstance(manifest, dict) or not isinstance(manifest_path, Path):
+        return
+    if error:
+        add_unique(manifest.setdefault("errors", []), error)
+    manifest["partial_reason"] = reason
+    manifest["collection_finished_utc"] = datetime.now(timezone.utc).isoformat()
+    manifest["collection_status"] = (
+        "partial_with_errors" if manifest.get("errors") else "partial"
+    )
+    try:
+        save_json(manifest_path, manifest)
+    except Exception:
+        pass
+
+    metadata = state.get("metadata")
+    metadata_path = state.get("metadata_path")
+    if isinstance(metadata, dict) and isinstance(metadata_path, Path):
+        run_status = metadata.setdefault("run_status", {})
+        run_status["data_collection_attempted"] = True
+        run_status["data_collection_successful"] = False
+        run_status["current_status"] = "data_collection_partial"
+        run_status["last_collection_utc"] = manifest["collection_finished_utc"]
+        for warning in manifest.get("warnings", []):
+            add_unique(run_status.setdefault("warnings", []), warning)
+        for item in manifest.get("errors", []):
+            add_unique(run_status.setdefault("errors", []), item)
+        audio_record = manifest.get("recording_requests", {}).get("audio", {})
+        rosbag_record = manifest.get("recording_requests", {}).get("rosbag", {})
+        if isinstance(audio_record, dict) and isinstance(audio_record.get("requested"), bool):
+            metadata["audio_enabled"] = audio_record["requested"]
+            metadata["audio_disabled_intentionally"] = not audio_record["requested"]
+        if isinstance(rosbag_record, dict) and isinstance(rosbag_record.get("requested"), bool):
+            metadata["rosbag_enabled"] = rosbag_record["requested"]
+        try:
+            save_json(metadata_path, metadata)
+        except Exception:
+            pass
 
 
 def update_swarm_collection_manifest(
@@ -311,7 +361,9 @@ def capture_drone_code_state(
     return snapshot
 
 
-def main() -> int:
+def _collect_main() -> int:
+    global _active_collection_state
+
     parser = argparse.ArgumentParser(
         description="Collect drone-side logs, ReSpeaker session files, and PX4 ULogs into a HALO mission archive."
     )
@@ -485,11 +537,9 @@ def main() -> int:
     else:
         try:
             ssh_preflight = check_ssh_connection(
-                args.drone_host, bounded=swarm_mode
+                args.drone_host, bounded=True
             )
         except RuntimeError as exc:
-            if not swarm_mode:
-                parser.exit(1, f"ERROR: {exc}\n")
             preflight_warning = str(exc)
             print(f"WARNING: {preflight_warning}")
             ssh_connection_check = {
@@ -529,6 +579,19 @@ def main() -> int:
     mission_start = mission_start_record(metadata)
     audio_request = recording_request(metadata, "audio_enabled", True)
     rosbag_request = recording_request(metadata, "rosbag_enabled", False)
+    ground_orchestrator = metadata.get("ground_orchestrator", {})
+    ground_rosbag = (
+        ground_orchestrator.get("ground_rosbag", {})
+        if isinstance(ground_orchestrator, dict)
+        else {}
+    )
+    if not isinstance(ground_rosbag, dict) or not ground_rosbag:
+        ground_log = load_json(metadata_dir / "ground_orchestrator_log.json")
+        ground_rosbag = ground_log.get("ground_rosbag", {})
+    if not isinstance(ground_rosbag, dict):
+        ground_rosbag = {}
+    ground_rosbag = dict(ground_rosbag)
+    ground_rosbag_requested = bool(ground_rosbag.get("enabled", False))
 
     manifest = {
         "collection_started_utc": collection_started.isoformat(),
@@ -549,6 +612,33 @@ def main() -> int:
         "remote_drone_mission_source": remote_session,
         "termination_reason": args.termination_reason,
         "notes": args.notes,
+        "ground_rosbag": ground_rosbag,
+        "ground_rosbag_enabled": ground_rosbag_requested,
+        "ground_rosbag_start_attempted": bool(
+            ground_rosbag.get("start_attempted", False)
+        ),
+        "ground_rosbag_started": bool(ground_rosbag.get("started", False)),
+        "ground_rosbag_command": ground_rosbag.get("command"),
+        "ground_rosbag_output_path": ground_rosbag.get("output_path"),
+        "ground_rosbag_ros_domain_id": ground_rosbag.get("ros_domain_id"),
+        "ground_rosbag_px4_msgs_setup_path": ground_rosbag.get(
+            "px4_msgs_setup_path"
+        ),
+        "ground_rosbag_px4_msgs_workspace": ground_rosbag.get(
+            "px4_msgs_workspace", ground_rosbag.get("px4_msgs_setup_path")
+        ),
+        "ground_rosbag_start_utc": ground_rosbag.get("start_utc"),
+        "ground_rosbag_stop_utc": ground_rosbag.get("stop_utc"),
+        "ground_rosbag_return_code": ground_rosbag.get("return_code"),
+        "ground_rosbag_preflight_command": ground_rosbag.get("preflight_command"),
+        "ground_rosbag_preflight_topics": list(
+            ground_rosbag.get("preflight_topics", []) or []
+        ),
+        "ground_rosbag_preflight_fmu_topics": list(
+            ground_rosbag.get("preflight_fmu_topics", []) or []
+        ),
+        "ground_rosbag_warnings": list(ground_rosbag.get("warnings", []) or []),
+        "ground_rosbag_errors": list(ground_rosbag.get("errors", []) or []),
         "ssh_connection_check": ssh_connection_check,
         "recording_requests": {
             "audio": dict(audio_request),
@@ -605,6 +695,11 @@ def main() -> int:
                 "exists": False,
                 "entries": [],
             },
+            "ground_ros2_bag": {
+                "path": ground_rosbag.get("output_path"),
+                "exists": False,
+                "entries": [],
+            },
             "remote_status_snapshot": None,
             "drone_code_state": None,
         },
@@ -616,11 +711,7 @@ def main() -> int:
             "candidates": [],
             "mission_start": mission_start,
             "eligible_candidates": [],
-            "selection_policy": (
-                "prefer_newest_after_mission_start_else_newest_candidate"
-                if swarm_mode
-                else "newest_candidate_not_older_than_mission_start"
-            ),
+            "selection_policy": "prefer_newest_after_mission_start_else_newest_candidate",
             "selected_auto_ulog": None,
             "selected_auto_ulog_reason": None,
         },
@@ -634,14 +725,27 @@ def main() -> int:
     # Keep a short top-level alias for consumers that do not know the richer
     # rosbag_capture field name; both entries are updated together.
     manifest["rosbag"] = manifest["rosbag_capture"]
+    manifest_path = (
+        per_drone_metadata_dir / f"{session_id}_collection_manifest.json"
+        if swarm_mode
+        else metadata_dir / f"{mission_id}_collection_manifest.json"
+    )
+    manifest["collection_status"] = "in_progress"
+    _active_collection_state = {
+        "manifest": manifest,
+        "manifest_path": manifest_path,
+        "metadata": metadata,
+        "metadata_path": metadata_path,
+    }
+    save_json(manifest_path, manifest)
 
     # 1. Copy the complete drone mission folder. The local folder remains canonical.
     local_session.mkdir(parents=True, exist_ok=True)
 
     result = run_cmd(
-        rsync_command_args(swarm_mode)
+        rsync_command_args(True)
         + [remote_session, str(local_session) + "/"],
-        timeout=180.0 if swarm_mode else None,
+        timeout=180.0,
     )
     manifest["actions"].append(result)
 
@@ -854,6 +958,51 @@ def main() -> int:
     manifest["collected_files"]["status_logs"]["exists"] = bool(status_entries)
     manifest["collected_files"]["status_logs"]["entries"] = status_entries
 
+    # Ground-side bags are already in the mission archive. Record their final
+    # contents in the same manifest as drone-side bags without treating a
+    # missing/failed ground recorder as a transfer failure.
+    ground_output = ground_rosbag.get("output_path")
+    ground_output_path = Path(str(ground_output)) if ground_output else None
+    ground_entries = (
+        sorted(
+            str(path)
+            for path in ground_output_path.rglob("*")
+            if path.is_file()
+        )
+        if ground_output_path is not None and ground_output_path.is_dir()
+        else []
+    )
+    manifest["collected_files"]["ground_ros2_bag"]["path"] = (
+        str(ground_output_path) if ground_output_path is not None else None
+    )
+    manifest["collected_files"]["ground_ros2_bag"]["exists"] = bool(ground_entries)
+    manifest["collected_files"]["ground_ros2_bag"]["entries"] = ground_entries
+    ground_rosbag["collected"] = bool(ground_entries)
+    ground_rosbag["output_exists"] = bool(ground_entries)
+    ground_rosbag["output_entries"] = ground_entries
+    for warning in ground_rosbag.get("warnings", []) or []:
+        add_unique(manifest["warnings"], "Ground ROS bag: " + str(warning))
+    for error in ground_rosbag.get("errors", []) or []:
+        add_unique(
+            manifest["warnings"],
+            "Ground ROS bag error (non-fatal): " + str(error),
+        )
+    if ground_rosbag_requested and not ground_entries:
+        add_unique(
+            manifest["warnings"],
+            "Ground ROS bag was requested but no finalized bag files were found "
+            "at the recorded output path.",
+        )
+    manifest["ground_rosbag"] = ground_rosbag
+    manifest["ground_rosbag_enabled"] = ground_rosbag_requested
+    manifest["ground_rosbag_start_attempted"] = bool(
+        ground_rosbag.get("start_attempted", False)
+    )
+    manifest["ground_rosbag_started"] = bool(ground_rosbag.get("started", False))
+    manifest["ground_rosbag_start_utc"] = ground_rosbag.get("start_utc")
+    manifest["ground_rosbag_stop_utc"] = ground_rosbag.get("stop_utc")
+    manifest["ground_rosbag_return_code"] = ground_rosbag.get("return_code")
+
     # 2. Always save recent remote ULog candidates. Explicit paths still take
     # precedence; automatic selection is limited to files from this mission window.
     ulog_paths = list(args.ulog)
@@ -868,8 +1017,8 @@ def main() -> int:
         "| sort -n | tail -10"
     )
     discovery_result = run_cmd(
-        ssh_command_args(args.drone_host, discovery_command, swarm_mode),
-        timeout=30.0 if swarm_mode else None,
+        ssh_command_args(args.drone_host, discovery_command, True),
+        timeout=30.0,
     )
     manifest["actions"].append(discovery_result)
     ulog_candidates_path.write_text(
@@ -910,7 +1059,7 @@ def main() -> int:
         elif discovery_result["ok"]:
             selection_pool = list(eligible_candidates)
             selection_reason = "newest_candidate_after_mission_start"
-            if not selection_pool and swarm_mode:
+            if not selection_pool and candidates:
                 selection_pool = list(candidates)
                 selection_reason = "newest_candidate_time_match_uncertain"
                 manifest["warnings"].append(
@@ -921,7 +1070,7 @@ def main() -> int:
             elif not selection_pool:
                 manifest["warnings"].append(
                     "No remote ULog candidate was new enough for this mission; "
-                    "no old ULog was copied. Mission start: "
+                    "no ULog was copied. Mission start: "
                     f"{mission_start['timestamp_utc']}."
                 )
 
@@ -947,8 +1096,8 @@ def main() -> int:
     for remote_ulog in ulog_paths:
         remote = f"{args.drone_host}:{remote_ulog}"
         result = run_cmd(
-            rsync_command_args(swarm_mode) + [remote, str(px4_dir) + "/"],
-            timeout=120.0 if swarm_mode else None,
+            rsync_command_args(True) + [remote, str(px4_dir) + "/"],
+            timeout=120.0,
         )
         manifest["actions"].append(result)
 
@@ -981,8 +1130,8 @@ def main() -> int:
 
     for name, remote_cmd in status_commands.items():
         result = run_cmd(
-            ssh_command_args(args.drone_host, remote_cmd, swarm_mode),
-            timeout=30.0 if swarm_mode else None,
+            ssh_command_args(args.drone_host, remote_cmd, True),
+            timeout=30.0,
         )
         status_snapshot["commands"][name] = result
         manifest["actions"].append(result)
@@ -999,7 +1148,7 @@ def main() -> int:
     drone_code_state_path: Path | None = None
     if not args.skip_drone_code_state:
         drone_code_state = capture_drone_code_state(
-            args.drone_host, bounded=swarm_mode
+            args.drone_host, bounded=True
         )
         for name, result in drone_code_state["commands"].items():
             manifest["actions"].append(result)
@@ -1118,6 +1267,8 @@ def main() -> int:
         ],
         "respeaker_audio": dict(manifest["collected_files"]["respeaker_audio"]),
         "ros2_bags": dict(manifest["collected_files"]["ros2_bags"]),
+        "ground_ros2_bag": dict(manifest["collected_files"]["ground_ros2_bag"]),
+        "ground_rosbag": dict(manifest["ground_rosbag"]),
         "recording_requests": dict(manifest["recording_requests"]),
         "rosbag_capture": dict(manifest["rosbag_capture"]),
         "remote_status_snapshot_path": str(status_path),
@@ -1163,7 +1314,21 @@ def main() -> int:
         expected_outputs["ros2_bag"] = "requested_not_collected"
     if manifest["collected_files"]["px4_ulogs"]:
         expected_outputs["px4_ulog"] = "collected"
+    if ground_rosbag_requested:
+        expected_outputs["ground_ros2_bag"] = (
+            "collected"
+            if manifest["collected_files"]["ground_ros2_bag"]["exists"]
+            else "requested_not_collected"
+        )
+    else:
+        expected_outputs["ground_ros2_bag"] = "not_requested"
 
+    metadata["ground_rosbag"] = dict(ground_rosbag)
+    metadata["audio_enabled"] = bool(audio_request["requested"])
+    metadata["audio_disabled_intentionally"] = not bool(audio_request["requested"])
+    metadata["rosbag_enabled"] = bool(rosbag_request["requested"])
+    metadata.setdefault("recording_requests", {})["audio"] = dict(audio_request)
+    metadata.setdefault("recording_requests", {})["rosbag"] = dict(rosbag_request)
     save_json(metadata_path, metadata)
 
     print("HALO drone data collection complete.")
@@ -1189,6 +1354,29 @@ def main() -> int:
         print("\nAll requested data copied successfully.")
 
     return 1 if manifest["errors"] else 0
+
+
+def main() -> int:
+    global _active_collection_state
+    try:
+        return _collect_main()
+    except KeyboardInterrupt:
+        save_partial_collection_manifest(
+            "user_interrupt_collection_attempted",
+            "Collection interrupted by the user before the normal manifest finalization step.",
+        )
+        print("Collection interrupted; partial manifest was saved.")
+        return 130
+    except Exception as exc:
+        error = "Unhandled collection exception: {0}: {1}".format(
+            type(exc).__name__, exc
+        )
+        save_partial_collection_manifest("collector_exception", error)
+        print("Collection failed; partial manifest was saved.", file=sys.stderr)
+        print(error, file=sys.stderr)
+        return 1
+    finally:
+        _active_collection_state = None
 
 
 if __name__ == "__main__":
