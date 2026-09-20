@@ -690,10 +690,12 @@ python3 scripts/run_halo_mission.py --help
 
 ## Validated five-drone passive ground archive workflow
 
-The swarm runner extends the validated D0012 ground-bag path without changing
+The persistent-terminal launcher extends the validated D0012 ground-bag path without changing
 `scripts/run_halo_mission.py`. Ground Station A remains the only flight-control
-station. Ground Station B runs one independent worker process per enabled drone;
+station. Ground Station B runs one independent fixed-domain worker process per drone;
 it never arms, takes off, flies, lands, disarms, or sends trajectory commands.
+Use `scripts/launch_halo_swarm_terminals.sh` to create the common mission archive and
+open five titled GNOME terminals; each terminal runs `scripts/run_halo_drone_worker.py`.
 
 Every worker uses its own environment:
 
@@ -714,10 +716,19 @@ information. Only after that does the corresponding ground worker source Jazzy,
 restart/check its domain-specific discovery, confirm ground `/fmu` topics, and
 validate `px4_msgs` message decoding.
 
-`ros_domain_id` is mandatory in both the swarm entry and its drone YAML. Missing
-or invalid values fail that drone's preflight with a clear `refusing to guess it`
-message. The checked-in D0012 value is `3`; the actual D0013-D0016 values must be
-filled from the lab before a full required swarm can become ready.
+`ros_domain_id` is mandatory in both the swarm entry and its drone YAML. The validated
+lab mapping is:
+
+```text
+D0012 | 192.168.0.20 | ROS_DOMAIN_ID 3
+D0013 | 192.168.0.21 | ROS_DOMAIN_ID 4
+D0014 | 192.168.0.22 | ROS_DOMAIN_ID 5
+D0015 | 192.168.0.23 | ROS_DOMAIN_ID 6
+D0016 | 192.168.0.24 | ROS_DOMAIN_ID 7
+```
+
+Missing or invalid values fail preflight with a clear `refusing to guess it`
+message. A worker never changes its domain after startup.
 
 The ground bag is not started before flight. A worker observes
 `/fmu/out/vehicle_status` and starts `ros2 bag record -a` only on a confirmed
@@ -741,48 +752,48 @@ Safe configuration-only dry run; this does not SSH, start ROS, create an archive
 or send any flight command:
 
 ```bash
-python3 scripts/run_halo_swarm_mission.py \
+scripts/launch_halo_swarm_terminals.sh \
   --mission-name "swarm_test_001" \
   --operator "Operator Name" \
-  --swarm drones/swarm_lab.yaml \
-  --profile profiles/audio_px4_sync_test.yaml \
-  --code-root "$PWD" \
-  --duration 180 \
-  --enable-ground-rosbag \
-  --auto-ulog \
   --dry-run
 ```
 
-After all five actual domains have been filled and SSH aliases are confirmed, the
-lab command is:
+A live no-flight preflight uses the same launcher but stops after the READY checks:
 
 ```bash
-python3 scripts/run_halo_swarm_mission.py \
+scripts/launch_halo_swarm_terminals.sh \
   --mission-name "swarm_test_001" \
   --operator "Operator Name" \
-  --swarm drones/swarm_lab.yaml \
-  --profile profiles/audio_px4_sync_test.yaml \
-  --code-root "$PWD" \
-  --duration 180 \
-  --enable-ground-rosbag \
-  --auto-ulog \
-  --px4-msgs-workspace "$HOME/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash"
+  --preflight-only
 ```
 
-The default readiness barrier requires every enabled `required: true` drone.
-`--allow-partial-swarm` explicitly permits the ready workers to proceed while
-recording the failed drones in the manifests. `--preflight-only` performs setup
-and readiness checks, then stops before flight.
+After the five SSH aliases and fixed domain mapping are confirmed, the lab command is:
+
+```bash
+scripts/launch_halo_swarm_terminals.sh \
+  --mission-name "swarm_test_001" \
+  --operator "Operator Name" \
+  --duration 180 \
+  --enable-audio
+```
+
+The default readiness barrier requires all five workers.
+`--allow-partial-swarm` permits ready workers to continue while failed drones remain
+recorded in the manifests. `--headless` is available for systems without GNOME; it
+keeps the same fixed per-drone ROS environments.
 
 For a completed mission, verify each independent bag and metadata set:
 
 ```bash
-MISSION_DIR="$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE/<mission_id>"
+MISSION_ID="<mission_id>"
+MISSION_DIR="$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE/$MISSION_ID"
 for drone in D0012 D0013 D0014 D0015 D0016; do
-  ros2 bag info "$MISSION_DIR/drones/$drone/ros_bags/<mission_id>__${drone}_ground_rosbag"
+  ros2 bag info "$MISSION_DIR/drones/$drone/ros_bags/${MISSION_ID}__${drone}_ground_rosbag"
   find "$MISSION_DIR/drones/$drone/px4_logs" -type f -name '*.ulg' -print
+  python3 -m json.tool "$MISSION_DIR/drones/$drone/metadata/worker_status.json" >/dev/null
   python3 -m json.tool "$MISSION_DIR/drones/$drone/metadata/collection_manifest.json" >/dev/null
- done
+done
 python3 -m json.tool "$MISSION_DIR/metadata/swarm_manifest.json" >/dev/null
 python3 -m json.tool "$MISSION_DIR/metadata/mission_metadata.json" >/dev/null
+python3 -m json.tool "$MISSION_DIR/metadata/ground_orchestrator_log.json" >/dev/null
 ```
