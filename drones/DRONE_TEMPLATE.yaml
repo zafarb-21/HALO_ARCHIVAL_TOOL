@@ -6,6 +6,10 @@ platform: ModalAI Starling 2 Max
 flight_computer: PX4 on VOXL2
 companion_computer: VOXL2
 ip_address: REPLACE_WITH_ASSIGNED_LAB_IP
+ros_domain_id: null  # REQUIRED: fill the actual ROS_DOMAIN_ID
+enabled: true
+required: true
+post_landing_record_s: 3
 ssh_user: root
 
 paths:

@@ -6,19 +6,39 @@ drones:
     config: drones/D0012.yaml
     ssh_host: halo-d0012
     ip_address: 192.168.0.20
+    ros_domain_id: 3
+    enabled: true
+    required: true
+    post_landing_record_s: 3
   - drone_id: D0013
     config: drones/D0013.yaml
     ssh_host: halo-d0013
     ip_address: 192.168.0.21
+    ros_domain_id: null  # REQUIRED: fill the actual lab ROS_DOMAIN_ID before flight
+    enabled: true
+    required: true
+    post_landing_record_s: 3
   - drone_id: D0014
     config: drones/D0014.yaml
     ssh_host: halo-d0014
     ip_address: 192.168.0.22
+    ros_domain_id: null  # REQUIRED: fill the actual lab ROS_DOMAIN_ID before flight
+    enabled: true
+    required: true
+    post_landing_record_s: 3
   - drone_id: D0015
     config: drones/D0015.yaml
     ssh_host: halo-d0015
     ip_address: 192.168.0.23
+    ros_domain_id: null  # REQUIRED: fill the actual lab ROS_DOMAIN_ID before flight
+    enabled: true
+    required: true
+    post_landing_record_s: 3
   - drone_id: D0016
     config: drones/D0016.yaml
     ssh_host: halo-d0016
     ip_address: 192.168.0.24
+    ros_domain_id: null  # REQUIRED: fill the actual lab ROS_DOMAIN_ID before flight
+    enabled: true
+    required: true
+    post_landing_record_s: 3

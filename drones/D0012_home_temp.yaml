@@ -4,6 +4,7 @@ platform: ModalAI Starling 2 Max
 flight_computer: PX4 on VOXL2
 companion_computer: VOXL2
 ip_address: 10.249.98.97
+ros_domain_id: 3
 ssh_user: root
 
 paths:

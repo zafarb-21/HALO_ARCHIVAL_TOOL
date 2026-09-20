@@ -657,8 +657,8 @@ Collector options:
 - `--skip-ssh-check`: skip the collection preflight for advanced/offline validation.
 
 Automated orchestrator options include mission/operator/config paths, `--duration`,
-`--enable-audio`, `--enable-rosbag`, mutually exclusive `--no-auto-ulog`/`--auto-ulog`,
-and optional `--mirror-interval-s`. Audio-only mode defaults to no automatic ULog copy.
+`--enable-audio`, `--enable-ground-rosbag` (with `--enable-rosbag` retained as an alias),
+`--auto-ulog` (the swarm default) or `--no-auto-ulog`, and optional status/preflight controls.
 The drone-agent CLI also exposes ALSA format and monitoring interval controls.
 
 For the exact CLI accepted by the installed scripts:
@@ -686,3 +686,103 @@ python3 scripts/run_halo_mission.py --help
 - [ ] Derived files are under `processed/`, `plots/`, or `reports/`, not mixed with raw data.
 - [ ] The complete mission folder has been backed up before remote data is removed.
 
+
+
+## Validated five-drone passive ground archive workflow
+
+The swarm runner extends the validated D0012 ground-bag path without changing
+`scripts/run_halo_mission.py`. Ground Station A remains the only flight-control
+station. Ground Station B runs one independent worker process per enabled drone;
+it never arms, takes off, flies, lands, disarms, or sends trajectory commands.
+
+Every worker uses its own environment:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+export ROS_DOMAIN_ID=<that drone's actual domain>
+export ROS_LOCALHOST_ONLY=0
+export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+export ROS_STATIC_PEERS=<that drone's IP address>
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+```
+
+The preflight order is deliberate: CHECK DRONE ROS TOPICS FIRST. The runner SSHs
+to the drone, sources `/opt/ros/foxy/setup.bash`, sets that drone's domain,
+restarts/checks its ROS 2 daemon, and confirms `/fmu` topics and `px4_msgs` type
+information. Only after that does the corresponding ground worker source Jazzy,
+restart/check its domain-specific discovery, confirm ground `/fmu` topics, and
+validate `px4_msgs` message decoding.
+
+`ros_domain_id` is mandatory in both the swarm entry and its drone YAML. Missing
+or invalid values fail that drone's preflight with a clear `refusing to guess it`
+message. The checked-in D0012 value is `3`; the actual D0013-D0016 values must be
+filled from the lab before a full required swarm can become ready.
+
+The ground bag is not started before flight. A worker observes
+`/fmu/out/vehicle_status` and starts `ros2 bag record -a` only on a confirmed
+ARMED transition. It prefers `/fmu/out/vehicle_land_detected` with `landed: true`,
+records the configured 2–5 second `post_landing_record_s` post-roll (default 3),
+and stops the bag with SIGINT for clean metadata finalization. If that topic is
+unavailable, ARMED-to-DISARMED is the recorded `disarmed_fallback` stop trigger.
+Each bag is written to:
+
+```text
+drones/<drone_id>/ros_bags/<mission_id>__<drone_id>_ground_rosbag/
+```
+
+A ULog search and optional copy runs independently for every drone, so one
+connection or collection failure does not stop the other workers. Audio remains
+optional; disabled audio does not run `arecord` and is not treated as a missing
+file. Every mission writes `metadata/swarm_manifest.json` and every drone writes
+`drones/<drone_id>/metadata/collection_manifest.json`, including partial failures.
+
+Safe configuration-only dry run; this does not SSH, start ROS, create an archive,
+or send any flight command:
+
+```bash
+python3 scripts/run_halo_swarm_mission.py \
+  --mission-name "swarm_test_001" \
+  --operator "Operator Name" \
+  --swarm drones/swarm_lab.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --code-root "$PWD" \
+  --duration 180 \
+  --enable-ground-rosbag \
+  --auto-ulog \
+  --dry-run
+```
+
+After all five actual domains have been filled and SSH aliases are confirmed, the
+lab command is:
+
+```bash
+python3 scripts/run_halo_swarm_mission.py \
+  --mission-name "swarm_test_001" \
+  --operator "Operator Name" \
+  --swarm drones/swarm_lab.yaml \
+  --profile profiles/audio_px4_sync_test.yaml \
+  --code-root "$PWD" \
+  --duration 180 \
+  --enable-ground-rosbag \
+  --auto-ulog \
+  --px4-msgs-workspace "$HOME/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash"
+```
+
+The default readiness barrier requires every enabled `required: true` drone.
+`--allow-partial-swarm` explicitly permits the ready workers to proceed while
+recording the failed drones in the manifests. `--preflight-only` performs setup
+and readiness checks, then stops before flight.
+
+For a completed mission, verify each independent bag and metadata set:
+
+```bash
+MISSION_DIR="$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE/<mission_id>"
+for drone in D0012 D0013 D0014 D0015 D0016; do
+  ros2 bag info "$MISSION_DIR/drones/$drone/ros_bags/<mission_id>__${drone}_ground_rosbag"
+  find "$MISSION_DIR/drones/$drone/px4_logs" -type f -name '*.ulg' -print
+  python3 -m json.tool "$MISSION_DIR/drones/$drone/metadata/collection_manifest.json" >/dev/null
+ done
+python3 -m json.tool "$MISSION_DIR/metadata/swarm_manifest.json" >/dev/null
+python3 -m json.tool "$MISSION_DIR/metadata/mission_metadata.json" >/dev/null
+```

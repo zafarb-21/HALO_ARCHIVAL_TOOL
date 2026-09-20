@@ -1,0 +1,663 @@
+HALO LAB — FIVE-DRONE SWARM ARCHIVE TEST
+Ground-side ROS bags + automatic PX4 ULog collection
+LAB NETWORK ONLY
+
+D0012  192.168.0.20  halo-d0012
+D0013  192.168.0.21  halo-d0013
+D0014  192.168.0.22  halo-d0014
+D0015  192.168.0.23  halo-d0015
+D0016  192.168.0.24  halo-d0016
+
+DO NOT use D0012_home_temp.yaml in the lab.
+The commands below read each drone's real ROS_DOMAIN_ID and require it to be 1–7.
+ROS topics are checked ON EACH DRONE FIRST, then on the ground PC.
+Each ground check uses that drone's domain and its own ROS_STATIC_PEERS IP.
+Ground RMW is rmw_fastrtps_cpp.
+The archive station never sends arm/fly/land/disarm commands.
+The swarm tool is expected to start bags on confirmed ARMED.
+Preferred stop: landed=true + configured 2–5 s post-landing recording.
+Fallback stop: ARMED -> DISARMED.
+
+================================================================================
+1. TOOL DIRECTORY
+================================================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL
+
+================================================================================
+2. LAB NETWORK CONNECTIVITY
+================================================================================
+
+ping -c 2 192.168.0.20
+ping -c 2 192.168.0.21
+ping -c 2 192.168.0.22
+ping -c 2 192.168.0.23
+ping -c 2 192.168.0.24
+
+================================================================================
+3. PASSWORDLESS SSH CHECK
+================================================================================
+
+for D in d0012 d0013 d0014 d0015 d0016; do
+    echo "===== halo-$D ====="
+    ssh -o BatchMode=yes -o ConnectTimeout=8 "halo-$D" "hostname && date -u && ip -br addr" || exit 1
+done
+
+================================================================================
+4. CLOCK SYNC
+================================================================================
+
+for D in d0012 d0013 d0014 d0015 d0016; do
+    GROUND_UTC="$(date -u '+%Y-%m-%d %H:%M:%S')"
+    echo "===== Syncing halo-$D to $GROUND_UTC UTC ====="
+    ssh -o BatchMode=yes "halo-$D" "date -u -s '$GROUND_UTC'" || exit 1
+done
+
+date -u
+for D in d0012 d0013 d0014 d0015 d0016; do
+    ssh -o BatchMode=yes "halo-$D" "date -u" || exit 1
+done
+
+================================================================================
+5. PYTHON COMPILE CHECKS
+================================================================================
+
+python3 -m py_compile scripts/create_mission_archive.py
+python3 -m py_compile scripts/collect_drone_data.py
+python3 -m py_compile scripts/halo_drone_mission_agent.py
+python3 -m py_compile scripts/run_halo_mission.py
+python3 -m py_compile scripts/run_halo_swarm_mission.py
+
+================================================================================
+6. REQUIRED LAB FILES
+================================================================================
+
+for F in \
+  drones/D0012.yaml \
+  drones/D0013.yaml \
+  drones/D0014.yaml \
+  drones/D0015.yaml \
+  drones/D0016.yaml \
+  drones/swarm_lab.yaml \
+  profiles/audio_px4_sync_test.yaml
+do
+    test -f "$F" || { echo "MISSING: $F"; exit 1; }
+done
+
+================================================================================
+7. GROUND ROS2 + px4_msgs
+================================================================================
+
+source /opt/ros/jazzy/setup.bash
+source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+
+export ROS_LOCALHOST_ONLY=0
+export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+ros2 pkg prefix px4_msgs
+
+================================================================================
+8. START MicroDDS ON ALL FIVE DRONES
+================================================================================
+
+for D in d0012 d0013 d0014 d0015 d0016; do
+    echo "===== halo-$D MicroDDS ====="
+    ssh -o BatchMode=yes "halo-$D" \
+      "systemctl start voxl-microdds-agent && systemctl is-active voxl-microdds-agent" || exit 1
+done
+
+================================================================================
+9. READ THE REAL ROS_DOMAIN_ID FROM EACH DRONE
+================================================================================
+
+DOMAIN_FILE=/tmp/halo_swarm_domains.tsv
+: > "$DOMAIN_FILE"
+
+for SPEC in \
+    "D0012 halo-d0012 192.168.0.20" \
+    "D0013 halo-d0013 192.168.0.21" \
+    "D0014 halo-d0014 192.168.0.22" \
+    "D0015 halo-d0015 192.168.0.23" \
+    "D0016 halo-d0016 192.168.0.24"
+do
+    set -- $SPEC
+    DRONE_ID="$1"
+    HOST="$2"
+    IP="$3"
+
+    DOMAIN="$(
+        ssh -o BatchMode=yes "$HOST" \
+          "bash -ic 'printf \"__HALO_DOMAIN__%s\n\" \"\$ROS_DOMAIN_ID\"'" \
+          2>/dev/null |
+        sed -n 's/^__HALO_DOMAIN__//p' |
+        tail -1
+    )"
+
+    if ! printf '%s\n' "$DOMAIN" | grep -Eq '^[1-7]$'; then
+        echo "ERROR: $DRONE_ID invalid/missing ROS_DOMAIN_ID='$DOMAIN'"
+        exit 1
+    fi
+
+    printf '%s\t%s\t%s\t%s\n' "$DRONE_ID" "$HOST" "$IP" "$DOMAIN" | tee -a "$DOMAIN_FILE"
+done
+
+column -t "$DOMAIN_FILE" 2>/dev/null || cat "$DOMAIN_FILE"
+
+================================================================================
+10. VALIDATE swarm_lab.yaml AGAINST THE LIVE LAB DRONES
+================================================================================
+
+export HALO_DOMAIN_FILE="$DOMAIN_FILE"
+
+python3 - <<'PY'
+import os
+from pathlib import Path
+import yaml
+
+rows = {}
+for line in Path(os.environ["HALO_DOMAIN_FILE"]).read_text().splitlines():
+    drone_id, host, ip, domain = line.split()
+    rows[drone_id] = {"host": host, "ip": ip, "domain": int(domain)}
+
+cfg = yaml.safe_load(Path("drones/swarm_lab.yaml").read_text()) or {}
+entries = cfg.get("drones")
+
+if isinstance(entries, dict):
+    converted = []
+    for key, value in entries.items():
+        item = dict(value or {})
+        item.setdefault("drone_id", key)
+        converted.append(item)
+    entries = converted
+
+if not isinstance(entries, list):
+    raise SystemExit("ERROR: swarm_lab.yaml has no drones list/dict")
+
+by_id = {str(x.get("drone_id")): x for x in entries if isinstance(x, dict)}
+errors = []
+
+for drone_id, expected in rows.items():
+    item = by_id.get(drone_id)
+    if not item:
+        errors.append(f"{drone_id}: missing from swarm_lab.yaml")
+        continue
+
+    cfg_ip = str(item.get("ip_address", ""))
+    cfg_host = str(item.get("ssh_host", item.get("host", "")))
+    try:
+        cfg_domain = int(item.get("ros_domain_id"))
+    except Exception:
+        cfg_domain = None
+
+    if cfg_ip != expected["ip"]:
+        errors.append(f"{drone_id}: config IP={cfg_ip!r}, live lab IP={expected['ip']!r}")
+    if cfg_host and cfg_host != expected["host"]:
+        errors.append(f"{drone_id}: config host={cfg_host!r}, expected={expected['host']!r}")
+    if cfg_domain != expected["domain"]:
+        errors.append(f"{drone_id}: config domain={cfg_domain!r}, live domain={expected['domain']!r}")
+    if item.get("enabled") is False:
+        errors.append(f"{drone_id}: enabled=false")
+    if item.get("required") is False:
+        errors.append(f"{drone_id}: required=false")
+
+    try:
+        post = float(item.get("post_landing_record_s", 3))
+        if not 2.0 <= post <= 5.0:
+            errors.append(f"{drone_id}: post_landing_record_s={post}, expected 2..5")
+    except Exception:
+        errors.append(f"{drone_id}: invalid post_landing_record_s")
+
+if errors:
+    for e in errors:
+        print("ERROR:", e)
+    raise SystemExit(1)
+
+print("swarm_lab.yaml matches all five live lab drones.")
+PY
+
+================================================================================
+11. DRONE-SIDE /fmu CHECKS FIRST
+================================================================================
+
+while IFS=$'\t' read -r DRONE_ID HOST IP DOMAIN; do
+    echo
+    echo "===== $DRONE_ID DRONE-SIDE | DOMAIN=$DOMAIN ====="
+
+    ssh -o BatchMode=yes "$HOST" "bash -lc '
+        source /opt/ros/foxy/setup.bash
+        export ROS_DOMAIN_ID=$DOMAIN
+        export ROS_LOCALHOST_ONLY=0
+
+        ros2 daemon stop >/dev/null 2>&1 || true
+        sleep 1
+        ros2 daemon start >/dev/null 2>&1 || true
+        sleep 3
+
+        ros2 topic list -t | grep -q \"/fmu/out/sensor_combined\"
+        ros2 topic list -t | grep -q \"/fmu/out/vehicle_status\"
+        ros2 topic list -t | sort | grep fmu
+    '" || {
+        echo "ERROR: $DRONE_ID drone-side /fmu check failed."
+        exit 1
+    }
+done < "$DOMAIN_FILE"
+
+================================================================================
+12. GROUND /fmu CHECKS ONLY AFTER DRONE CHECKS PASS
+================================================================================
+
+while IFS=$'\t' read -r DRONE_ID HOST IP DOMAIN; do
+    echo
+    echo "===== $DRONE_ID GROUND | DOMAIN=$DOMAIN | STATIC_PEER=$IP ====="
+
+    (
+        source /opt/ros/jazzy/setup.bash
+        source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+
+        export ROS_DOMAIN_ID="$DOMAIN"
+        export ROS_LOCALHOST_ONLY=0
+        export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+        export ROS_STATIC_PEERS="$IP"
+        export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+        ros2 daemon stop >/dev/null 2>&1 || true
+        sleep 2
+        ros2 daemon start
+        sleep 8
+
+        ros2 topic list -t | grep -q "/fmu/out/sensor_combined"
+        ros2 topic list -t | grep -q "/fmu/out/vehicle_status"
+        ros2 topic list -t | sort | grep fmu
+    ) || {
+        echo "ERROR: ground PC cannot see $DRONE_ID /fmu topics."
+        exit 1
+    }
+done < "$DOMAIN_FILE"
+
+================================================================================
+13. DECODE sensor_combined FOR EACH DRONE
+================================================================================
+
+while IFS=$'\t' read -r DRONE_ID HOST IP DOMAIN; do
+    echo "===== $DRONE_ID decode ====="
+
+    (
+        source /opt/ros/jazzy/setup.bash
+        source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+
+        export ROS_DOMAIN_ID="$DOMAIN"
+        export ROS_LOCALHOST_ONLY=0
+        export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+        export ROS_STATIC_PEERS="$IP"
+        export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+        timeout 12 ros2 topic echo \
+          /fmu/out/sensor_combined \
+          px4_msgs/msg/SensorCombined \
+          --qos-reliability best_effort \
+          --once \
+          > "/tmp/${DRONE_ID}_sensor_combined.txt"
+    ) || {
+        echo "ERROR: $DRONE_ID px4_msgs decode failed."
+        exit 1
+    }
+
+    test -s "/tmp/${DRONE_ID}_sensor_combined.txt" || exit 1
+    echo "$DRONE_ID decode OK"
+done < "$DOMAIN_FILE"
+
+================================================================================
+14. VERIFY THE UPDATED SWARM CLI BEFORE FLIGHT
+================================================================================
+
+SWARM_HELP="$(python3 scripts/run_halo_swarm_mission.py --help 2>&1)"
+
+for REQUIRED in --enable-ground-rosbag --auto-ulog --px4-msgs-workspace; do
+    printf '%s\n' "$SWARM_HELP" | grep -q -- "$REQUIRED" || {
+        echo "ERROR: swarm orchestrator missing $REQUIRED"
+        exit 1
+    }
+done
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--swarm-config'; then
+    SWARM_CONFIG_FLAG='--swarm-config'
+elif printf '%s\n' "$SWARM_HELP" | grep -q -- '--swarm'; then
+    SWARM_CONFIG_FLAG='--swarm'
+else
+    echo "ERROR: no --swarm-config/--swarm flag found"
+    exit 1
+fi
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--duration'; then
+    DURATION_FLAG='--duration'
+elif printf '%s\n' "$SWARM_HELP" | grep -q -- '--max-duration-s'; then
+    DURATION_FLAG='--max-duration-s'
+else
+    echo "ERROR: no duration flag found"
+    exit 1
+fi
+
+================================================================================
+15. BUILD AND START THE FIVE-DRONE ARCHIVE
+================================================================================
+
+CMD=(
+    python3 scripts/run_halo_swarm_mission.py
+    --mission-name "lab_swarm_ground_rosbag_px4_test_001"
+    --operator "Victor Basvi"
+    "$SWARM_CONFIG_FLAG" drones/swarm_lab.yaml
+    "$DURATION_FLAG" 600
+    --enable-ground-rosbag
+    --px4-msgs-workspace "$HOME/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash"
+    --auto-ulog
+)
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--profile'; then
+    CMD+=(--profile profiles/audio_px4_sync_test.yaml)
+fi
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--code-root'; then
+    CMD+=(--code-root "$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL")
+fi
+
+printf 'RUNNING: '
+printf '%q ' "${CMD[@]}"
+echo
+
+# WAIT FOR "SWARM ARCHIVE READY" BEFORE THE SEPARATE FLIGHT GROUND STATION ARMS.
+"${CMD[@]}"
+
+================================================================================
+16. VERIFY ALL FIVE DRONES AFTER THE MISSION
+================================================================================
+
+MISSION_DIR="$(ls -td ~/MIC_ARRAY_ROS/HALO_ARCHIVE/* | head -1)"
+echo "MISSION_DIR=$MISSION_DIR"
+
+test -f "$MISSION_DIR/metadata/swarm_manifest.json" || {
+    echo "ERROR: swarm_manifest.json missing"
+    exit 1
+}
+
+for D in D0012 D0013 D0014 D0015 D0016; do
+    echo
+    echo "===== VERIFYING $D ====="
+
+    DRONE_DIR="$MISSION_DIR/drones/$D"
+    test -d "$DRONE_DIR" || exit 1
+
+    BAG_META="$(find "$DRONE_DIR/ros_bags" -name metadata.yaml -print | head -1)"
+    test -n "$BAG_META" || {
+        echo "ERROR: no ROS bag for $D"
+        exit 1
+    }
+
+    BAG_DIR="$(dirname "$BAG_META")"
+    ros2 bag info "$BAG_DIR"
+
+    ULOG="$(find "$DRONE_DIR/px4_logs" -name '*.ulg' -print | head -1)"
+    test -n "$ULOG" || {
+        echo "ERROR: no PX4 ULog for $D"
+        exit 1
+    }
+    ls -lh "$ULOG"
+
+    test -f "$DRONE_DIR/metadata/collection_manifest.json" || {
+        echo "ERROR: collection manifest missing for $D"
+        exit 1
+    }
+
+    grep -Ei '"(bag_stop_trigger|arm_detected|land_detected|disarm_detected|post_landing|termination_reason)"' \
+      "$DRONE_DIR/metadata/collection_manifest.json" || true
+done
+
+echo "FIVE-DRONE ARCHIVE VERIFIED"
+
+================================================================================
+17. ALL-IN-ONE LAB COMMAND — RUN THIS AFTER PASSWORDLESS SSH IS READY
+================================================================================
+
+cd ~/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL && bash <<'HALO_SWARM_RUN'
+set -euo pipefail
+cd "$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL"
+
+DRONES=(
+  "D0012 halo-d0012 192.168.0.20"
+  "D0013 halo-d0013 192.168.0.21"
+  "D0014 halo-d0014 192.168.0.22"
+  "D0015 halo-d0015 192.168.0.23"
+  "D0016 halo-d0016 192.168.0.24"
+)
+
+DOMAIN_FILE=/tmp/halo_swarm_domains.tsv
+: > "$DOMAIN_FILE"
+
+echo "=== PASSWORDLESS SSH + NETWORK ==="
+for SPEC in "${DRONES[@]}"; do
+    read -r DRONE_ID HOST IP <<< "$SPEC"
+    ping -c 1 -W 2 "$IP" >/dev/null
+    ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" "hostname >/dev/null"
+    echo "$DRONE_ID OK"
+done
+
+echo "=== CLOCK SYNC ==="
+for SPEC in "${DRONES[@]}"; do
+    read -r DRONE_ID HOST IP <<< "$SPEC"
+    T="$(date -u '+%Y-%m-%d %H:%M:%S')"
+    ssh -o BatchMode=yes "$HOST" "date -u -s '$T' >/dev/null"
+done
+
+echo "=== SCRIPT + CONFIG CHECK ==="
+python3 -m py_compile scripts/create_mission_archive.py
+python3 -m py_compile scripts/collect_drone_data.py
+python3 -m py_compile scripts/halo_drone_mission_agent.py
+python3 -m py_compile scripts/run_halo_mission.py
+python3 -m py_compile scripts/run_halo_swarm_mission.py
+
+for F in drones/D0012.yaml drones/D0013.yaml drones/D0014.yaml drones/D0015.yaml drones/D0016.yaml drones/swarm_lab.yaml profiles/audio_px4_sync_test.yaml; do
+    test -f "$F"
+done
+
+echo "=== GROUND ROS ENV ==="
+source /opt/ros/jazzy/setup.bash
+source "$HOME/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash"
+export ROS_LOCALHOST_ONLY=0
+export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+ros2 pkg prefix px4_msgs >/dev/null
+
+echo "=== MicroDDS + LIVE DOMAIN IDS ==="
+for SPEC in "${DRONES[@]}"; do
+    read -r DRONE_ID HOST IP <<< "$SPEC"
+    ssh -o BatchMode=yes "$HOST" \
+      "systemctl start voxl-microdds-agent && systemctl is-active --quiet voxl-microdds-agent"
+
+    DOMAIN="$(
+      ssh -o BatchMode=yes "$HOST" \
+        "bash -ic 'printf \"__HALO_DOMAIN__%s\n\" \"\$ROS_DOMAIN_ID\"'" \
+        2>/dev/null |
+      sed -n 's/^__HALO_DOMAIN__//p' |
+      tail -1
+    )"
+
+    printf '%s\n' "$DOMAIN" | grep -Eq '^[1-7]$' || {
+      echo "ERROR: $DRONE_ID invalid/missing ROS_DOMAIN_ID='$DOMAIN'"
+      exit 1
+    }
+
+    printf '%s\t%s\t%s\t%s\n' "$DRONE_ID" "$HOST" "$IP" "$DOMAIN" >> "$DOMAIN_FILE"
+    echo "$DRONE_ID domain=$DOMAIN"
+done
+
+echo "=== VALIDATE swarm_lab.yaml ==="
+export HALO_DOMAIN_FILE="$DOMAIN_FILE"
+python3 - <<'PY'
+import os
+from pathlib import Path
+import yaml
+
+rows = {}
+for line in Path(os.environ["HALO_DOMAIN_FILE"]).read_text().splitlines():
+    d, h, ip, dom = line.split()
+    rows[d] = (h, ip, int(dom))
+
+cfg = yaml.safe_load(Path("drones/swarm_lab.yaml").read_text()) or {}
+entries = cfg.get("drones")
+
+if isinstance(entries, dict):
+    converted = []
+    for key, value in entries.items():
+        item = dict(value or {})
+        item.setdefault("drone_id", key)
+        converted.append(item)
+    entries = converted
+
+if not isinstance(entries, list):
+    raise SystemExit("ERROR: swarm_lab.yaml missing drones")
+
+by_id = {str(x.get("drone_id")): x for x in entries if isinstance(x, dict)}
+errors = []
+
+for d, (h, ip, dom) in rows.items():
+    x = by_id.get(d)
+    if not x:
+        errors.append(f"{d}: missing")
+        continue
+    if str(x.get("ip_address", "")) != ip:
+        errors.append(f"{d}: IP mismatch")
+    cfg_host = str(x.get("ssh_host", x.get("host", "")))
+    if cfg_host and cfg_host != h:
+        errors.append(f"{d}: SSH host mismatch")
+    try:
+        cfg_dom = int(x.get("ros_domain_id"))
+    except Exception:
+        cfg_dom = None
+    if cfg_dom != dom:
+        errors.append(f"{d}: domain config={cfg_dom}, live={dom}")
+    if x.get("enabled") is False:
+        errors.append(f"{d}: disabled")
+    if x.get("required") is False:
+        errors.append(f"{d}: not required")
+    post = float(x.get("post_landing_record_s", 3))
+    if not 2 <= post <= 5:
+        errors.append(f"{d}: post_landing_record_s={post}")
+
+if errors:
+    raise SystemExit("ERROR:\n" + "\n".join(errors))
+
+print("swarm_lab.yaml matches live drones")
+PY
+
+echo "=== DRONE ROS TOPICS FIRST ==="
+while IFS=$'\t' read -r DRONE_ID HOST IP DOMAIN; do
+    ssh -o BatchMode=yes "$HOST" "bash -lc '
+      source /opt/ros/foxy/setup.bash
+      export ROS_DOMAIN_ID=$DOMAIN
+      export ROS_LOCALHOST_ONLY=0
+      ros2 daemon stop >/dev/null 2>&1 || true
+      sleep 1
+      ros2 daemon start >/dev/null 2>&1 || true
+      sleep 3
+      ros2 topic list -t | grep -q \"/fmu/out/sensor_combined\"
+      ros2 topic list -t | grep -q \"/fmu/out/vehicle_status\"
+    '"
+    echo "$DRONE_ID drone ROS OK"
+done < "$DOMAIN_FILE"
+
+echo "=== GROUND ROS TOPICS AFTER DRONE CHECKS ==="
+while IFS=$'\t' read -r DRONE_ID HOST IP DOMAIN; do
+    (
+      source /opt/ros/jazzy/setup.bash
+      source "$HOME/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash"
+      export ROS_DOMAIN_ID="$DOMAIN"
+      export ROS_LOCALHOST_ONLY=0
+      export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+      export ROS_STATIC_PEERS="$IP"
+      export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      ros2 daemon stop >/dev/null 2>&1 || true
+      sleep 2
+      ros2 daemon start >/dev/null
+      sleep 8
+      ros2 topic list -t | grep -q "/fmu/out/sensor_combined"
+      ros2 topic list -t | grep -q "/fmu/out/vehicle_status"
+      timeout 12 ros2 topic echo /fmu/out/sensor_combined px4_msgs/msg/SensorCombined \
+        --qos-reliability best_effort --once > "/tmp/${DRONE_ID}_sensor_combined.txt"
+    )
+    test -s "/tmp/${DRONE_ID}_sensor_combined.txt"
+    echo "$DRONE_ID ground ROS + decode OK"
+done < "$DOMAIN_FILE"
+
+echo "=== VERIFY SWARM CLI ==="
+SWARM_HELP="$(python3 scripts/run_halo_swarm_mission.py --help 2>&1)"
+
+for F in --enable-ground-rosbag --auto-ulog --px4-msgs-workspace; do
+    printf '%s\n' "$SWARM_HELP" | grep -q -- "$F" || {
+      echo "ERROR: missing swarm flag $F"
+      exit 1
+    }
+done
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--swarm-config'; then
+    SWARM_CONFIG_FLAG='--swarm-config'
+elif printf '%s\n' "$SWARM_HELP" | grep -q -- '--swarm'; then
+    SWARM_CONFIG_FLAG='--swarm'
+else
+    echo "ERROR: swarm config flag missing"
+    exit 1
+fi
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--duration'; then
+    DURATION_FLAG='--duration'
+elif printf '%s\n' "$SWARM_HELP" | grep -q -- '--max-duration-s'; then
+    DURATION_FLAG='--max-duration-s'
+else
+    echo "ERROR: duration flag missing"
+    exit 1
+fi
+
+CMD=(
+  python3 scripts/run_halo_swarm_mission.py
+  --mission-name "lab_swarm_ground_rosbag_px4_test_001"
+  --operator "Victor Basvi"
+  "$SWARM_CONFIG_FLAG" drones/swarm_lab.yaml
+  "$DURATION_FLAG" 600
+  --enable-ground-rosbag
+  --px4-msgs-workspace "$HOME/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash"
+  --auto-ulog
+)
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--profile'; then
+    CMD+=(--profile profiles/audio_px4_sync_test.yaml)
+fi
+
+if printf '%s\n' "$SWARM_HELP" | grep -q -- '--code-root'; then
+    CMD+=(--code-root "$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE_TOOL")
+fi
+
+echo "=== START SWARM ARCHIVE ==="
+echo "WAIT FOR SWARM ARCHIVE READY BEFORE THE FLIGHT GROUND STATION ARMS."
+printf 'RUNNING: '; printf '%q ' "${CMD[@]}"; echo
+"${CMD[@]}"
+
+echo "=== VERIFY ARCHIVE ==="
+MISSION_DIR="$(ls -td "$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE"/* | head -1)"
+test -f "$MISSION_DIR/metadata/swarm_manifest.json"
+
+for D in D0012 D0013 D0014 D0015 D0016; do
+    DRONE_DIR="$MISSION_DIR/drones/$D"
+    test -d "$DRONE_DIR"
+
+    BAG_META="$(find "$DRONE_DIR/ros_bags" -name metadata.yaml -print | head -1)"
+    test -n "$BAG_META"
+    ros2 bag info "$(dirname "$BAG_META")"
+
+    ULOG="$(find "$DRONE_DIR/px4_logs" -name '*.ulg' -print | head -1)"
+    test -n "$ULOG"
+    ls -lh "$ULOG"
+
+    test -f "$DRONE_DIR/metadata/collection_manifest.json"
+done
+
+echo "SUCCESS: FIVE-DRONE SWARM ARCHIVE COMPLETED AND VERIFIED"
+HALO_SWARM_RUN
