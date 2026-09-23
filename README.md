@@ -690,14 +690,64 @@ python3 scripts/run_halo_mission.py --help
 
 ## Validated five-drone passive ground archive workflow
 
-The persistent-terminal launcher extends the validated D0012 ground-bag path without changing
+The validated D0012 ground-bag path remains unchanged in
 `scripts/run_halo_mission.py`. Ground Station A remains the only flight-control
-station. Ground Station B runs one independent fixed-domain worker process per drone;
-it never arms, takes off, flies, lands, disarms, or sends trajectory commands.
-Use `scripts/launch_halo_swarm_terminals.sh` to create the common mission archive and
-open five titled GNOME terminals; each terminal runs `scripts/run_halo_drone_worker.py`.
+station. Ground Station B runs one independent fixed-domain worker process per
+drone; it never arms, takes off, flies, lands, disarms, or sends trajectory
+commands.
 
-Every worker uses its own environment:
+Use `scripts/launch_halo_swarm.sh` from one ordinary terminal. It creates one
+common mission archive and starts five background jobs. The previous
+`scripts/launch_halo_swarm_terminals.sh` name remains as a compatibility wrapper;
+no graphical terminals are required.
+
+Each launch is a separate Bash subshell. The environment is fixed before the
+worker is `exec`'d, and the parent captures the background PID immediately:
+
+```bash
+(
+  set -euo pipefail
+  cd "$REPO_ROOT"
+  source /opt/ros/jazzy/setup.bash
+  source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+  export ROS_DOMAIN_ID=3
+  export ROS_LOCALHOST_ONLY=0
+  export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+  export ROS_STATIC_PEERS=192.168.0.20
+  export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+  exec python3 scripts/run_halo_drone_worker.py ...
+) > "$MISSION_DIR/drones/D0012/status_logs/worker_console.log" 2>&1 &
+PID_D0012=$!
+```
+
+The launcher performs this pattern five times concurrently for the fixed lab
+mapping:
+
+```text
+D0012 | 192.168.0.20 | ROS_DOMAIN_ID 3 | ROS_STATIC_PEERS 192.168.0.20
+D0013 | 192.168.0.21 | ROS_DOMAIN_ID 4 | ROS_STATIC_PEERS 192.168.0.21
+D0014 | 192.168.0.22 | ROS_DOMAIN_ID 5 | ROS_STATIC_PEERS 192.168.0.22
+D0015 | 192.168.0.23 | ROS_DOMAIN_ID 6 | ROS_STATIC_PEERS 192.168.0.23
+D0016 | 192.168.0.24 | ROS_DOMAIN_ID 7 | ROS_STATIC_PEERS 192.168.0.24
+```
+
+Because each worker has its own subshell, exports for one domain cannot affect
+another worker. Each worker writes only to its own mission folder, including:
+
+```text
+<mission_dir>/drones/D0012/status_logs/worker_console.log
+<mission_dir>/drones/D0013/status_logs/worker_console.log
+<mission_dir>/drones/D0014/status_logs/worker_console.log
+<mission_dir>/drones/D0015/status_logs/worker_console.log
+<mission_dir>/drones/D0016/status_logs/worker_console.log
+```
+
+Inspect a worker with `tail -f <path>`. The launcher also prints `jobs -l`,
+tracks all five `$!` PIDs, monitors every `worker_status.json`, and waits for
+each worker independently. A nonzero D0014 exit is recorded without terminating
+D0012, D0013, D0015, or D0016.
+
+Every worker uses:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
@@ -709,26 +759,21 @@ export ROS_STATIC_PEERS=<that drone's IP address>
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ```
 
-The preflight order is deliberate: CHECK DRONE ROS TOPICS FIRST. The runner SSHs
-to the drone, sources `/opt/ros/foxy/setup.bash`, sets that drone's domain,
-restarts/checks its ROS 2 daemon, and confirms `/fmu` topics and `px4_msgs` type
-information. Only after that does the corresponding ground worker source Jazzy,
-restart/check its domain-specific discovery, confirm ground `/fmu` topics, and
-validate `px4_msgs` message decoding.
+The preflight order is deliberate: CHECK DRONE ROS TOPICS FIRST. The worker
+SSHs to its drone, sources `/opt/ros/foxy/setup.bash`, sets its fixed domain,
+restarts/checks that drone's ROS 2 daemon, and confirms at least
+`/fmu/out/sensor_combined`, `/fmu/out/vehicle_status`, and `px4_msgs` types.
+Only after that does the ground-side worker use Jazzy, restart/check its own
+fixed-domain discovery, confirm ground `/fmu` topics, and validate `px4_msgs`
+decoding. A missing `ros_domain_id` fails preflight; it is never guessed.
 
-`ros_domain_id` is mandatory in both the swarm entry and its drone YAML. The validated
-lab mapping is:
-
-```text
-D0012 | 192.168.0.20 | ROS_DOMAIN_ID 3
-D0013 | 192.168.0.21 | ROS_DOMAIN_ID 4
-D0014 | 192.168.0.22 | ROS_DOMAIN_ID 5
-D0015 | 192.168.0.23 | ROS_DOMAIN_ID 6
-D0016 | 192.168.0.24 | ROS_DOMAIN_ID 7
-```
-
-Missing or invalid values fail preflight with a clear `refusing to guess it`
-message. A worker never changes its domain after startup.
+The default READY barrier requires all five workers. The launcher prints
+`SWARM ARCHIVE READY` only after all five status files report `phase=READY` and
+all worker PIDs are still alive. `--allow-partial-swarm` permits ready workers
+to continue after another worker has failed, with the failure retained in the
+manifests. Ctrl-C sends SIGINT to each live archive worker, allowing active bags
+to finalize, waits for them, records launcher termination, and never sends a
+flight command. SIGKILL is not used for normal cleanup.
 
 The ground bag is not started before flight. A worker observes
 `/fmu/out/vehicle_status` and starts `ros2 bag record -a` only on a confirmed
@@ -742,26 +787,27 @@ Each bag is written to:
 drones/<drone_id>/ros_bags/<mission_id>__<drone_id>_ground_rosbag/
 ```
 
-A ULog search and optional copy runs independently for every drone, so one
-connection or collection failure does not stop the other workers. Audio remains
-optional; disabled audio does not run `arecord` and is not treated as a missing
-file. Every mission writes `metadata/swarm_manifest.json` and every drone writes
+ULog search/copy runs independently for every drone, so one connection or
+collection failure does not stop the other workers. Audio remains optional;
+disabled audio does not run `arecord` and is not treated as a missing file.
+Every mission writes `metadata/swarm_manifest.json` and every drone writes
 `drones/<drone_id>/metadata/collection_manifest.json`, including partial failures.
 
 Safe configuration-only dry run; this does not SSH, start ROS, create an archive,
 or send any flight command:
 
 ```bash
-scripts/launch_halo_swarm_terminals.sh \
+scripts/launch_halo_swarm.sh \
   --mission-name "swarm_test_001" \
   --operator "Operator Name" \
   --dry-run
 ```
 
-A live no-flight preflight uses the same launcher but stops after the READY checks:
+A live no-flight preflight uses the same background-worker launcher and stops
+workers after the READY checks:
 
 ```bash
-scripts/launch_halo_swarm_terminals.sh \
+scripts/launch_halo_swarm.sh \
   --mission-name "swarm_test_001" \
   --operator "Operator Name" \
   --preflight-only
@@ -770,27 +816,36 @@ scripts/launch_halo_swarm_terminals.sh \
 After the five SSH aliases and fixed domain mapping are confirmed, the lab command is:
 
 ```bash
-scripts/launch_halo_swarm_terminals.sh \
+scripts/launch_halo_swarm.sh \
   --mission-name "swarm_test_001" \
   --operator "Operator Name" \
   --duration 180 \
   --enable-audio
 ```
 
-The default readiness barrier requires all five workers.
-`--allow-partial-swarm` permits ready workers to continue while failed drones remain
-recorded in the manifests. `--headless` is available for systems without GNOME; it
-keeps the same fixed per-drone ROS environments.
-
-For a completed mission, verify each independent bag and metadata set:
+Useful live inspection commands:
 
 ```bash
+jobs -l
+pgrep -af 'run_halo_drone_worker.py'
 MISSION_ID="<mission_id>"
 MISSION_DIR="$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE/$MISSION_ID"
 for drone in D0012 D0013 D0014 D0015 D0016; do
-  ros2 bag info "$MISSION_DIR/drones/$drone/ros_bags/${MISSION_ID}__${drone}_ground_rosbag"
-  find "$MISSION_DIR/drones/$drone/px4_logs" -type f -name '*.ulg' -print
+  tail -n 50 "$MISSION_DIR/drones/$drone/status_logs/worker_console.log"
   python3 -m json.tool "$MISSION_DIR/drones/$drone/metadata/worker_status.json" >/dev/null
+done
+# Follow one selected worker continuously when needed:
+tail -f "$MISSION_DIR/drones/D0012/status_logs/worker_console.log"
+for drone in D0012 D0013 D0014 D0015 D0016; do
+  ros2 bag info "$MISSION_DIR/drones/$drone/ros_bags/${MISSION_ID}__${drone}_ground_rosbag"
+done
+```
+
+After the mission, verify ULogs and manifests independently:
+
+```bash
+for drone in D0012 D0013 D0014 D0015 D0016; do
+  find "$MISSION_DIR/drones/$drone/px4_logs" -type f -name '*.ulg' -print
   python3 -m json.tool "$MISSION_DIR/drones/$drone/metadata/collection_manifest.json" >/dev/null
 done
 python3 -m json.tool "$MISSION_DIR/metadata/swarm_manifest.json" >/dev/null
