@@ -701,6 +701,8 @@ common mission archive and starts five background jobs. The previous
 `scripts/launch_halo_swarm_terminals.sh` name remains as a compatibility wrapper;
 no graphical terminals are required.
 
+The complete operator runbook is [docs/SWARM_ARCHIVE_WORKFLOW.md](docs/SWARM_ARCHIVE_WORKFLOW.md).
+
 Each launch is a separate Bash subshell. The environment is fixed before the
 worker is `exec`'d, and the parent captures the background PID immediately:
 
