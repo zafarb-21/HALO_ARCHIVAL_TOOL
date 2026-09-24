@@ -1,0 +1,450 @@
+{
+  "mission_id": "20260924_173312_551632_UTC_live_pipeline_test3",
+  "drone_id": "D0012",
+  "ip_address": "192.168.0.20",
+  "ros_domain_id": 3,
+  "static_peer": "192.168.0.20",
+  "state": "RECORDING",
+  "phase": "RECORDING",
+  "vehicle_state": "connection_lost",
+  "connection_lost": true,
+  "armed": null,
+  "landed": null,
+  "arm_detected_utc": "2026-09-24T17:36:14.515182+00:00",
+  "arm_detected_px4_timestamp": 1790271369992659,
+  "land_detected_utc": null,
+  "land_detected_px4_timestamp": null,
+  "disarm_detected_utc": null,
+  "disarm_detected_px4_timestamp": null,
+  "post_landing_record_s": 3.0,
+  "post_landing_remaining_s": null,
+  "bag": {
+    "enabled": true,
+    "prepared": true,
+    "started": true,
+    "active": true,
+    "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0012/ros_bags/20260924_173312_551632_UTC_live_pipeline_test3__D0012_ground_rosbag",
+    "start_utc": "2026-09-24T17:36:14.516540+00:00",
+    "size_bytes": 45056
+  },
+  "warnings": [
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable"
+  ],
+  "errors": [],
+  "connection_loss_events": [
+    {
+      "detected_utc": "2026-09-24T17:36:15.951791+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:18.933037+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:23.580115+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:28.010132+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:32.121036+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:36.302900+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:48.147188+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:52.355821+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:36:56.810502+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:01.020883+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:05.500478+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:10.005968+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:14.329291+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:18.352778+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:22.312040+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:26.405944+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:30.358981+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:34.277066+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:38.201976+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:42.147728+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:46.082776+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:50.024423+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:53.986100+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:37:57.963781+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:01.885796+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:05.843173+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:09.848139+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:13.796134+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:17.763705+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:21.734117+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:25.696769+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:29.672755+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:33.649538+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:37.584338+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:41.564607+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:45.551023+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:49.501168+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:53.443092+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:38:57.411815+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:01.357618+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:05.308271+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:09.259945+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:13.221170+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:17.175889+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:21.131725+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:25.095134+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:29.040162+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:32.977981+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:36.934388+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:40.873393+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:44.809394+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:49.145531+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:53.089798+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:39:57.026671+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:00.985302+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:04.929614+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:08.863057+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:12.829228+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:16.763023+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:20.700929+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:24.650866+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:28.579374+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:32.511740+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:36.461180+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:40.417008+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:44.369787+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:48.317540+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:52.285850+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:40:56.212814+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:00.148385+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:04.105587+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:08.027143+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:11.945159+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:15.896555+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:19.829361+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:23.750407+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:27.679455+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:31.606065+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:35.512461+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:39.408850+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:43.319302+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:47.227783+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:41:51.134616+00:00",
+      "phase": "RECORDING"
+    }
+  ]
+}

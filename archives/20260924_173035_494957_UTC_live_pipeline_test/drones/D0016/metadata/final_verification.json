@@ -1,0 +1,95 @@
+{
+  "drone_id": "D0016",
+  "errors": [],
+  "warnings": [],
+  "ulogs": [
+    {
+      "remote_path": "/data/px4/log/sess125/log102.ulg",
+      "bytes": 9560484,
+      "mtime": 1790271425.9997327,
+      "sha256": "3f0560f3f0e83dad5dc98f3162948c2ddebbc69b3e624901873f9c7b4cc2b251",
+      "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173035_494957_UTC_live_pipeline_test/drones/D0016/px4_logs/all_mission_logs/sess125/log102.ulg",
+      "local_sha256": "3f0560f3f0e83dad5dc98f3162948c2ddebbc69b3e624901873f9c7b4cc2b251",
+      "hash_matches": true,
+      "ulog_magic_ok": true
+    }
+  ],
+  "connection_loss_events": [],
+  "arm_detected_utc": "2026-09-24T17:36:13.761955+00:00",
+  "disarm_detected_utc": "2026-09-24T17:37:07.673704+00:00",
+  "bag": {
+    "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173035_494957_UTC_live_pipeline_test/drones/D0016/ros_bags/20260924_173035_494957_UTC_live_pipeline_test__D0016_ground_rosbag",
+    "errors": [],
+    "topics": {
+      "/rosout": {
+        "type": "rcl_interfaces/msg/Log",
+        "count": 18,
+        "sample_decodes": true
+      },
+      "/events/write_split": {
+        "type": "rosbag2_interfaces/msg/WriteSplitEvent",
+        "count": 0
+      },
+      "/parameter_events": {
+        "type": "rcl_interfaces/msg/ParameterEvent",
+        "count": 0
+      },
+      "/fmu/out/vehicle_attitude": {
+        "type": "px4_msgs/msg/VehicleAttitude",
+        "count": 10445,
+        "sample_decodes": true
+      },
+      "/fmu/out/vehicle_status": {
+        "type": "px4_msgs/msg/VehicleStatus",
+        "count": 110,
+        "sample_decodes": true
+      },
+      "/fmu/out/vehicle_odometry": {
+        "type": "px4_msgs/msg/VehicleOdometry",
+        "count": 5476,
+        "sample_decodes": true
+      },
+      "/fmu/out/vehicle_local_position": {
+        "type": "px4_msgs/msg/VehicleLocalPosition",
+        "count": 5478,
+        "sample_decodes": true
+      },
+      "/fmu/out/vehicle_gps_position": {
+        "type": "px4_msgs/msg/SensorGps",
+        "count": 0
+      },
+      "/fmu/out/vehicle_control_mode": {
+        "type": "px4_msgs/msg/VehicleControlMode",
+        "count": 110,
+        "sample_decodes": true
+      },
+      "/fmu/out/timesync_status": {
+        "type": "px4_msgs/msg/TimesyncStatus",
+        "count": 545,
+        "sample_decodes": true
+      },
+      "/fmu/out/failsafe_flags": {
+        "type": "px4_msgs/msg/FailsafeFlags",
+        "count": 0
+      },
+      "/fmu/out/sensor_combined": {
+        "type": "px4_msgs/msg/SensorCombined",
+        "count": 10527,
+        "sample_decodes": true
+      },
+      "/fmu/out/battery_status": {
+        "type": "px4_msgs/msg/BatteryStatus",
+        "count": 2249,
+        "sample_decodes": true
+      },
+      "/fmu/out/position_setpoint_triplet": {
+        "type": "px4_msgs/msg/PositionSetpointTriplet",
+        "count": 0
+      }
+    },
+    "message_count": 34958,
+    "duration_s": 54.633450652
+  },
+  "ok": true,
+  "verification_utc": "2026-09-24T17:41:17.645432+00:00"
+}

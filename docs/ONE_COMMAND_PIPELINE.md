@@ -86,6 +86,17 @@ The default collects ROS bags and PX4 logs; audio requires `--enable-audio`.
 `--dry-run` validates config without SSH or archive creation. `--detach` returns
 immediately; check status and the log for readiness before arming.
 
+For a normal live test, use a unique name and keep this terminal open until the
+`ALL FIVE READY` message appears:
+
+```bash
+./halo.sh --name live_pipeline_test --duration 600
+```
+
+Then arm using the approved flight procedure, disarm after the planned interval,
+and wait for the command to print `COMPLETE`. The final archive contains the bags,
+all mission-window ULogs, per-drone verification, and `reports/pipeline_verification.md`.
+
 The matched workspace defaults to
 `runtime/px4_ros2_humble_ws/install/setup.bash`. To rebuild after moving the repository,
 follow `runtime/px4_ros2_humble_ws/SOURCE.md`. A different setup can be selected with

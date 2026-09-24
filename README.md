@@ -15,6 +15,15 @@ check progress and `./halo.sh stop` to finalize early (it does not disarm drones
 See [the one-command guide](docs/ONE_COMMAND_PIPELINE.md) for options, output paths,
 and how to follow the live log. Audio is optional and off by default.
 
+For the live test run requested here, use a fresh mission name:
+
+```bash
+./halo.sh --name live_pipeline_test --duration 600
+```
+
+Wait for `ALL FIVE READY` before arming. The command prints the exact archive and
+log paths; after disarm, inspect the final verification report under that archive.
+
 
 This repository contains the ground-computer tools used to create, identify, populate,
 and preserve a HALO drone mission archive. The archive keeps the mission configuration,

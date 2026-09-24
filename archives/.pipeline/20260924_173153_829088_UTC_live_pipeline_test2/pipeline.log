@@ -1,0 +1,162 @@
+D0012 | 192.168.0.20 | ROS_DOMAIN_ID=3 | halo-d0012
+D0013 | 192.168.0.21 | ROS_DOMAIN_ID=4 | halo-d0013
+D0014 | 192.168.0.22 | ROS_DOMAIN_ID=5 | halo-d0014
+D0015 | 192.168.0.23 | ROS_DOMAIN_ID=6 | halo-d0015
+D0016 | 192.168.0.24 | ROS_DOMAIN_ID=7 | halo-d0016
+SWARM CONFIGURATION OK
+D0012 SSH/IP OK | halo-d0012 | 192.168.0.20
+D0012 UTC SYNC OK | 2026-09-24T17:31:54.376911932Z
+D0012 microdds OK | active
+D0013 SSH/IP OK | halo-d0013 | 192.168.0.21
+D0013 UTC SYNC OK | 2026-09-24T17:31:55.656456008Z
+D0013 microdds OK | active
+D0014 SSH/IP OK | halo-d0014 | 192.168.0.22
+D0014 UTC SYNC OK | 2026-09-24T17:31:57.096689409Z
+D0014 microdds OK | active
+D0015 SSH/IP OK | halo-d0015 | 192.168.0.23
+D0015 UTC SYNC OK | 2026-09-24T17:31:58.370419359Z
+D0015 microdds OK | active
+D0016 SSH/IP OK | halo-d0016 | 192.168.0.24
+D0016 UTC SYNC OK | 2026-09-24T17:31:59.573585082Z
+D0016 microdds OK | active
+Common mission ID: 20260924_173153_829088_UTC_live_pipeline_test2
+Mission archive: /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2
+D0012 background worker started | PID=183665 | domain=3 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0012/status_logs/worker_console.log
+D0013 background worker started | PID=183673 | domain=4 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0013/status_logs/worker_console.log
+D0014 background worker started | PID=183681 | domain=5 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0014/status_logs/worker_console.log
+D0015 background worker started | PID=183689 | domain=6 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0015/status_logs/worker_console.log
+D0016 background worker started | PID=183697 | domain=7 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0016/status_logs/worker_console.log
+Worker inspection: jobs -l
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0012/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0013/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0014/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0015/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0016/status_logs/worker_console.log
+D0012 | PID 183665 | NOT_STARTED | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 183673 | NOT_STARTED | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 183681 | NOT_STARTED | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 183689 | NOT_STARTED | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 183697 | NOT_STARTED | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 183665 | CHECKING_DRONE_ROS | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 183673 | CHECKING_DRONE_ROS | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 183681 | CHECKING_DRONE_ROS | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 183689 | CHECKING_DRONE_ROS | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 183697 | CHECKING_DRONE_ROS | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 183665 | CHECKING_GROUND_ROS | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 183673 | CHECKING_GROUND_ROS | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 183681 | CHECKING_GROUND_ROS | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 183689 | CHECKING_GROUND_ROS | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 183697 | CHECKING_GROUND_ROS | domain=7 | UNKNOWN | bag 0.0 MB
+D0013 | PID 183673 | READY | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 183681 | READY | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 183689 | READY | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 183697 | READY | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 183665 | READY | domain=3 | UNKNOWN | bag 0.0 MB
+D0014 | PID 183681 | WAITING_FOR_ARM | domain=5 | disarmed | bag 0.0 MB
+D0015 | PID 183689 | WAITING_FOR_ARM | domain=6 | disarmed | bag 0.0 MB
+D0016 | PID 183697 | WAITING_FOR_ARM | domain=7 | disarmed | bag 0.0 MB
+================================================
+              SWARM ARCHIVE READY
+READY: You may arm under your normal test procedure. Disarm after your planned interval. Collection is automatic.
+================================================
+D0012 READY | PID=183665 | domain=3 | 192.168.0.20
+D0013 READY | PID=183673 | domain=4 | 192.168.0.21
+D0014 READY | PID=183681 | domain=5 | 192.168.0.22
+D0015 READY | PID=183689 | domain=6 | 192.168.0.23
+D0016 READY | PID=183697 | domain=7 | 192.168.0.24
+Waiting for ARMED state on each drone. Flight control remains with Ground Station A.
+The launcher remains active; inspect jobs with: jobs -l
+D0012 | PID 183665 | UNKNOWN | READY | bag 0.0 MB
+D0013 | PID 183673 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0014 | PID 183681 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0015 | PID 183689 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0016 | PID 183697 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0012 | PID 183665 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0013 | PID 183673 | connection_lost | WAITING_FOR_ARM | bag 0.0 MB
+D0013 | PID 183673 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0012 | PID 183665 | armed | RECORDING | bag 0.0 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.0 MB
+D0015 | PID 183689 | armed | RECORDING | bag 0.0 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.1 MB
+D0016 | PID 183697 | armed | RECORDING | bag 0.0 MB
+D0015 | PID 183689 | armed | RECORDING | bag 0.2 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.2 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.0 MB
+D0016 | PID 183697 | armed | RECORDING | bag 0.2 MB
+D0015 | PID 183689 | armed | RECORDING | bag 0.4 MB
+D0012 | PID 183665 | connection_lost | RECORDING | bag 0.1 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.2 MB
+D0016 | PID 183697 | armed | RECORDING | bag 0.4 MB
+D0015 | PID 183689 | armed | RECORDING | bag 0.6 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.3 MB
+D0016 | PID 183697 | armed | RECORDING | bag 0.6 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.3 MB
+D0015 | PID 183689 | armed | RECORDING | bag 0.8 MB
+D0016 | PID 183697 | armed | RECORDING | bag 0.8 MB
+D0013 | PID 183673 | connection_lost | RECORDING | bag 0.3 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.4 MB
+D0015 | PID 183689 | armed | RECORDING | bag 1.0 MB
+D0016 | PID 183697 | armed | RECORDING | bag 1.0 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.6 MB
+D0015 | PID 183689 | armed | RECORDING | bag 1.2 MB
+D0016 | PID 183697 | armed | RECORDING | bag 1.2 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.4 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.7 MB
+D0015 | PID 183689 | armed | RECORDING | bag 1.5 MB
+D0016 | PID 183697 | armed | RECORDING | bag 1.4 MB
+D0015 | PID 183689 | armed | RECORDING | bag 1.7 MB
+D0016 | PID 183697 | armed | RECORDING | bag 1.6 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.5 MB
+D0013 | PID 183673 | connection_lost | RECORDING | bag 0.5 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.8 MB
+D0015 | PID 183689 | armed | RECORDING | bag 1.9 MB
+D0016 | PID 183697 | armed | RECORDING | bag 1.9 MB
+D0014 | PID 183681 | connection_lost | RECORDING | bag 0.8 MB
+D0015 | PID 183689 | armed | RECORDING | bag 2.1 MB
+D0016 | PID 183697 | armed | RECORDING | bag 2.1 MB
+D0013 | PID 183673 | connection_lost | RECORDING | bag 0.6 MB
+D0015 | PID 183689 | armed | RECORDING | bag 2.3 MB
+D0016 | PID 183697 | armed | RECORDING | bag 2.3 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.7 MB
+D0015 | PID 183689 | armed | RECORDING | bag 2.5 MB
+D0016 | PID 183697 | armed | RECORDING | bag 2.5 MB
+D0013 | PID 183673 | armed | RECORDING | bag 0.9 MB
+D0015 | PID 183689 | armed | RECORDING | bag 2.7 MB
+D0016 | PID 183697 | armed | RECORDING | bag 2.7 MB
+D0015 | PID 183689 | armed | RECORDING | bag 2.9 MB
+D0016 | PID 183697 | armed | RECORDING | bag 2.9 MB
+D0015 | PID 183689 | armed | RECORDING | bag 3.1 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.9 MB
+D0016 | PID 183697 | armed | RECORDING | bag 3.1 MB
+D0013 | PID 183673 | armed | RECORDING | bag 1.1 MB
+D0014 | PID 183681 | connection_lost | RECORDING | bag 0.9 MB
+D0015 | PID 183689 | armed | RECORDING | bag 3.3 MB
+D0016 | PID 183697 | armed | RECORDING | bag 3.3 MB
+D0015 | PID 183689 | armed | RECORDING | bag 3.5 MB
+D0016 | PID 183697 | armed | RECORDING | bag 3.5 MB
+D0014 | PID 183681 | armed | RECORDING | bag 0.9 MB
+D0015 | PID 183689 | armed | RECORDING | bag 3.7 MB
+D0013 | PID 183673 | armed | RECORDING | bag 1.3 MB
+D0016 | PID 183697 | armed | RECORDING | bag 3.7 MB
+D0013 | PID 183673 | connection_lost | RECORDING | bag 1.3 MB
+D0014 | PID 183681 | armed | RECORDING | bag 1.0 MB
+D0015 | PID 183689 | armed | RECORDING | bag 3.9 MB
+D0016 | PID 183697 | armed | RECORDING | bag 3.9 MB
+D0013 | PID 183673 | connection_lost | RECORDING | bag 1.4 MB
+D0015 | PID 183689 | armed | RECORDING | bag 4.2 MB
+D0016 | PID 183697 | armed | RECORDING | bag 4.2 MB
+D0014 | PID 183681 | armed | RECORDING | bag 1.1 MB
+D0013 | PID 183673 | armed | RECORDING | bag 1.5 MB
+D0015 | PID 183689 | armed | RECORDING | bag 4.4 MB
+D0016 | PID 183697 | disarmed | STOPPING_BAG | bag 4.4 MB
+D0014 | PID 183681 | armed | RECORDING | bag 1.2 MB
+D0015 | PID 183689 | disarmed | STOPPING_BAG | bag 4.6 MB
+D0016 | PID 183697 | UNKNOWN | DONE | bag 4.5 MB
+D0013 | PID 183673 | armed | RECORDING | bag 1.6 MB
+D0014 | PID 183681 | connection_lost | RECORDING | bag 1.2 MB
+D0015 | PID 183689 | UNKNOWN | DONE | bag 4.6 MB
+D0013 | PID 183673 | disarmed | STOPPING_BAG | bag 1.7 MB
+D0013 | PID 183673 | UNKNOWN | DONE | bag 1.8 MB
+D0015 worker exited | PID=183689 | exit_code=0 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0015/status_logs/worker_console.log
+D0016 worker exited | PID=183697 | exit_code=0 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0016/status_logs/worker_console.log
+D0013 worker exited | PID=183673 | exit_code=0 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173153_829088_UTC_live_pipeline_test2/drones/D0013/status_logs/worker_console.log

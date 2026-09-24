@@ -18,7 +18,9 @@ from halo_swarm_common import load_json, save_json_atomic
 
 REPO = Path(__file__).resolve().parents[1]
 POINTER = REPO / '.halo_pipeline.json'
-LOCK = REPO / '.halo_pipeline.lock'
+# Use a new runtime lock name so an interrupted older supervisor cannot leave
+# this repository permanently blocked by an inherited file descriptor.
+LOCK = REPO / '.halo_pipeline_runtime2.lock'
 TERMINAL = {'COMPLETE', 'FAILED', 'STOPPED'}
 
 
@@ -200,6 +202,15 @@ def main():
                         print('ALL FIVE READY — arm under your normal test procedure, then disarm after your planned interval. Collection is automatic.')
                     else:
                         print(f"Pipeline phase: {state['phase']}. See ./halo.sh status.")
+                    # Keep the foreground supervisor alive through recording and
+                    # collection. This prevents terminal/session cleanup from
+                    # killing the worker processes immediately after READY.
+                    if state['phase'] == 'READY' and not args.preflight_only:
+                        while True:
+                            latest = load_json(job / 'state.json')
+                            if latest.get('phase') in TERMINAL:
+                                return 0 if latest.get('phase') == 'COMPLETE' else 1
+                            time.sleep(1)
                     return 0
                 if state.get('phase') in TERMINAL or proc.poll() is not None:
                     print('Pipeline did not become ready. Inspect: ' + initial['log'], file=sys.stderr)

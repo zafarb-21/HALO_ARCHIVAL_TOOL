@@ -1,0 +1,1742 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_173454_UTC_live_pipeline_test_final",
+  "mission_name": "live_pipeline_test_final",
+  "operator": "vmbasvi",
+  "mission_start_utc": "2026-09-24T17:35:04.723133+00:00",
+  "mission_end_utc": "2026-09-24T17:39:55.101305+00:00",
+  "configured_drones": {
+    "D0012": {
+      "drone_id": "D0012",
+      "drone_host": "halo-d0012",
+      "drone_ip": "192.168.0.20",
+      "ros_domain_id": 3,
+      "static_peer": "192.168.0.20",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "DONE",
+      "warnings": [
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271295.661075519; 2026-09-24T17:34:55.665052966Z",
+        "recorded_utc": "2026-09-24T17:34:56.111649+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:34:56.601991+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.20 192.168.168.100 \n192.168.0.20",
+        "recorded_utc": "2026-09-24T17:34:55.651846+00:00"
+      },
+      "phase": "DONE",
+      "worker_status": {
+        "mission_id": "20260924_173454_UTC_live_pipeline_test_final",
+        "drone_id": "D0012",
+        "ip_address": "192.168.0.20",
+        "ros_domain_id": 3,
+        "static_peer": "192.168.0.20",
+        "state": "DONE",
+        "phase": "DONE",
+        "arm_detected_utc": "2026-09-24T17:36:08.496089+00:00",
+        "arm_detected_px4_timestamp": 1790271367963493,
+        "land_detected_utc": null,
+        "land_detected_px4_timestamp": null,
+        "disarm_detected_utc": null,
+        "disarm_detected_px4_timestamp": null,
+        "bag_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0012_ground_rosbag",
+        "bag_stop_utc": "2026-09-24T17:39:45.051483+00:00",
+        "bag_stop_trigger": "disarmed_fallback",
+        "bag_return_code": 0,
+        "bag_size_bytes": 190854,
+        "connection_lost": true,
+        "bag": {
+          "enabled": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0012_ground_rosbag",
+          "start_utc": "2026-09-24T17:36:08.496872+00:00",
+          "stop_utc": "2026-09-24T17:39:45.051483+00:00",
+          "stop_trigger": "disarmed_fallback",
+          "return_code": 0,
+          "size_bytes": 190854
+        },
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:35:30.609699+00:00",
+        "audio": {
+          "enabled": false,
+          "disabled_intentionally": true,
+          "started_utc": null,
+          "stopped_utc": null,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/audio/respeaker_6ch.wav",
+          "exists": false,
+          "sync_result": null
+        },
+        "ground_preflight": {
+          "visible_topics": [
+            "/fmu/in/obstacle_distance",
+            "/fmu/in/offboard_control_mode",
+            "/fmu/in/onboard_computer_status",
+            "/fmu/in/sensor_optical_flow",
+            "/fmu/in/telemetry_status",
+            "/fmu/in/trajectory_setpoint",
+            "/fmu/in/vehicle_attitude_setpoint",
+            "/fmu/in/vehicle_command",
+            "/fmu/in/vehicle_mocap_odometry",
+            "/fmu/in/vehicle_rates_setpoint",
+            "/fmu/in/vehicle_trajectory_bezier",
+            "/fmu/in/vehicle_trajectory_waypoint",
+            "/fmu/in/vehicle_visual_odometry",
+            "/fmu/out/battery_status",
+            "/fmu/out/failsafe_flags",
+            "/fmu/out/sensor_combined",
+            "/fmu/out/timesync_status",
+            "/fmu/out/vehicle_attitude",
+            "/fmu/out/vehicle_control_mode",
+            "/fmu/out/vehicle_local_position",
+            "/fmu/out/vehicle_odometry",
+            "/fmu/out/vehicle_status",
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/fmu/in/obstacle_distance": "px4_msgs/msg/ObstacleDistance",
+            "/fmu/in/offboard_control_mode": "px4_msgs/msg/OffboardControlMode",
+            "/fmu/in/onboard_computer_status": "px4_msgs/msg/OnboardComputerStatus",
+            "/fmu/in/sensor_optical_flow": "px4_msgs/msg/SensorOpticalFlow",
+            "/fmu/in/telemetry_status": "px4_msgs/msg/TelemetryStatus",
+            "/fmu/in/trajectory_setpoint": "px4_msgs/msg/TrajectorySetpoint",
+            "/fmu/in/vehicle_attitude_setpoint": "px4_msgs/msg/VehicleAttitudeSetpoint",
+            "/fmu/in/vehicle_command": "px4_msgs/msg/VehicleCommand",
+            "/fmu/in/vehicle_mocap_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/in/vehicle_rates_setpoint": "px4_msgs/msg/VehicleRatesSetpoint",
+            "/fmu/in/vehicle_trajectory_bezier": "px4_msgs/msg/VehicleTrajectoryBezier",
+            "/fmu/in/vehicle_trajectory_waypoint": "px4_msgs/msg/VehicleTrajectoryWaypoint",
+            "/fmu/in/vehicle_visual_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/battery_status": "px4_msgs/msg/BatteryStatus",
+            "/fmu/out/failsafe_flags": "px4_msgs/msg/FailsafeFlags",
+            "/fmu/out/sensor_combined": "px4_msgs/msg/SensorCombined",
+            "/fmu/out/timesync_status": "px4_msgs/msg/TimesyncStatus",
+            "/fmu/out/vehicle_attitude": "px4_msgs/msg/VehicleAttitude",
+            "/fmu/out/vehicle_control_mode": "px4_msgs/msg/VehicleControlMode",
+            "/fmu/out/vehicle_local_position": "px4_msgs/msg/VehicleLocalPosition",
+            "/fmu/out/vehicle_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/vehicle_status": "px4_msgs/msg/VehicleStatus",
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "px4_msgs/msg/VehicleStatus",
+          "sensor_combined_type": "px4_msgs/msg/SensorCombined",
+          "vehicle_status_echo": {
+            "available": true,
+            "armed": false,
+            "state": "disarmed",
+            "timestamp": 1790271326759936
+          },
+          "sensor_combined_echo": {
+            "command": "ros2 topic echo /fmu/out/sensor_combined --once --qos-reliability best_effort",
+            "return_code": 0,
+            "stdout": "timestamp: 1790271330055162\ngyro_rad:\n- 0.003801192156970501\n- 0.0016973307356238365\n- -0.0037280225660651922\ngyro_integral_dt: 4862\naccelerometer_timestamp_relative: 0\naccelerometer_m_s2:\n- -0.05969700217247009\n- -0.07497043907642365\n- -9.903047561645508\naccelerometer_integral_dt: 5012\naccelerometer_clipping: 0\ngyro_clipping: 8\naccel_calibration_count: 1\ngyro_calibration_count: 1\n---",
+            "stderr": "",
+            "ok": true
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": true,
+          "px4_msgs_decode_ok": true,
+          "warnings": [],
+          "errors": []
+        },
+        "warnings": [
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable"
+        ],
+        "errors": [],
+        "connection_loss_events": [
+          {
+            "detected_utc": "2026-09-24T17:36:16.039304+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:19.141038+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:23.799780+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:28.481439+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:32.821196+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:37.105769+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:49.170369+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:53.525873+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:57.861797+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:02.105169+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:06.867850+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:11.131266+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:15.217398+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:19.165825+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:23.085508+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:27.007835+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:30.951945+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:34.906000+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:38.869251+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:42.815484+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:46.796789+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:50.742884+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:54.665006+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:58.605308+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:02.541722+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:06.466032+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:10.441202+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:14.396512+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:18.349605+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:22.281724+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:26.230040+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:30.162970+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:34.080943+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:38.008447+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:41.950315+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:45.899348+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:49.828468+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:53.781091+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:57.705961+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:01.646783+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:05.590609+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:09.538826+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:13.506945+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:17.466487+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:21.416498+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:25.366449+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:29.326587+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:33.307471+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:37.278274+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:41.244615+00:00",
+            "phase": "RECORDING"
+          }
+        ],
+        "termination_reason": "worker_interrupted",
+        "post_landing_record_s": 3.0,
+        "finalized_utc": "2026-09-24T17:39:45.051734+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "enabled": true,
+        "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0012_ground_rosbag",
+        "start_utc": "2026-09-24T17:36:08.496872+00:00",
+        "stop_utc": "2026-09-24T17:39:45.051483+00:00",
+        "stop_trigger": "disarmed_fallback",
+        "return_code": 0,
+        "size_bytes": 190854
+      },
+      "selected_ulog": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/px4_logs/log102.ulg"
+    },
+    "D0013": {
+      "drone_id": "D0013",
+      "drone_host": "halo-d0013",
+      "drone_ip": "192.168.0.21",
+      "ros_domain_id": 4,
+      "static_peer": "192.168.0.21",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "DONE",
+      "warnings": [
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271297.049634058; 2026-09-24T17:34:57.052162391Z",
+        "recorded_utc": "2026-09-24T17:34:58.489102+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:34:59.045016+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.21 192.168.168.100 \n192.168.0.21",
+        "recorded_utc": "2026-09-24T17:34:57.042065+00:00"
+      },
+      "phase": "DONE",
+      "worker_status": {
+        "mission_id": "20260924_173454_UTC_live_pipeline_test_final",
+        "drone_id": "D0013",
+        "ip_address": "192.168.0.21",
+        "ros_domain_id": 4,
+        "static_peer": "192.168.0.21",
+        "state": "DONE",
+        "phase": "DONE",
+        "arm_detected_utc": "2026-09-24T17:36:11.384703+00:00",
+        "arm_detected_px4_timestamp": 1790271369064959,
+        "land_detected_utc": null,
+        "land_detected_px4_timestamp": null,
+        "disarm_detected_utc": "2026-09-24T17:37:11.370333+00:00",
+        "disarm_detected_px4_timestamp": 1790271429319831,
+        "bag_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0013/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0013_ground_rosbag",
+        "bag_stop_utc": "2026-09-24T17:37:12.634852+00:00",
+        "bag_stop_trigger": "disarmed_fallback",
+        "bag_return_code": 0,
+        "bag_size_bytes": 1489808,
+        "connection_lost": true,
+        "bag": {
+          "enabled": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0013/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0013_ground_rosbag",
+          "start_utc": "2026-09-24T17:36:11.385269+00:00",
+          "stop_utc": "2026-09-24T17:37:12.634852+00:00",
+          "stop_trigger": "disarmed_fallback",
+          "return_code": 0,
+          "size_bytes": 1489808
+        },
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:35:31.218271+00:00",
+        "audio": {
+          "enabled": false,
+          "disabled_intentionally": true,
+          "started_utc": null,
+          "stopped_utc": null,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0013/audio/respeaker_6ch.wav",
+          "exists": false,
+          "sync_result": null
+        },
+        "ground_preflight": {
+          "visible_topics": [
+            "/fmu/in/obstacle_distance",
+            "/fmu/in/offboard_control_mode",
+            "/fmu/in/onboard_computer_status",
+            "/fmu/in/sensor_optical_flow",
+            "/fmu/in/telemetry_status",
+            "/fmu/in/trajectory_setpoint",
+            "/fmu/in/vehicle_attitude_setpoint",
+            "/fmu/in/vehicle_command",
+            "/fmu/in/vehicle_mocap_odometry",
+            "/fmu/in/vehicle_rates_setpoint",
+            "/fmu/in/vehicle_trajectory_bezier",
+            "/fmu/in/vehicle_trajectory_waypoint",
+            "/fmu/in/vehicle_visual_odometry",
+            "/fmu/out/battery_status",
+            "/fmu/out/failsafe_flags",
+            "/fmu/out/position_setpoint_triplet",
+            "/fmu/out/sensor_combined",
+            "/fmu/out/timesync_status",
+            "/fmu/out/vehicle_attitude",
+            "/fmu/out/vehicle_control_mode",
+            "/fmu/out/vehicle_local_position",
+            "/fmu/out/vehicle_odometry",
+            "/fmu/out/vehicle_status",
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/fmu/in/obstacle_distance": "px4_msgs/msg/ObstacleDistance",
+            "/fmu/in/offboard_control_mode": "px4_msgs/msg/OffboardControlMode",
+            "/fmu/in/onboard_computer_status": "px4_msgs/msg/OnboardComputerStatus",
+            "/fmu/in/sensor_optical_flow": "px4_msgs/msg/SensorOpticalFlow",
+            "/fmu/in/telemetry_status": "px4_msgs/msg/TelemetryStatus",
+            "/fmu/in/trajectory_setpoint": "px4_msgs/msg/TrajectorySetpoint",
+            "/fmu/in/vehicle_attitude_setpoint": "px4_msgs/msg/VehicleAttitudeSetpoint",
+            "/fmu/in/vehicle_command": "px4_msgs/msg/VehicleCommand",
+            "/fmu/in/vehicle_mocap_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/in/vehicle_rates_setpoint": "px4_msgs/msg/VehicleRatesSetpoint",
+            "/fmu/in/vehicle_trajectory_bezier": "px4_msgs/msg/VehicleTrajectoryBezier",
+            "/fmu/in/vehicle_trajectory_waypoint": "px4_msgs/msg/VehicleTrajectoryWaypoint",
+            "/fmu/in/vehicle_visual_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/battery_status": "px4_msgs/msg/BatteryStatus",
+            "/fmu/out/failsafe_flags": "px4_msgs/msg/FailsafeFlags",
+            "/fmu/out/position_setpoint_triplet": "px4_msgs/msg/PositionSetpointTriplet",
+            "/fmu/out/sensor_combined": "px4_msgs/msg/SensorCombined",
+            "/fmu/out/timesync_status": "px4_msgs/msg/TimesyncStatus",
+            "/fmu/out/vehicle_attitude": "px4_msgs/msg/VehicleAttitude",
+            "/fmu/out/vehicle_control_mode": "px4_msgs/msg/VehicleControlMode",
+            "/fmu/out/vehicle_local_position": "px4_msgs/msg/VehicleLocalPosition",
+            "/fmu/out/vehicle_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/vehicle_status": "px4_msgs/msg/VehicleStatus",
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "px4_msgs/msg/VehicleStatus",
+          "sensor_combined_type": "px4_msgs/msg/SensorCombined",
+          "vehicle_status_echo": {
+            "available": true,
+            "armed": false,
+            "state": "disarmed",
+            "timestamp": 1790271328186552
+          },
+          "sensor_combined_echo": {
+            "command": "ros2 topic echo /fmu/out/sensor_combined --once --qos-reliability best_effort",
+            "return_code": 0,
+            "stdout": "timestamp: 1790271329808282\ngyro_rad:\n- -0.00011983895092271268\n- 0.0016933213919401169\n- 0.0025606038980185986\ngyro_integral_dt: 9757\naccelerometer_timestamp_relative: 0\naccelerometer_m_s2:\n- 0.01850031688809395\n- -0.15669465065002441\n- -9.902316093444824\naccelerometer_integral_dt: 8555\naccelerometer_clipping: 0\ngyro_clipping: 152\naccel_calibration_count: 1\ngyro_calibration_count: 1\n---",
+            "stderr": "",
+            "ok": true
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": true,
+          "px4_msgs_decode_ok": true,
+          "warnings": [],
+          "errors": []
+        },
+        "warnings": [
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable"
+        ],
+        "errors": [],
+        "connection_loss_events": [
+          {
+            "detected_utc": "2026-09-24T17:36:25.256047+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:36.800883+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:40.064778+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:01.635320+00:00",
+            "phase": "RECORDING"
+          }
+        ],
+        "termination_reason": "armed_to_disarmed_fallback",
+        "post_landing_record_s": 3.0,
+        "finalized_utc": "2026-09-24T17:37:12.635105+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0013/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0013/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "enabled": true,
+        "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0013/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0013_ground_rosbag",
+        "start_utc": "2026-09-24T17:36:11.385269+00:00",
+        "stop_utc": "2026-09-24T17:37:12.634852+00:00",
+        "stop_trigger": "disarmed_fallback",
+        "return_code": 0,
+        "size_bytes": 1489808
+      },
+      "selected_ulog": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0013/px4_logs/log101.ulg"
+    },
+    "D0014": {
+      "drone_id": "D0014",
+      "drone_host": "halo-d0014",
+      "drone_ip": "192.168.0.22",
+      "ros_domain_id": 5,
+      "static_peer": "192.168.0.22",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "DONE",
+      "warnings": [
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable",
+        "Vehicle status communication unavailable"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271299.509643989; 2026-09-24T17:34:59.513952947Z",
+        "recorded_utc": "2026-09-24T17:34:59.953574+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:35:02.073878+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.22 192.168.168.100 \n192.168.0.22",
+        "recorded_utc": "2026-09-24T17:34:59.501505+00:00"
+      },
+      "phase": "DONE",
+      "worker_status": {
+        "mission_id": "20260924_173454_UTC_live_pipeline_test_final",
+        "drone_id": "D0014",
+        "ip_address": "192.168.0.22",
+        "ros_domain_id": 5,
+        "static_peer": "192.168.0.22",
+        "state": "DONE",
+        "phase": "DONE",
+        "arm_detected_utc": "2026-09-24T17:36:18.673582+00:00",
+        "arm_detected_px4_timestamp": 1790271377901313,
+        "land_detected_utc": null,
+        "land_detected_px4_timestamp": null,
+        "disarm_detected_utc": null,
+        "disarm_detected_px4_timestamp": null,
+        "bag_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0014/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0014_ground_rosbag",
+        "bag_stop_utc": "2026-09-24T17:39:45.437063+00:00",
+        "bag_stop_trigger": "disarmed_fallback",
+        "bag_return_code": 0,
+        "bag_size_bytes": 1158030,
+        "connection_lost": true,
+        "bag": {
+          "enabled": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0014/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0014_ground_rosbag",
+          "start_utc": "2026-09-24T17:36:18.677992+00:00",
+          "stop_utc": "2026-09-24T17:39:45.437063+00:00",
+          "stop_trigger": "disarmed_fallback",
+          "return_code": 0,
+          "size_bytes": 1158030
+        },
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:35:29.787856+00:00",
+        "audio": {
+          "enabled": false,
+          "disabled_intentionally": true,
+          "started_utc": null,
+          "stopped_utc": null,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0014/audio/respeaker_6ch.wav",
+          "exists": false,
+          "sync_result": null
+        },
+        "ground_preflight": {
+          "visible_topics": [
+            "/fmu/in/obstacle_distance",
+            "/fmu/in/offboard_control_mode",
+            "/fmu/in/onboard_computer_status",
+            "/fmu/in/sensor_optical_flow",
+            "/fmu/in/telemetry_status",
+            "/fmu/in/trajectory_setpoint",
+            "/fmu/in/vehicle_attitude_setpoint",
+            "/fmu/in/vehicle_command",
+            "/fmu/in/vehicle_mocap_odometry",
+            "/fmu/in/vehicle_rates_setpoint",
+            "/fmu/in/vehicle_trajectory_bezier",
+            "/fmu/in/vehicle_trajectory_waypoint",
+            "/fmu/in/vehicle_visual_odometry",
+            "/fmu/out/battery_status",
+            "/fmu/out/failsafe_flags",
+            "/fmu/out/position_setpoint_triplet",
+            "/fmu/out/sensor_combined",
+            "/fmu/out/timesync_status",
+            "/fmu/out/vehicle_attitude",
+            "/fmu/out/vehicle_control_mode",
+            "/fmu/out/vehicle_local_position",
+            "/fmu/out/vehicle_odometry",
+            "/fmu/out/vehicle_status",
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/fmu/in/obstacle_distance": "px4_msgs/msg/ObstacleDistance",
+            "/fmu/in/offboard_control_mode": "px4_msgs/msg/OffboardControlMode",
+            "/fmu/in/onboard_computer_status": "px4_msgs/msg/OnboardComputerStatus",
+            "/fmu/in/sensor_optical_flow": "px4_msgs/msg/SensorOpticalFlow",
+            "/fmu/in/telemetry_status": "px4_msgs/msg/TelemetryStatus",
+            "/fmu/in/trajectory_setpoint": "px4_msgs/msg/TrajectorySetpoint",
+            "/fmu/in/vehicle_attitude_setpoint": "px4_msgs/msg/VehicleAttitudeSetpoint",
+            "/fmu/in/vehicle_command": "px4_msgs/msg/VehicleCommand",
+            "/fmu/in/vehicle_mocap_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/in/vehicle_rates_setpoint": "px4_msgs/msg/VehicleRatesSetpoint",
+            "/fmu/in/vehicle_trajectory_bezier": "px4_msgs/msg/VehicleTrajectoryBezier",
+            "/fmu/in/vehicle_trajectory_waypoint": "px4_msgs/msg/VehicleTrajectoryWaypoint",
+            "/fmu/in/vehicle_visual_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/battery_status": "px4_msgs/msg/BatteryStatus",
+            "/fmu/out/failsafe_flags": "px4_msgs/msg/FailsafeFlags",
+            "/fmu/out/position_setpoint_triplet": "px4_msgs/msg/PositionSetpointTriplet",
+            "/fmu/out/sensor_combined": "px4_msgs/msg/SensorCombined",
+            "/fmu/out/timesync_status": "px4_msgs/msg/TimesyncStatus",
+            "/fmu/out/vehicle_attitude": "px4_msgs/msg/VehicleAttitude",
+            "/fmu/out/vehicle_control_mode": "px4_msgs/msg/VehicleControlMode",
+            "/fmu/out/vehicle_local_position": "px4_msgs/msg/VehicleLocalPosition",
+            "/fmu/out/vehicle_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/vehicle_status": "px4_msgs/msg/VehicleStatus",
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "px4_msgs/msg/VehicleStatus",
+          "sensor_combined_type": "px4_msgs/msg/SensorCombined",
+          "vehicle_status_echo": {
+            "available": true,
+            "armed": false,
+            "state": "disarmed",
+            "timestamp": 1790271326711594
+          },
+          "sensor_combined_echo": {
+            "command": "ros2 topic echo /fmu/out/sensor_combined --once --qos-reliability best_effort",
+            "return_code": 0,
+            "stdout": "timestamp: 1790271329204226\ngyro_rad:\n- -0.0028090805280953646\n- 0.0032279309816658497\n- -0.0013884316431358457\ngyro_integral_dt: 4898\naccelerometer_timestamp_relative: 0\naccelerometer_m_s2:\n- 0.003371812403202057\n- 0.040474601089954376\n- -9.928881645202637\naccelerometer_integral_dt: 4898\naccelerometer_clipping: 0\ngyro_clipping: 232\naccel_calibration_count: 1\ngyro_calibration_count: 1\n---",
+            "stderr": "",
+            "ok": true
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": true,
+          "px4_msgs_decode_ok": true,
+          "warnings": [],
+          "errors": []
+        },
+        "warnings": [
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable",
+          "Vehicle status communication unavailable"
+        ],
+        "errors": [],
+        "connection_loss_events": [
+          {
+            "detected_utc": "2026-09-24T17:36:38.458056+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:41.553672+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:46.000208+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:36:54.211709+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:09.966661+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:12.956877+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:16.991486+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:20.929690+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:32.580807+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:36.510200+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:40.437276+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:44.428187+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:48.412324+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:52.382624+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:37:56.356378+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:00.386789+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:04.321019+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:08.319762+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:12.270166+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:16.208887+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:20.183766+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:24.166578+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:28.133444+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:32.088339+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:36.047718+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:39.988699+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:43.939081+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:47.874810+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:51.788662+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:55.723418+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:38:59.650685+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:03.575625+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:07.500561+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:11.441436+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:15.375231+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:19.302535+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:23.242246+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:27.168732+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:31.099671+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:35.031830+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:38.971229+00:00",
+            "phase": "RECORDING"
+          },
+          {
+            "detected_utc": "2026-09-24T17:39:42.914697+00:00",
+            "phase": "RECORDING"
+          }
+        ],
+        "termination_reason": "worker_interrupted",
+        "post_landing_record_s": 3.0,
+        "finalized_utc": "2026-09-24T17:39:45.437252+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0014/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0014/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "enabled": true,
+        "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0014/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0014_ground_rosbag",
+        "start_utc": "2026-09-24T17:36:18.677992+00:00",
+        "stop_utc": "2026-09-24T17:39:45.437063+00:00",
+        "stop_trigger": "disarmed_fallback",
+        "return_code": 0,
+        "size_bytes": 1158030
+      },
+      "selected_ulog": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0014/px4_logs/log101.ulg"
+    },
+    "D0015": {
+      "drone_id": "D0015",
+      "drone_host": "halo-d0015",
+      "drone_ip": "192.168.0.23",
+      "ros_domain_id": 6,
+      "static_peer": "192.168.0.23",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "DONE",
+      "warnings": [],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271302.487392244; 2026-09-24T17:35:02.491294118Z",
+        "recorded_utc": "2026-09-24T17:35:02.810416+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:35:03.251876+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.23 \n192.168.0.23",
+        "recorded_utc": "2026-09-24T17:35:02.479384+00:00"
+      },
+      "phase": "DONE",
+      "worker_status": {
+        "mission_id": "20260924_173454_UTC_live_pipeline_test_final",
+        "drone_id": "D0015",
+        "ip_address": "192.168.0.23",
+        "ros_domain_id": 6,
+        "static_peer": "192.168.0.23",
+        "state": "DONE",
+        "phase": "DONE",
+        "arm_detected_utc": "2026-09-24T17:36:13.238446+00:00",
+        "arm_detected_px4_timestamp": 1790271372767225,
+        "land_detected_utc": null,
+        "land_detected_px4_timestamp": null,
+        "disarm_detected_utc": "2026-09-24T17:37:08.887278+00:00",
+        "disarm_detected_px4_timestamp": 1790271428369417,
+        "bag_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0015/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0015_ground_rosbag",
+        "bag_stop_utc": "2026-09-24T17:37:10.101792+00:00",
+        "bag_stop_trigger": "disarmed_fallback",
+        "bag_return_code": 0,
+        "bag_size_bytes": 4873109,
+        "connection_lost": false,
+        "bag": {
+          "enabled": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0015/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0015_ground_rosbag",
+          "start_utc": "2026-09-24T17:36:13.238903+00:00",
+          "stop_utc": "2026-09-24T17:37:10.101792+00:00",
+          "stop_trigger": "disarmed_fallback",
+          "return_code": 0,
+          "size_bytes": 4873109
+        },
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:35:27.071090+00:00",
+        "audio": {
+          "enabled": false,
+          "disabled_intentionally": true,
+          "started_utc": null,
+          "stopped_utc": null,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0015/audio/respeaker_6ch.wav",
+          "exists": false,
+          "sync_result": null
+        },
+        "ground_preflight": {
+          "visible_topics": [
+            "/fmu/in/obstacle_distance",
+            "/fmu/in/offboard_control_mode",
+            "/fmu/in/onboard_computer_status",
+            "/fmu/in/sensor_optical_flow",
+            "/fmu/in/telemetry_status",
+            "/fmu/in/trajectory_setpoint",
+            "/fmu/in/vehicle_attitude_setpoint",
+            "/fmu/in/vehicle_command",
+            "/fmu/in/vehicle_mocap_odometry",
+            "/fmu/in/vehicle_rates_setpoint",
+            "/fmu/in/vehicle_trajectory_bezier",
+            "/fmu/in/vehicle_trajectory_waypoint",
+            "/fmu/in/vehicle_visual_odometry",
+            "/fmu/out/battery_status",
+            "/fmu/out/failsafe_flags",
+            "/fmu/out/position_setpoint_triplet",
+            "/fmu/out/sensor_combined",
+            "/fmu/out/timesync_status",
+            "/fmu/out/vehicle_attitude",
+            "/fmu/out/vehicle_control_mode",
+            "/fmu/out/vehicle_local_position",
+            "/fmu/out/vehicle_odometry",
+            "/fmu/out/vehicle_status",
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/fmu/in/obstacle_distance": "px4_msgs/msg/ObstacleDistance",
+            "/fmu/in/offboard_control_mode": "px4_msgs/msg/OffboardControlMode",
+            "/fmu/in/onboard_computer_status": "px4_msgs/msg/OnboardComputerStatus",
+            "/fmu/in/sensor_optical_flow": "px4_msgs/msg/SensorOpticalFlow",
+            "/fmu/in/telemetry_status": "px4_msgs/msg/TelemetryStatus",
+            "/fmu/in/trajectory_setpoint": "px4_msgs/msg/TrajectorySetpoint",
+            "/fmu/in/vehicle_attitude_setpoint": "px4_msgs/msg/VehicleAttitudeSetpoint",
+            "/fmu/in/vehicle_command": "px4_msgs/msg/VehicleCommand",
+            "/fmu/in/vehicle_mocap_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/in/vehicle_rates_setpoint": "px4_msgs/msg/VehicleRatesSetpoint",
+            "/fmu/in/vehicle_trajectory_bezier": "px4_msgs/msg/VehicleTrajectoryBezier",
+            "/fmu/in/vehicle_trajectory_waypoint": "px4_msgs/msg/VehicleTrajectoryWaypoint",
+            "/fmu/in/vehicle_visual_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/battery_status": "px4_msgs/msg/BatteryStatus",
+            "/fmu/out/failsafe_flags": "px4_msgs/msg/FailsafeFlags",
+            "/fmu/out/position_setpoint_triplet": "px4_msgs/msg/PositionSetpointTriplet",
+            "/fmu/out/sensor_combined": "px4_msgs/msg/SensorCombined",
+            "/fmu/out/timesync_status": "px4_msgs/msg/TimesyncStatus",
+            "/fmu/out/vehicle_attitude": "px4_msgs/msg/VehicleAttitude",
+            "/fmu/out/vehicle_control_mode": "px4_msgs/msg/VehicleControlMode",
+            "/fmu/out/vehicle_local_position": "px4_msgs/msg/VehicleLocalPosition",
+            "/fmu/out/vehicle_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/vehicle_status": "px4_msgs/msg/VehicleStatus",
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "px4_msgs/msg/VehicleStatus",
+          "sensor_combined_type": "px4_msgs/msg/SensorCombined",
+          "vehicle_status_echo": {
+            "available": true,
+            "armed": false,
+            "state": "disarmed",
+            "timestamp": 1790271325472457
+          },
+          "sensor_combined_echo": {
+            "command": "ros2 topic echo /fmu/out/sensor_combined --once --qos-reliability best_effort",
+            "return_code": 0,
+            "stdout": "timestamp: 1790271326561434\ngyro_rad:\n- -0.003805417800322175\n- -0.0016183332772925496\n- 0.00019200776296202093\ngyro_integral_dt: 4872\naccelerometer_timestamp_relative: 0\naccelerometer_m_s2:\n- 0.15930233895778656\n- 0.01646493375301361\n- -9.930335998535156\naccelerometer_integral_dt: 4888\naccelerometer_clipping: 0\ngyro_clipping: 152\naccel_calibration_count: 1\ngyro_calibration_count: 1\n---",
+            "stderr": "",
+            "ok": true
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": true,
+          "px4_msgs_decode_ok": true,
+          "warnings": [],
+          "errors": []
+        },
+        "warnings": [],
+        "errors": [],
+        "connection_loss_events": [],
+        "termination_reason": "armed_to_disarmed_fallback",
+        "post_landing_record_s": 3.0,
+        "finalized_utc": "2026-09-24T17:37:10.102044+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0015/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0015/metadata/collection_manifest.json",
+      "collection_status": "complete",
+      "bag": {
+        "enabled": true,
+        "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0015/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0015_ground_rosbag",
+        "start_utc": "2026-09-24T17:36:13.238903+00:00",
+        "stop_utc": "2026-09-24T17:37:10.101792+00:00",
+        "stop_trigger": "disarmed_fallback",
+        "return_code": 0,
+        "size_bytes": 4873109
+      },
+      "selected_ulog": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0015/px4_logs/log101.ulg"
+    },
+    "D0016": {
+      "drone_id": "D0016",
+      "drone_host": "halo-d0016",
+      "drone_ip": "192.168.0.24",
+      "ros_domain_id": 7,
+      "static_peer": "192.168.0.24",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "DONE",
+      "warnings": [],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271303.683732785; 2026-09-24T17:35:03.687305649Z",
+        "recorded_utc": "2026-09-24T17:35:04.186253+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:35:04.657590+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+        "recorded_utc": "2026-09-24T17:35:03.674423+00:00"
+      },
+      "phase": "DONE",
+      "worker_status": {
+        "mission_id": "20260924_173454_UTC_live_pipeline_test_final",
+        "drone_id": "D0016",
+        "ip_address": "192.168.0.24",
+        "ros_domain_id": 7,
+        "static_peer": "192.168.0.24",
+        "state": "DONE",
+        "phase": "DONE",
+        "arm_detected_utc": "2026-09-24T17:36:14.248629+00:00",
+        "arm_detected_px4_timestamp": 1790271373710466,
+        "land_detected_utc": null,
+        "land_detected_px4_timestamp": null,
+        "disarm_detected_utc": "2026-09-24T17:37:07.657258+00:00",
+        "disarm_detected_px4_timestamp": 1790271427093559,
+        "bag_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0016/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0016_ground_rosbag",
+        "bag_stop_utc": "2026-09-24T17:37:08.922037+00:00",
+        "bag_stop_trigger": "disarmed_fallback",
+        "bag_return_code": 0,
+        "bag_size_bytes": 4693378,
+        "connection_lost": false,
+        "bag": {
+          "enabled": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0016/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0016_ground_rosbag",
+          "start_utc": "2026-09-24T17:36:14.249334+00:00",
+          "stop_utc": "2026-09-24T17:37:08.922037+00:00",
+          "stop_trigger": "disarmed_fallback",
+          "return_code": 0,
+          "size_bytes": 4693378
+        },
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_gps_position",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:35:27.754283+00:00",
+        "audio": {
+          "enabled": false,
+          "disabled_intentionally": true,
+          "started_utc": null,
+          "stopped_utc": null,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0016/audio/respeaker_6ch.wav",
+          "exists": false,
+          "sync_result": null
+        },
+        "ground_preflight": {
+          "visible_topics": [
+            "/fmu/in/obstacle_distance",
+            "/fmu/in/offboard_control_mode",
+            "/fmu/in/onboard_computer_status",
+            "/fmu/in/sensor_optical_flow",
+            "/fmu/in/telemetry_status",
+            "/fmu/in/trajectory_setpoint",
+            "/fmu/in/vehicle_attitude_setpoint",
+            "/fmu/in/vehicle_command",
+            "/fmu/in/vehicle_mocap_odometry",
+            "/fmu/in/vehicle_rates_setpoint",
+            "/fmu/in/vehicle_trajectory_bezier",
+            "/fmu/in/vehicle_trajectory_waypoint",
+            "/fmu/in/vehicle_visual_odometry",
+            "/fmu/out/battery_status",
+            "/fmu/out/failsafe_flags",
+            "/fmu/out/position_setpoint_triplet",
+            "/fmu/out/sensor_combined",
+            "/fmu/out/timesync_status",
+            "/fmu/out/vehicle_attitude",
+            "/fmu/out/vehicle_control_mode",
+            "/fmu/out/vehicle_gps_position",
+            "/fmu/out/vehicle_local_position",
+            "/fmu/out/vehicle_odometry",
+            "/fmu/out/vehicle_status",
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/fmu/in/obstacle_distance": "px4_msgs/msg/ObstacleDistance",
+            "/fmu/in/offboard_control_mode": "px4_msgs/msg/OffboardControlMode",
+            "/fmu/in/onboard_computer_status": "px4_msgs/msg/OnboardComputerStatus",
+            "/fmu/in/sensor_optical_flow": "px4_msgs/msg/SensorOpticalFlow",
+            "/fmu/in/telemetry_status": "px4_msgs/msg/TelemetryStatus",
+            "/fmu/in/trajectory_setpoint": "px4_msgs/msg/TrajectorySetpoint",
+            "/fmu/in/vehicle_attitude_setpoint": "px4_msgs/msg/VehicleAttitudeSetpoint",
+            "/fmu/in/vehicle_command": "px4_msgs/msg/VehicleCommand",
+            "/fmu/in/vehicle_mocap_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/in/vehicle_rates_setpoint": "px4_msgs/msg/VehicleRatesSetpoint",
+            "/fmu/in/vehicle_trajectory_bezier": "px4_msgs/msg/VehicleTrajectoryBezier",
+            "/fmu/in/vehicle_trajectory_waypoint": "px4_msgs/msg/VehicleTrajectoryWaypoint",
+            "/fmu/in/vehicle_visual_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/battery_status": "px4_msgs/msg/BatteryStatus",
+            "/fmu/out/failsafe_flags": "px4_msgs/msg/FailsafeFlags",
+            "/fmu/out/position_setpoint_triplet": "px4_msgs/msg/PositionSetpointTriplet",
+            "/fmu/out/sensor_combined": "px4_msgs/msg/SensorCombined",
+            "/fmu/out/timesync_status": "px4_msgs/msg/TimesyncStatus",
+            "/fmu/out/vehicle_attitude": "px4_msgs/msg/VehicleAttitude",
+            "/fmu/out/vehicle_control_mode": "px4_msgs/msg/VehicleControlMode",
+            "/fmu/out/vehicle_gps_position": "px4_msgs/msg/SensorGps",
+            "/fmu/out/vehicle_local_position": "px4_msgs/msg/VehicleLocalPosition",
+            "/fmu/out/vehicle_odometry": "px4_msgs/msg/VehicleOdometry",
+            "/fmu/out/vehicle_status": "px4_msgs/msg/VehicleStatus",
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "px4_msgs/msg/VehicleStatus",
+          "sensor_combined_type": "px4_msgs/msg/SensorCombined",
+          "vehicle_status_echo": {
+            "available": true,
+            "armed": false,
+            "state": "disarmed",
+            "timestamp": 1790271326061123
+          },
+          "sensor_combined_echo": {
+            "command": "ros2 topic echo /fmu/out/sensor_combined --once --qos-reliability best_effort",
+            "return_code": 0,
+            "stdout": "timestamp: 1790271327152934\ngyro_rad:\n- -0.0016295468667522073\n- -0.0002786596305668354\n- -0.0027641940396279097\ngyro_integral_dt: 4870\naccelerometer_timestamp_relative: 0\naccelerometer_m_s2:\n- -0.1112695261836052\n- -0.010151870548725128\n- -9.912304878234863\naccelerometer_integral_dt: 4892\naccelerometer_clipping: 0\ngyro_clipping: 104\naccel_calibration_count: 1\ngyro_calibration_count: 1\n---",
+            "stderr": "",
+            "ok": true
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": true,
+          "px4_msgs_decode_ok": true,
+          "warnings": [],
+          "errors": []
+        },
+        "warnings": [],
+        "errors": [],
+        "connection_loss_events": [],
+        "termination_reason": "armed_to_disarmed_fallback",
+        "post_landing_record_s": 3.0,
+        "finalized_utc": "2026-09-24T17:37:08.922276+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0016/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0016/metadata/collection_manifest.json",
+      "collection_status": "complete",
+      "bag": {
+        "enabled": true,
+        "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0016/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0016_ground_rosbag",
+        "start_utc": "2026-09-24T17:36:14.249334+00:00",
+        "stop_utc": "2026-09-24T17:37:08.922037+00:00",
+        "stop_trigger": "disarmed_fallback",
+        "return_code": 0,
+        "size_bytes": 4693378
+      },
+      "selected_ulog": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0016/px4_logs/log102.ulg"
+    }
+  },
+  "archive_computer": {
+    "hostname": "mae-11194-l.sabu.mtu.edu",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35"
+  },
+  "code_state": {
+    "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/metadata/code_state.json"
+  },
+  "configuration_snapshots": {
+    "swarm": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/config/swarm_lab.yaml",
+    "profile": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/config/profiles/audio_px4_sync_test.yaml"
+  },
+  "clock_sync": {
+    "D0012": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790271295.661075519; 2026-09-24T17:34:55.665052966Z",
+      "recorded_utc": "2026-09-24T17:34:56.111649+00:00"
+    },
+    "D0013": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790271297.049634058; 2026-09-24T17:34:57.052162391Z",
+      "recorded_utc": "2026-09-24T17:34:58.489102+00:00"
+    },
+    "D0014": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790271299.509643989; 2026-09-24T17:34:59.513952947Z",
+      "recorded_utc": "2026-09-24T17:34:59.953574+00:00"
+    },
+    "D0015": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790271302.487392244; 2026-09-24T17:35:02.491294118Z",
+      "recorded_utc": "2026-09-24T17:35:02.810416+00:00"
+    },
+    "D0016": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790271303.683732785; 2026-09-24T17:35:03.687305649Z",
+      "recorded_utc": "2026-09-24T17:35:04.186253+00:00"
+    }
+  },
+  "microdds": {
+    "D0012": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:34:56.601991+00:00"
+    },
+    "D0013": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:34:59.045016+00:00"
+    },
+    "D0014": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:35:02.073878+00:00"
+    },
+    "D0015": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:35:03.251876+00:00"
+    },
+    "D0016": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:35:04.657590+00:00"
+    }
+  },
+  "swarm_readiness": {
+    "status": "READY",
+    "required_drone_ids": [
+      "D0012",
+      "D0013",
+      "D0014",
+      "D0015",
+      "D0016"
+    ],
+    "ready_drone_ids": [
+      "D0012",
+      "D0013",
+      "D0014",
+      "D0015",
+      "D0016"
+    ],
+    "failed_drone_ids": []
+  },
+  "overall_termination_reason": "launcher_interrupted",
+  "safety": "Passive archive station only; no arm, flight, land, disarm, or trajectory commands.",
+  "preflight": {
+    "D0012": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.20 192.168.168.100 \n192.168.0.20",
+        "recorded_utc": "2026-09-24T17:34:55.651846+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271295.661075519; 2026-09-24T17:34:55.665052966Z",
+        "recorded_utc": "2026-09-24T17:34:56.111649+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:34:56.601991+00:00"
+      }
+    },
+    "D0013": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.21 192.168.168.100 \n192.168.0.21",
+        "recorded_utc": "2026-09-24T17:34:57.042065+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271297.049634058; 2026-09-24T17:34:57.052162391Z",
+        "recorded_utc": "2026-09-24T17:34:58.489102+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:34:59.045016+00:00"
+      }
+    },
+    "D0014": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.22 192.168.168.100 \n192.168.0.22",
+        "recorded_utc": "2026-09-24T17:34:59.501505+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271299.509643989; 2026-09-24T17:34:59.513952947Z",
+        "recorded_utc": "2026-09-24T17:34:59.953574+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:35:02.073878+00:00"
+      }
+    },
+    "D0015": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.23 \n192.168.0.23",
+        "recorded_utc": "2026-09-24T17:35:02.479384+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271302.487392244; 2026-09-24T17:35:02.491294118Z",
+        "recorded_utc": "2026-09-24T17:35:02.810416+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:35:03.251876+00:00"
+      }
+    },
+    "D0016": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+        "recorded_utc": "2026-09-24T17:35:03.674423+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790271303.683732785; 2026-09-24T17:35:03.687305649Z",
+        "recorded_utc": "2026-09-24T17:35:04.186253+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:35:04.657590+00:00"
+      }
+    }
+  }
+}

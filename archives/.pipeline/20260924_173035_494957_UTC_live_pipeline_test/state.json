@@ -1,0 +1,19 @@
+{
+  "name": "live_pipeline_test",
+  "operator": "vmbasvi",
+  "archive_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives",
+  "mission_id": "20260924_173035_494957_UTC_live_pipeline_test",
+  "duration": 600,
+  "workspace": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash",
+  "preflight_only": false,
+  "enable_audio": false,
+  "pid": 179524,
+  "process_token": "27096754",
+  "mission_dir": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173035_494957_UTC_live_pipeline_test",
+  "log": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/.pipeline/20260924_173035_494957_UTC_live_pipeline_test/pipeline.log",
+  "phase": "COMPLETE",
+  "updated_utc": "2026-09-24T17:41:31.418053+00:00",
+  "readiness_passed": true,
+  "launcher_exit_code": 0,
+  "verification_exit_code": 0
+}

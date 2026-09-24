@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Humble Fast DDS unicast discovery, domain 7, participant IDs 0-31. -->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <participant profile_name="halo_d0016" is_default_profile="true">
+    <rtps><builtin><initialPeersList>
+          <locator><udpv4><address>192.168.0.24</address><port>9160</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9162</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9164</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9166</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9168</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9170</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9172</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9174</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9176</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9178</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9180</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9182</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9184</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9186</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9188</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9190</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9192</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9194</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9196</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9198</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9200</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9202</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9204</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9206</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9208</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9210</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9212</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9214</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9216</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9218</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9220</port></udpv4></locator>
+          <locator><udpv4><address>192.168.0.24</address><port>9222</port></udpv4></locator>
+    </initialPeersList></builtin></rtps>
+  </participant>
+</profiles>

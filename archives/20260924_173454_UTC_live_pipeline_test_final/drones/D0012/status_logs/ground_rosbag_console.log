@@ -1,0 +1,27 @@
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1790271368.832497559] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1790271368.833704579] [rosbag2_storage]: Opened database '/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173454_UTC_live_pipeline_test_final/drones/D0012/ros_bags/20260924_173454_UTC_live_pipeline_test_final__D0012_ground_rosbag/20260924_173454_UTC_live_pipeline_test_final__D0012_ground_rosbag_0.db3' for READ_WRITE.
+[INFO] [1790271368.834176353] [rosbag2_recorder]: Listening for topics...
+[INFO] [1790271368.834219639] [rosbag2_recorder]: Event publisher thread: Starting
+[INFO] [1790271368.834749520] [rosbag2_recorder]: Subscribed to topic '/rosout'
+[INFO] [1790271368.835150091] [rosbag2_recorder]: Subscribed to topic '/events/write_split'
+[INFO] [1790271368.835197967] [rosbag2_recorder]: Recording...
+[INFO] [1790271369.038125799] [rosbag2_recorder]: Subscribed to topic '/fmu/out/battery_status'
+[INFO] [1790271369.038832033] [rosbag2_recorder]: Subscribed to topic '/fmu/out/sensor_combined'
+[INFO] [1790271369.039613546] [rosbag2_recorder]: Subscribed to topic '/fmu/out/failsafe_flags'
+[INFO] [1790271369.040243801] [rosbag2_recorder]: Subscribed to topic '/fmu/out/timesync_status'
+[INFO] [1790271369.040906801] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_control_mode'
+[INFO] [1790271369.041578441] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_attitude'
+[INFO] [1790271369.042378401] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_local_position'
+[INFO] [1790271369.043079161] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_odometry'
+[INFO] [1790271369.043872938] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_status'
+[INFO] [1790271369.044413038] [rosbag2_recorder]: Subscribed to topic '/parameter_events'
+[37;1m2026-09-24 13:36:09.256 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:36:10.242 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:36:12.099 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:36:14.371 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:36:15.153 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:36:41.504 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:36:42.839 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[INFO] [1790271584.900900051] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1790271584.901926819] [rosbag2_recorder]: Event publisher thread: Exiting
+[INFO] [1790271584.902009236] [rosbag2_recorder]: Recording stopped

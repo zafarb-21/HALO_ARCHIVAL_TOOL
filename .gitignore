@@ -2,3 +2,5 @@
 # Background pipeline control files (local runtime state).
 /.halo_pipeline.json
 /.halo_pipeline.lock
+/.halo_pipeline_runtime.lock
+/.halo_pipeline_runtime2.lock

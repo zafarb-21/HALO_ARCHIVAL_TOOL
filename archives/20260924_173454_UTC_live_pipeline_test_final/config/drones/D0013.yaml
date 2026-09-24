@@ -1,0 +1,52 @@
+drone_id: D0013
+drone_name: halo-d0013
+platform: ModalAI Starling 2 Max
+flight_computer: PX4 on VOXL2
+companion_computer: VOXL2
+ip_address: 192.168.0.21
+ros_domain_id: 4
+enabled: true
+required: true
+post_landing_record_s: 3
+ssh_user: root
+
+paths:
+  drone_sync_folder: /home/root/halo_sync_test
+  px4_log_folder: /data/px4/log
+  local_archive_root: /home/zafar/MIC_ARRAY_ROS/HALO_ARCHIVE
+
+audio:
+  enabled: true
+  audio_device: hw:0,0
+  sample_rate_hz: 16000
+  channels: 6
+  sample_format: S16_LE
+  mic_array_type: ReSpeaker_or_future_custom_array
+
+sensors:
+  respeaker:
+    enabled: true
+    alsa_device: hw:0,0
+    sample_rate_hz: 16000
+    channels: 6
+    sample_format: S16_LE
+
+ros2_bag:
+  enabled: false
+  foxy_setup: /opt/ros/foxy/setup.bash
+  output_subfolder: bags
+  fallback_record_all_if_topics_unavailable: false
+
+px4:
+  log_path: /data/px4/log
+  microdds_service: voxl-microdds-agent
+  timesync_topic: /fmu/out/timesync_status
+  required_ulog_topics:
+    - esc_status
+    - sensor_combined
+    - vehicle_acceleration
+    - vehicle_angular_velocity
+    - vehicle_local_position
+    - actuator_outputs
+    - actuator_motors
+    - vehicle_status

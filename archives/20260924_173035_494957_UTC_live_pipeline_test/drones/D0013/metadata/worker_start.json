@@ -1,0 +1,15 @@
+{
+  "mission_id": "20260924_173035_494957_UTC_live_pipeline_test",
+  "drone_id": "D0013",
+  "ip_address": "192.168.0.21",
+  "ros_domain_id": 4,
+  "static_peer": "192.168.0.21",
+  "worker_pid": 179623,
+  "safety": "Passive observer only; no flight-control commands.",
+  "environment": {
+    "ROS_DOMAIN_ID": "4",
+    "ROS_LOCALHOST_ONLY": "0",
+    "FASTRTPS_DEFAULT_PROFILES_FILE": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/config/fastdds/humble_D0013.xml",
+    "RMW_IMPLEMENTATION": "rmw_fastrtps_cpp"
+  }
+}

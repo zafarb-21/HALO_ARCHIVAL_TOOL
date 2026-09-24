@@ -1,0 +1,158 @@
+D0012 | 192.168.0.20 | ROS_DOMAIN_ID=3 | halo-d0012
+D0013 | 192.168.0.21 | ROS_DOMAIN_ID=4 | halo-d0013
+D0014 | 192.168.0.22 | ROS_DOMAIN_ID=5 | halo-d0014
+D0015 | 192.168.0.23 | ROS_DOMAIN_ID=6 | halo-d0015
+D0016 | 192.168.0.24 | ROS_DOMAIN_ID=7 | halo-d0016
+SWARM CONFIGURATION OK
+D0012 SSH/IP OK | halo-d0012 | 192.168.0.20
+D0012 UTC SYNC OK | 2026-09-24T17:33:13.732027437Z
+D0012 microdds OK | active
+D0013 SSH/IP OK | halo-d0013 | 192.168.0.21
+D0013 UTC SYNC OK | 2026-09-24T17:33:16.237495531Z
+D0013 microdds OK | active
+D0014 SSH/IP OK | halo-d0014 | 192.168.0.22
+D0014 UTC SYNC OK | 2026-09-24T17:33:17.591151049Z
+D0014 microdds OK | active
+D0015 SSH/IP OK | halo-d0015 | 192.168.0.23
+D0015 UTC SYNC OK | 2026-09-24T17:33:19.228835376Z
+D0015 microdds OK | active
+D0016 SSH/IP OK | halo-d0016 | 192.168.0.24
+D0016 UTC SYNC OK | 2026-09-24T17:33:20.480713786Z
+D0016 microdds OK | active
+Common mission ID: 20260924_173312_551632_UTC_live_pipeline_test3
+Mission archive: /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3
+D0012 background worker started | PID=191206 | domain=3 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0012/status_logs/worker_console.log
+D0013 background worker started | PID=191217 | domain=4 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0013/status_logs/worker_console.log
+D0014 background worker started | PID=191227 | domain=5 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0014/status_logs/worker_console.log
+D0015 background worker started | PID=191238 | domain=6 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0015/status_logs/worker_console.log
+D0016 background worker started | PID=191248 | domain=7 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0016/status_logs/worker_console.log
+Worker inspection: jobs -l
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0012/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0013/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0014/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0015/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0016/status_logs/worker_console.log
+D0012 | PID 191206 | NOT_STARTED | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 191217 | NOT_STARTED | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 191227 | NOT_STARTED | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 191238 | NOT_STARTED | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 191248 | NOT_STARTED | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 191206 | CHECKING_DRONE_ROS | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 191217 | CHECKING_DRONE_ROS | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 191227 | CHECKING_DRONE_ROS | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 191238 | CHECKING_DRONE_ROS | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 191248 | CHECKING_DRONE_ROS | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 191206 | CHECKING_GROUND_ROS | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 191217 | CHECKING_GROUND_ROS | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 191227 | CHECKING_GROUND_ROS | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 191238 | CHECKING_GROUND_ROS | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 191248 | CHECKING_GROUND_ROS | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 191206 | READY | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 191217 | READY | domain=4 | UNKNOWN | bag 0.0 MB
+D0015 | PID 191238 | READY | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 191248 | READY | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 191206 | WAITING_FOR_ARM | domain=3 | disarmed | bag 0.0 MB
+D0013 | PID 191217 | WAITING_FOR_ARM | domain=4 | disarmed | bag 0.0 MB
+D0015 | PID 191238 | WAITING_FOR_ARM | domain=6 | disarmed | bag 0.0 MB
+D0016 | PID 191248 | WAITING_FOR_ARM | domain=7 | disarmed | bag 0.0 MB
+D0014 | PID 191227 | READY | domain=5 | UNKNOWN | bag 0.0 MB
+================================================
+              SWARM ARCHIVE READY
+READY: You may arm under your normal test procedure. Disarm after your planned interval. Collection is automatic.
+================================================
+D0012 READY | PID=191206 | domain=3 | 192.168.0.20
+D0013 READY | PID=191217 | domain=4 | 192.168.0.21
+D0014 READY | PID=191227 | domain=5 | 192.168.0.22
+D0015 READY | PID=191238 | domain=6 | 192.168.0.23
+D0016 READY | PID=191248 | domain=7 | 192.168.0.24
+Waiting for ARMED state on each drone. Flight control remains with Ground Station A.
+The launcher remains active; inspect jobs with: jobs -l
+D0012 | PID 191206 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0013 | PID 191217 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0014 | PID 191227 | UNKNOWN | READY | bag 0.0 MB
+D0015 | PID 191238 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0016 | PID 191248 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0014 | PID 191227 | disarmed | WAITING_FOR_ARM | bag 0.0 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.0 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.2 MB
+D0015 | PID 191238 | armed | RECORDING | bag 0.0 MB
+D0016 | PID 191248 | armed | RECORDING | bag 0.0 MB
+D0012 | PID 191206 | armed | RECORDING | bag 0.0 MB
+D0012 | PID 191206 | connection_lost | RECORDING | bag 0.0 MB
+D0015 | PID 191238 | armed | RECORDING | bag 0.2 MB
+D0016 | PID 191248 | armed | RECORDING | bag 0.2 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.3 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.0 MB
+D0015 | PID 191238 | armed | RECORDING | bag 0.4 MB
+D0016 | PID 191248 | armed | RECORDING | bag 0.4 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.1 MB
+D0015 | PID 191238 | armed | RECORDING | bag 0.6 MB
+D0016 | PID 191248 | armed | RECORDING | bag 0.6 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.2 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.4 MB
+D0015 | PID 191238 | armed | RECORDING | bag 0.8 MB
+D0016 | PID 191248 | armed | RECORDING | bag 0.8 MB
+D0013 | PID 191217 | connection_lost | RECORDING | bag 0.4 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.3 MB
+D0015 | PID 191238 | armed | RECORDING | bag 1.0 MB
+D0016 | PID 191248 | armed | RECORDING | bag 1.1 MB
+D0015 | PID 191238 | armed | RECORDING | bag 1.2 MB
+D0016 | PID 191248 | armed | RECORDING | bag 1.3 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.5 MB
+D0015 | PID 191238 | armed | RECORDING | bag 1.4 MB
+D0016 | PID 191248 | armed | RECORDING | bag 1.5 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.4 MB
+D0015 | PID 191238 | armed | RECORDING | bag 1.7 MB
+D0016 | PID 191248 | armed | RECORDING | bag 1.7 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.5 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.6 MB
+D0015 | PID 191238 | armed | RECORDING | bag 1.9 MB
+D0013 | PID 191217 | connection_lost | RECORDING | bag 0.5 MB
+D0016 | PID 191248 | armed | RECORDING | bag 1.9 MB
+D0014 | PID 191227 | connection_lost | RECORDING | bag 0.6 MB
+D0015 | PID 191238 | armed | RECORDING | bag 2.1 MB
+D0016 | PID 191248 | armed | RECORDING | bag 2.1 MB
+D0015 | PID 191238 | armed | RECORDING | bag 2.3 MB
+D0016 | PID 191248 | armed | RECORDING | bag 2.3 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.7 MB
+D0015 | PID 191238 | armed | RECORDING | bag 2.5 MB
+D0016 | PID 191248 | armed | RECORDING | bag 2.5 MB
+D0013 | PID 191217 | armed | RECORDING | bag 0.8 MB
+D0015 | PID 191238 | armed | RECORDING | bag 2.7 MB
+D0016 | PID 191248 | armed | RECORDING | bag 2.7 MB
+D0015 | PID 191238 | armed | RECORDING | bag 2.9 MB
+D0016 | PID 191248 | armed | RECORDING | bag 3.0 MB
+D0015 | PID 191238 | armed | RECORDING | bag 3.1 MB
+D0016 | PID 191248 | armed | RECORDING | bag 3.2 MB
+D0013 | PID 191217 | armed | RECORDING | bag 1.1 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.7 MB
+D0014 | PID 191227 | connection_lost | RECORDING | bag 0.7 MB
+D0015 | PID 191238 | armed | RECORDING | bag 3.3 MB
+D0016 | PID 191248 | armed | RECORDING | bag 3.4 MB
+D0015 | PID 191238 | armed | RECORDING | bag 3.5 MB
+D0016 | PID 191248 | armed | RECORDING | bag 3.6 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.8 MB
+D0015 | PID 191238 | armed | RECORDING | bag 3.7 MB
+D0013 | PID 191217 | armed | RECORDING | bag 1.2 MB
+D0016 | PID 191248 | armed | RECORDING | bag 3.8 MB
+D0013 | PID 191217 | connection_lost | RECORDING | bag 1.2 MB
+D0014 | PID 191227 | armed | RECORDING | bag 0.9 MB
+D0015 | PID 191238 | armed | RECORDING | bag 3.9 MB
+D0016 | PID 191248 | armed | RECORDING | bag 4.0 MB
+D0015 | PID 191238 | armed | RECORDING | bag 4.1 MB
+D0016 | PID 191248 | armed | RECORDING | bag 4.2 MB
+D0013 | PID 191217 | armed | RECORDING | bag 1.3 MB
+D0014 | PID 191227 | armed | RECORDING | bag 1.0 MB
+D0015 | PID 191238 | armed | RECORDING | bag 4.4 MB
+D0014 | PID 191227 | armed | RECORDING | bag 1.1 MB
+D0016 | PID 191248 | disarmed | STOPPING_BAG | bag 4.4 MB
+D0013 | PID 191217 | armed | RECORDING | bag 1.4 MB
+D0014 | PID 191227 | connection_lost | RECORDING | bag 1.1 MB
+D0015 | PID 191238 | disarmed | STOPPING_BAG | bag 4.5 MB
+D0016 | PID 191248 | UNKNOWN | DONE | bag 4.5 MB
+D0013 | PID 191217 | disarmed | STOPPING_BAG | bag 1.5 MB
+D0015 | PID 191238 | UNKNOWN | DONE | bag 4.6 MB
+D0013 | PID 191217 | UNKNOWN | DONE | bag 1.5 MB
+D0015 worker exited | PID=191238 | exit_code=0 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0015/status_logs/worker_console.log
+D0016 worker exited | PID=191248 | exit_code=0 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0016/status_logs/worker_console.log
+D0013 worker exited | PID=191217 | exit_code=0 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_173312_551632_UTC_live_pipeline_test3/drones/D0013/status_logs/worker_console.log

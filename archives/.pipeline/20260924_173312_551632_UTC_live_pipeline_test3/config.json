@@ -1,0 +1,10 @@
+{
+  "name": "live_pipeline_test3",
+  "operator": "vmbasvi",
+  "archive_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives",
+  "mission_id": "20260924_173312_551632_UTC_live_pipeline_test3",
+  "duration": 600,
+  "workspace": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash",
+  "preflight_only": false,
+  "enable_audio": false
+}

@@ -1,0 +1,17 @@
+{
+  "hostname": "mae-11194-l.sabu.mtu.edu",
+  "username": "vmbasvi",
+  "timestamp_utc": "2026-09-24T17:30:42.061014+00:00",
+  "current_working_directory": "/home/vmbasvi/HALO_ARCHIVAL_TOOL",
+  "code_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL",
+  "git_repo_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL",
+  "git_branch": "main",
+  "git_commit": "b1bbdfece3bb09911f351419cbc15c83fee52ae1",
+  "git_commit_hash": "b1bbdfece3bb09911f351419cbc15c83fee52ae1",
+  "git_status_short": " M README.md\n M docs/ONE_COMMAND_PIPELINE.md\n?? archives/.pipeline/20260924_173035_494957_UTC_live_pipeline_test/\n?? archives/20260924_173035_494957_UTC_live_pipeline_test/",
+  "has_uncommitted_changes": true,
+  "python_version": "3.10.12",
+  "script_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/scripts/halo_swarm_common.py",
+  "script_sha256": "6acb8d1ea0307a05a6c6294058d0d7eedbd1b3b52dc9a013c0be0232184cb2f9",
+  "capture_warnings": []
+}
