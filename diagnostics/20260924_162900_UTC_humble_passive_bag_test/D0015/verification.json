@@ -1,0 +1,12 @@
+{
+  "drone_id": "D0015",
+  "domain": 6,
+  "record_seconds": 15,
+  "topics": {},
+  "errors": [
+    "failed to deserialize ROS message: Fast CDR exception deserializing message of type px4_msgs::msg::dds_::VehicleStatus_., at ./src/type_support_common.cpp:118"
+  ],
+  "recorder_exit_code": 0,
+  "bag_info_ok": true,
+  "ok": false
+}

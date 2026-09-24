@@ -1,0 +1,38 @@
+profile_name: audio_px4_sync_test
+description: ReSpeaker audio recording synchronized with PX4 ULog data for acoustic and ESC/IMU analysis.
+
+recording:
+  enable_respeaker_audio: true
+  enable_px4_ulog_collection: true
+  enable_ros2_timesync_capture: true
+  enable_post_processing: true
+
+audio:
+  duration_s: 180
+  timesync_samples: 10
+
+rosbag:
+  enabled: false
+  topics:
+    - /fmu/out/vehicle_status
+    - /fmu/out/sensor_combined
+    - /fmu/out/vehicle_local_position
+    - /fmu/out/vehicle_attitude
+    - /fmu/out/vehicle_odometry
+    - /fmu/out/battery_status
+    - /fmu/out/timesync_status
+  fallback_record_all_if_topics_unavailable: false
+
+flight:
+  expected_action: arm_with_remote_after_audio_starts
+  safety_note: Start audio recording first, wait for "Recording WAVE...", then arm using the remote. Keep recording after disarm.
+
+metadata_required:
+  - mission_name
+  - operator
+  - drone_id
+  - flight_profile
+  - date_time_utc
+  - code_version
+  - warnings
+  - termination_reason

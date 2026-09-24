@@ -1,0 +1,427 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+  "mission_name": "humble_discovery_preflight",
+  "operator": "vmbasvi",
+  "mission_start_utc": "2026-09-24T16:19:09.880251+00:00",
+  "mission_end_utc": "2026-09-24T16:19:11.690058+00:00",
+  "configured_drones": {
+    "D0012": {
+      "drone_id": "D0012",
+      "drone_host": "halo-d0012",
+      "drone_ip": "192.168.0.20",
+      "ros_domain_id": 3,
+      "static_peer": "192.168.0.20",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "FAILED_ENVIRONMENT",
+      "warnings": [],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.002756979Z",
+        "recorded_utc": "2026-09-24T16:19:02.249608+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:02.679209+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.20 192.168.168.100 \n192.168.0.20",
+        "recorded_utc": "2026-09-24T16:19:01.838023+00:00"
+      },
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0012",
+        "drone_host": "halo-d0012",
+        "drone_ip": "192.168.0.20",
+        "ros_domain_id": 3,
+        "static_peer": "192.168.0.20",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.301883+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0012/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0012/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null
+    },
+    "D0013": {
+      "drone_id": "D0013",
+      "drone_host": "halo-d0013",
+      "drone_ip": "192.168.0.21",
+      "ros_domain_id": 4,
+      "static_peer": "192.168.0.21",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "FAILED_ENVIRONMENT",
+      "warnings": [],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004001718Z",
+        "recorded_utc": "2026-09-24T16:19:03.871832+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:04.514595+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.21 192.168.168.100 \n192.168.0.21",
+        "recorded_utc": "2026-09-24T16:19:03.288598+00:00"
+      },
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0013",
+        "drone_host": "halo-d0013",
+        "drone_ip": "192.168.0.21",
+        "ros_domain_id": 4,
+        "static_peer": "192.168.0.21",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.323325+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0013/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0013/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null
+    },
+    "D0014": {
+      "drone_id": "D0014",
+      "drone_host": "halo-d0014",
+      "drone_ip": "192.168.0.22",
+      "ros_domain_id": 5,
+      "static_peer": "192.168.0.22",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "FAILED_ENVIRONMENT",
+      "warnings": [],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004979531Z",
+        "recorded_utc": "2026-09-24T16:19:05.777656+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:06.389984+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.22 192.168.168.100 \n192.168.0.22",
+        "recorded_utc": "2026-09-24T16:19:05.164624+00:00"
+      },
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0014",
+        "drone_host": "halo-d0014",
+        "drone_ip": "192.168.0.22",
+        "ros_domain_id": 5,
+        "static_peer": "192.168.0.22",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.344996+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0014/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0014/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null
+    },
+    "D0015": {
+      "drone_id": "D0015",
+      "drone_host": "halo-d0015",
+      "drone_ip": "192.168.0.23",
+      "ros_domain_id": 6,
+      "static_peer": "192.168.0.23",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "FAILED_ENVIRONMENT",
+      "warnings": [],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004070781Z",
+        "recorded_utc": "2026-09-24T16:19:07.538767+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:08.113132+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.23 \n192.168.0.23",
+        "recorded_utc": "2026-09-24T16:19:07.006394+00:00"
+      },
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0015",
+        "drone_host": "halo-d0015",
+        "drone_ip": "192.168.0.23",
+        "ros_domain_id": 6,
+        "static_peer": "192.168.0.23",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.361978+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0015/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0015/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null
+    },
+    "D0016": {
+      "drone_id": "D0016",
+      "drone_host": "halo-d0016",
+      "drone_ip": "192.168.0.24",
+      "ros_domain_id": 7,
+      "static_peer": "192.168.0.24",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "FAILED_ENVIRONMENT",
+      "warnings": [],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.002499999Z",
+        "recorded_utc": "2026-09-24T16:19:09.268599+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:09.820053+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+        "recorded_utc": "2026-09-24T16:19:08.704724+00:00"
+      },
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0016",
+        "drone_host": "halo-d0016",
+        "drone_ip": "192.168.0.24",
+        "ros_domain_id": 7,
+        "static_peer": "192.168.0.24",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.374580+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0016/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0016/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null
+    }
+  },
+  "archive_computer": {
+    "hostname": "mae-11194-l.sabu.mtu.edu",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35"
+  },
+  "code_state": {
+    "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/metadata/code_state.json"
+  },
+  "configuration_snapshots": {
+    "swarm": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/config/swarm_lab.yaml",
+    "profile": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/config/profiles/audio_px4_sync_test.yaml"
+  },
+  "clock_sync": {
+    "D0012": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.002756979Z",
+      "recorded_utc": "2026-09-24T16:19:02.249608+00:00"
+    },
+    "D0013": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004001718Z",
+      "recorded_utc": "2026-09-24T16:19:03.871832+00:00"
+    },
+    "D0014": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004979531Z",
+      "recorded_utc": "2026-09-24T16:19:05.777656+00:00"
+    },
+    "D0015": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004070781Z",
+      "recorded_utc": "2026-09-24T16:19:07.538767+00:00"
+    },
+    "D0016": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.002499999Z",
+      "recorded_utc": "2026-09-24T16:19:09.268599+00:00"
+    }
+  },
+  "microdds": {
+    "D0012": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T16:19:02.679209+00:00"
+    },
+    "D0013": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T16:19:04.514595+00:00"
+    },
+    "D0014": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T16:19:06.389984+00:00"
+    },
+    "D0015": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T16:19:08.113132+00:00"
+    },
+    "D0016": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T16:19:09.820053+00:00"
+    }
+  },
+  "swarm_readiness": {
+    "status": "NOT_READY",
+    "required_drone_ids": [
+      "D0012",
+      "D0013",
+      "D0014",
+      "D0015",
+      "D0016"
+    ],
+    "ready_drone_ids": [],
+    "failed_drone_ids": [
+      "D0012",
+      "D0013",
+      "D0014",
+      "D0015",
+      "D0016"
+    ]
+  },
+  "overall_termination_reason": "required_workers_not_ready",
+  "safety": "Passive archive station only; no arm, flight, land, disarm, or trajectory commands.",
+  "preflight": {
+    "D0012": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.20 192.168.168.100 \n192.168.0.20",
+        "recorded_utc": "2026-09-24T16:19:01.838023+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.002756979Z",
+        "recorded_utc": "2026-09-24T16:19:02.249608+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:02.679209+00:00"
+      }
+    },
+    "D0013": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.21 192.168.168.100 \n192.168.0.21",
+        "recorded_utc": "2026-09-24T16:19:03.288598+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004001718Z",
+        "recorded_utc": "2026-09-24T16:19:03.871832+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:04.514595+00:00"
+      }
+    },
+    "D0014": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.22 192.168.168.100 \n192.168.0.22",
+        "recorded_utc": "2026-09-24T16:19:05.164624+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004979531Z",
+        "recorded_utc": "2026-09-24T16:19:05.777656+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:06.389984+00:00"
+      }
+    },
+    "D0015": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.23 \n192.168.0.23",
+        "recorded_utc": "2026-09-24T16:19:07.006394+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.004070781Z",
+        "recorded_utc": "2026-09-24T16:19:07.538767+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:08.113132+00:00"
+      }
+    },
+    "D0016": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+        "recorded_utc": "2026-09-24T16:19:08.704724+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.002499999Z",
+        "recorded_utc": "2026-09-24T16:19:09.268599+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T16:19:09.820053+00:00"
+      }
+    }
+  }
+}

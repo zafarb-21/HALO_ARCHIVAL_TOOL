@@ -1,0 +1,15 @@
+{
+  "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+  "drone_id": "D0014",
+  "ip_address": "192.168.0.22",
+  "ros_domain_id": 5,
+  "static_peer": "192.168.0.22",
+  "worker_pid": 151853,
+  "safety": "Passive observer only; no flight-control commands.",
+  "environment": {
+    "ROS_DOMAIN_ID": "5",
+    "ROS_LOCALHOST_ONLY": "0",
+    "FASTRTPS_DEFAULT_PROFILES_FILE": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/config/fastdds/humble_D0014.xml",
+    "RMW_IMPLEMENTATION": "rmw_fastrtps_cpp"
+  }
+}

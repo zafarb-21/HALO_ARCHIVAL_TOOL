@@ -1,0 +1,30 @@
+{
+  "drone_id": "D0016",
+  "domain": 7,
+  "record_seconds": 15,
+  "topics": {
+    "/fmu/out/vehicle_status": {
+      "type": "px4_msgs/msg/VehicleStatus",
+      "count": 29,
+      "decoded": true,
+      "px4_timestamp": 1790267903422707,
+      "arming_state": 1
+    },
+    "/fmu/out/sensor_combined": {
+      "type": "px4_msgs/msg/SensorCombined",
+      "count": 2814,
+      "decoded": true,
+      "px4_timestamp": 1790267903380162
+    },
+    "/fmu/out/timesync_status": {
+      "type": "px4_msgs/msg/TimesyncStatus",
+      "count": 145,
+      "decoded": true,
+      "px4_timestamp": 1790267903463361
+    }
+  },
+  "errors": [],
+  "recorder_exit_code": 0,
+  "bag_info_ok": true,
+  "ok": true
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+  "drone_id": "D0016",
+  "drone_host": "halo-d0016",
+  "drone_ip": "192.168.0.24",
+  "ros_domain_id": 7,
+  "static_peer": "192.168.0.24",
+  "drone_ros_check": null,
+  "ground_ros_check": null,
+  "visible_topics": [],
+  "px4_msgs_decode_ok": false,
+  "collection_status": "pending",
+  "warnings": [],
+  "errors": [],
+  "ssh": {
+    "ok": true,
+    "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+    "recorded_utc": "2026-09-24T16:19:08.704724+00:00"
+  },
+  "clock_sync": {
+    "ok": true,
+    "detail": "ground_reference_epoch=1790266741; 2026-09-24T16:19:01.002499999Z",
+    "recorded_utc": "2026-09-24T16:19:09.268599+00:00"
+  },
+  "microdds": {
+    "ok": true,
+    "detail": "active",
+    "recorded_utc": "2026-09-24T16:19:09.820053+00:00"
+  }
+}

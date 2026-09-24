@@ -1,0 +1,48 @@
+{
+  "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+  "drone_id": "D0014",
+  "ip_address": "192.168.0.22",
+  "ros_domain_id": 5,
+  "static_peer": "192.168.0.22",
+  "state": "FAILED_PREFLIGHT",
+  "phase": "FAILED_PREFLIGHT",
+  "ground_preflight": {
+    "visible_topics": [
+      "/parameter_events",
+      "/rosout"
+    ],
+    "topic_types": {
+      "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+      "/rosout": "rcl_interfaces/msg/Log"
+    },
+    "vehicle_status_type": "",
+    "sensor_combined_type": "",
+    "vehicle_status_echo": {
+      "available": false,
+      "armed": null,
+      "landed": null,
+      "error": "Could not determine the type for the passed topic"
+    },
+    "vehicle_land_detected_available": false,
+    "drone_ros_ok": true,
+    "ground_ros_ok": false,
+    "px4_msgs_decode_ok": false,
+    "warnings": [],
+    "errors": [
+      "Ground ROS preflight did not find /fmu/out/vehicle_status",
+      "Ground ROS preflight did not find /fmu/out/sensor_combined",
+      "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+      "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+      "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+    ]
+  },
+  "warnings": [],
+  "errors": [
+    "Ground ROS preflight did not find /fmu/out/vehicle_status",
+    "Ground ROS preflight did not find /fmu/out/sensor_combined",
+    "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+    "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+    "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+  ],
+  "termination_reason": "ground_ros_preflight_failed"
+}

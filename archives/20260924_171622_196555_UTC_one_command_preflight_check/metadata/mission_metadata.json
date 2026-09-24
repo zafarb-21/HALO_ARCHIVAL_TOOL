@@ -1,0 +1,612 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+  "mission_name": "one_command_preflight_check",
+  "operator": "vmbasvi",
+  "mission_start_utc": "2026-09-24T17:16:28.723793+00:00",
+  "mission_end_utc": "2026-09-24T17:17:03.216780+00:00",
+  "configured_drones": {
+    "D0012": {
+      "drone_id": "D0012",
+      "drone_host": "halo-d0012",
+      "drone_ip": "192.168.0.20",
+      "ros_domain_id": 3,
+      "static_peer": "192.168.0.20",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "READY",
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270182.714510793; 2026-09-24T17:16:22.719870011Z",
+        "recorded_utc": "2026-09-24T17:16:23.143066+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:23.572192+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.20 192.168.168.100 \n192.168.0.20",
+        "recorded_utc": "2026-09-24T17:16:22.707351+00:00"
+      },
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+        "drone_id": "D0012",
+        "ip_address": "192.168.0.20",
+        "ros_domain_id": 3,
+        "static_peer": "192.168.0.20",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:16:51.238799+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0012/ros_bags/20260924_171622_196555_UTC_one_command_preflight_check__D0012_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0012/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0012/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null
+    },
+    "D0013": {
+      "drone_id": "D0013",
+      "drone_host": "halo-d0013",
+      "drone_ip": "192.168.0.21",
+      "ros_domain_id": 4,
+      "static_peer": "192.168.0.21",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "READY",
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270183.951753856; 2026-09-24T17:16:23.956313595Z",
+        "recorded_utc": "2026-09-24T17:16:24.352774+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:24.767558+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.21 192.168.168.100 \n192.168.0.21",
+        "recorded_utc": "2026-09-24T17:16:23.943509+00:00"
+      },
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+        "drone_id": "D0013",
+        "ip_address": "192.168.0.21",
+        "ros_domain_id": 4,
+        "static_peer": "192.168.0.21",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:16:51.189574+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0013/ros_bags/20260924_171622_196555_UTC_one_command_preflight_check__D0013_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0013/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0013/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null
+    },
+    "D0014": {
+      "drone_id": "D0014",
+      "drone_host": "halo-d0014",
+      "drone_ip": "192.168.0.22",
+      "ros_domain_id": 5,
+      "static_peer": "192.168.0.22",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "READY",
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270185.197975471; 2026-09-24T17:16:25.203178127Z",
+        "recorded_utc": "2026-09-24T17:16:25.573832+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:26.021310+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.22 192.168.168.100 \n192.168.0.22",
+        "recorded_utc": "2026-09-24T17:16:25.191051+00:00"
+      },
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+        "drone_id": "D0014",
+        "ip_address": "192.168.0.22",
+        "ros_domain_id": 5,
+        "static_peer": "192.168.0.22",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:16:50.875863+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0014/ros_bags/20260924_171622_196555_UTC_one_command_preflight_check__D0014_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0014/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0014/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null
+    },
+    "D0015": {
+      "drone_id": "D0015",
+      "drone_host": "halo-d0015",
+      "drone_ip": "192.168.0.23",
+      "ros_domain_id": 6,
+      "static_peer": "192.168.0.23",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "READY",
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270186.431407286; 2026-09-24T17:16:26.441865358Z",
+        "recorded_utc": "2026-09-24T17:16:26.828368+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:27.260648+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.23 \n192.168.0.23",
+        "recorded_utc": "2026-09-24T17:16:26.424518+00:00"
+      },
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+        "drone_id": "D0015",
+        "ip_address": "192.168.0.23",
+        "ros_domain_id": 6,
+        "static_peer": "192.168.0.23",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:16:50.765168+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0015/ros_bags/20260924_171622_196555_UTC_one_command_preflight_check__D0015_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0015/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0015/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null
+    },
+    "D0016": {
+      "drone_id": "D0016",
+      "drone_host": "halo-d0016",
+      "drone_ip": "192.168.0.24",
+      "ros_domain_id": 7,
+      "static_peer": "192.168.0.24",
+      "enabled": true,
+      "required": true,
+      "post_landing_record_s": 3.0,
+      "status": "READY",
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [],
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270187.732585571; 2026-09-24T17:16:27.737601352Z",
+        "recorded_utc": "2026-09-24T17:16:28.192629+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:28.664053+00:00"
+      },
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+        "recorded_utc": "2026-09-24T17:16:27.724970+00:00"
+      },
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+        "drone_id": "D0016",
+        "ip_address": "192.168.0.24",
+        "ros_domain_id": 7,
+        "static_peer": "192.168.0.24",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_gps_position",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T17:16:50.975389+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0016/ros_bags/20260924_171622_196555_UTC_one_command_preflight_check__D0016_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0016/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0016/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null
+    }
+  },
+  "archive_computer": {
+    "hostname": "mae-11194-l.sabu.mtu.edu",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35"
+  },
+  "code_state": {
+    "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/metadata/code_state.json"
+  },
+  "configuration_snapshots": {
+    "swarm": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/config/swarm_lab.yaml",
+    "profile": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/config/profiles/audio_px4_sync_test.yaml"
+  },
+  "clock_sync": {
+    "D0012": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790270182.714510793; 2026-09-24T17:16:22.719870011Z",
+      "recorded_utc": "2026-09-24T17:16:23.143066+00:00"
+    },
+    "D0013": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790270183.951753856; 2026-09-24T17:16:23.956313595Z",
+      "recorded_utc": "2026-09-24T17:16:24.352774+00:00"
+    },
+    "D0014": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790270185.197975471; 2026-09-24T17:16:25.203178127Z",
+      "recorded_utc": "2026-09-24T17:16:25.573832+00:00"
+    },
+    "D0015": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790270186.431407286; 2026-09-24T17:16:26.441865358Z",
+      "recorded_utc": "2026-09-24T17:16:26.828368+00:00"
+    },
+    "D0016": {
+      "ok": true,
+      "detail": "ground_reference_epoch=1790270187.732585571; 2026-09-24T17:16:27.737601352Z",
+      "recorded_utc": "2026-09-24T17:16:28.192629+00:00"
+    }
+  },
+  "microdds": {
+    "D0012": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:16:23.572192+00:00"
+    },
+    "D0013": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:16:24.767558+00:00"
+    },
+    "D0014": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:16:26.021310+00:00"
+    },
+    "D0015": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:16:27.260648+00:00"
+    },
+    "D0016": {
+      "ok": true,
+      "detail": "active",
+      "recorded_utc": "2026-09-24T17:16:28.664053+00:00"
+    }
+  },
+  "swarm_readiness": {
+    "status": "READY",
+    "required_drone_ids": [
+      "D0012",
+      "D0013",
+      "D0014",
+      "D0015",
+      "D0016"
+    ],
+    "ready_drone_ids": [
+      "D0012",
+      "D0013",
+      "D0014",
+      "D0015",
+      "D0016"
+    ],
+    "failed_drone_ids": []
+  },
+  "overall_termination_reason": "preflight_only",
+  "safety": "Passive archive station only; no arm, flight, land, disarm, or trajectory commands.",
+  "preflight": {
+    "D0012": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.20 192.168.168.100 \n192.168.0.20",
+        "recorded_utc": "2026-09-24T17:16:22.707351+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270182.714510793; 2026-09-24T17:16:22.719870011Z",
+        "recorded_utc": "2026-09-24T17:16:23.143066+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:23.572192+00:00"
+      }
+    },
+    "D0013": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.21 192.168.168.100 \n192.168.0.21",
+        "recorded_utc": "2026-09-24T17:16:23.943509+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270183.951753856; 2026-09-24T17:16:23.956313595Z",
+        "recorded_utc": "2026-09-24T17:16:24.352774+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:24.767558+00:00"
+      }
+    },
+    "D0014": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.0.22 192.168.168.100 \n192.168.0.22",
+        "recorded_utc": "2026-09-24T17:16:25.191051+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270185.197975471; 2026-09-24T17:16:25.203178127Z",
+        "recorded_utc": "2026-09-24T17:16:25.573832+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:26.021310+00:00"
+      }
+    },
+    "D0015": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.23 \n192.168.0.23",
+        "recorded_utc": "2026-09-24T17:16:26.424518+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270186.431407286; 2026-09-24T17:16:26.441865358Z",
+        "recorded_utc": "2026-09-24T17:16:26.828368+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:27.260648+00:00"
+      }
+    },
+    "D0016": {
+      "ssh": {
+        "ok": true,
+        "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+        "recorded_utc": "2026-09-24T17:16:27.724970+00:00"
+      },
+      "clock_sync": {
+        "ok": true,
+        "detail": "ground_reference_epoch=1790270187.732585571; 2026-09-24T17:16:27.737601352Z",
+        "recorded_utc": "2026-09-24T17:16:28.192629+00:00"
+      },
+      "microdds": {
+        "ok": true,
+        "detail": "active",
+        "recorded_utc": "2026-09-24T17:16:28.664053+00:00"
+      }
+    }
+  }
+}

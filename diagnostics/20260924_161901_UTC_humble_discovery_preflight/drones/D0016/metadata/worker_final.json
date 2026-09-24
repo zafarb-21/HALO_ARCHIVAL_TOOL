@@ -1,0 +1,15 @@
+{
+  "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+  "drone_id": "D0016",
+  "drone_host": "halo-d0016",
+  "drone_ip": "192.168.0.24",
+  "ros_domain_id": 7,
+  "static_peer": "192.168.0.24",
+  "phase": "FAILED_ENVIRONMENT",
+  "state": "FAILED_ENVIRONMENT",
+  "errors": [
+    "KeyError: 'drone_host'"
+  ],
+  "termination_reason": "worker_environment_failure",
+  "finalized_utc": "2026-09-24T16:19:10.374580+00:00"
+}

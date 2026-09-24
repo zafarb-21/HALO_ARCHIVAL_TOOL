@@ -1,5 +1,21 @@
 # HALO Mission Archive Tool
 
+## Start the complete pipeline with one command
+
+```bash
+cd ~/HALO_ARCHIVAL_TOOL
+./halo.sh
+```
+
+Wait for **ALL FIVE READY**, then arm/disarm using your normal test procedure.
+Recording, all mission PX4 log collection, and verification run in the background
+inside a new UTC timestamped folder under `archives/`. Use `./halo.sh status` to
+check progress and `./halo.sh stop` to finalize early (it does not disarm drones).
+
+See [the one-command guide](docs/ONE_COMMAND_PIPELINE.md) for options, output paths,
+and how to follow the live log. Audio is optional and off by default.
+
+
 This repository contains the ground-computer tools used to create, identify, populate,
 and preserve a HALO drone mission archive. The archive keeps the mission configuration,
 software state, ReSpeaker recording, PX4 ULogs, status diagnostics, processing products,
@@ -688,7 +704,7 @@ python3 scripts/run_halo_mission.py --help
 
 
 
-## Validated five-drone passive ground archive workflow
+## Five-drone passive ground archive workflow (Humble)
 
 The validated D0012 ground-bag path remains unchanged in
 `scripts/run_halo_mission.py`. Ground Station A remains the only flight-control
@@ -710,12 +726,11 @@ worker is `exec`'d, and the parent captures the background PID immediately:
 (
   set -euo pipefail
   cd "$REPO_ROOT"
-  source /opt/ros/jazzy/setup.bash
-  source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+  source /opt/ros/humble/setup.bash
+  source ~/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash
   export ROS_DOMAIN_ID=3
   export ROS_LOCALHOST_ONLY=0
-  export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
-  export ROS_STATIC_PEERS=192.168.0.20
+  export FASTRTPS_DEFAULT_PROFILES_FILE="$REPO_ROOT/config/fastdds/humble_D0012.xml"
   export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
   exec python3 scripts/run_halo_drone_worker.py ...
 ) > "$MISSION_DIR/drones/D0012/status_logs/worker_console.log" 2>&1 &
@@ -726,11 +741,11 @@ The launcher performs this pattern five times concurrently for the fixed lab
 mapping:
 
 ```text
-D0012 | 192.168.0.20 | ROS_DOMAIN_ID 3 | ROS_STATIC_PEERS 192.168.0.20
-D0013 | 192.168.0.21 | ROS_DOMAIN_ID 4 | ROS_STATIC_PEERS 192.168.0.21
-D0014 | 192.168.0.22 | ROS_DOMAIN_ID 5 | ROS_STATIC_PEERS 192.168.0.22
-D0015 | 192.168.0.23 | ROS_DOMAIN_ID 6 | ROS_STATIC_PEERS 192.168.0.23
-D0016 | 192.168.0.24 | ROS_DOMAIN_ID 7 | ROS_STATIC_PEERS 192.168.0.24
+D0012 | 192.168.0.20 | ROS_DOMAIN_ID 3 | DDS peer 192.168.0.20
+D0013 | 192.168.0.21 | ROS_DOMAIN_ID 4 | DDS peer 192.168.0.21
+D0014 | 192.168.0.22 | ROS_DOMAIN_ID 5 | DDS peer 192.168.0.22
+D0015 | 192.168.0.23 | ROS_DOMAIN_ID 6 | DDS peer 192.168.0.23
+D0016 | 192.168.0.24 | ROS_DOMAIN_ID 7 | DDS peer 192.168.0.24
 ```
 
 Because each worker has its own subshell, exports for one domain cannot affect
@@ -752,12 +767,11 @@ D0012, D0013, D0015, or D0016.
 Every worker uses:
 
 ```bash
-source /opt/ros/jazzy/setup.bash
-source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+source /opt/ros/humble/setup.bash
+source ~/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash
 export ROS_DOMAIN_ID=<that drone's actual domain>
 export ROS_LOCALHOST_ONLY=0
-export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
-export ROS_STATIC_PEERS=<that drone's IP address>
+export FASTRTPS_DEFAULT_PROFILES_FILE="$REPO_ROOT/config/fastdds/humble_<drone_id>.xml"
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ```
 
@@ -765,7 +779,7 @@ The preflight order is deliberate: CHECK DRONE ROS TOPICS FIRST. The worker
 SSHs to its drone, sources `/opt/ros/foxy/setup.bash`, sets its fixed domain,
 restarts/checks that drone's ROS 2 daemon, and confirms at least
 `/fmu/out/sensor_combined`, `/fmu/out/vehicle_status`, and `px4_msgs` types.
-Only after that does the ground-side worker use Jazzy, restart/check its own
+Only after that does the ground-side worker use Humble, restart/check its own
 fixed-domain discovery, confirm ground `/fmu` topics, and validate `px4_msgs`
 decoding. A missing `ros_domain_id` fails preflight; it is never guessed.
 
@@ -854,3 +868,9 @@ python3 -m json.tool "$MISSION_DIR/metadata/swarm_manifest.json" >/dev/null
 python3 -m json.tool "$MISSION_DIR/metadata/mission_metadata.json" >/dev/null
 python3 -m json.tool "$MISSION_DIR/metadata/ground_orchestrator_log.json" >/dev/null
 ```
+
+For the current Humble network diagnosis and verification commands, see
+[Humble discovery troubleshooting](docs/HUMBLE_DISCOVERY.md).
+
+The 2026-09-24 five-drone Humble preflight and passive recording test passed.
+See [verified results and commands](docs/HUMBLE_TEST_RESULTS.md).

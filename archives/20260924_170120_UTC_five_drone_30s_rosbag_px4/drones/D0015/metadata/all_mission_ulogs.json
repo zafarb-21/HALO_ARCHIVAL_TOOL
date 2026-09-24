@@ -1,0 +1,19 @@
+{
+  "drone_id": "D0015",
+  "start_epoch": 1790269286.659605,
+  "end_epoch": 1790269522.981331,
+  "files": [
+    {
+      "remote_path": "/data/px4/log/sess125/log100.ulg",
+      "bytes": 9233959,
+      "mtime": 1790269444.468,
+      "sha256": "b04d803cd4b5ff5610d28ac9c550615ae3bd67d9b360ed43a798bd4c4e5df835",
+      "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0015/px4_logs/all_mission_logs/sess125/log100.ulg",
+      "copy_return_code": 0,
+      "local_sha256": "b04d803cd4b5ff5610d28ac9c550615ae3bd67d9b360ed43a798bd4c4e5df835",
+      "hash_matches": true,
+      "ulog_magic_ok": true
+    }
+  ],
+  "errors": []
+}

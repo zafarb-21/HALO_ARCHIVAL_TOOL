@@ -1,0 +1,138 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+  "collection_status": "complete",
+  "drones": {
+    "D0012": {
+      "status": "FAILED_ENVIRONMENT",
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0012",
+        "drone_host": "halo-d0012",
+        "drone_ip": "192.168.0.20",
+        "ros_domain_id": 3,
+        "static_peer": "192.168.0.20",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.301883+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0012/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0012/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0013": {
+      "status": "FAILED_ENVIRONMENT",
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0013",
+        "drone_host": "halo-d0013",
+        "drone_ip": "192.168.0.21",
+        "ros_domain_id": 4,
+        "static_peer": "192.168.0.21",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.323325+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0013/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0013/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0014": {
+      "status": "FAILED_ENVIRONMENT",
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0014",
+        "drone_host": "halo-d0014",
+        "drone_ip": "192.168.0.22",
+        "ros_domain_id": 5,
+        "static_peer": "192.168.0.22",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.344996+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0014/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0014/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0015": {
+      "status": "FAILED_ENVIRONMENT",
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0015",
+        "drone_host": "halo-d0015",
+        "drone_ip": "192.168.0.23",
+        "ros_domain_id": 6,
+        "static_peer": "192.168.0.23",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.361978+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0015/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0015/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0016": {
+      "status": "FAILED_ENVIRONMENT",
+      "phase": "FAILED_ENVIRONMENT",
+      "worker_status": {
+        "mission_id": "20260924_161901_UTC_humble_discovery_preflight",
+        "drone_id": "D0016",
+        "drone_host": "halo-d0016",
+        "drone_ip": "192.168.0.24",
+        "ros_domain_id": 7,
+        "static_peer": "192.168.0.24",
+        "phase": "FAILED_ENVIRONMENT",
+        "state": "FAILED_ENVIRONMENT",
+        "errors": [
+          "KeyError: 'drone_host'"
+        ],
+        "termination_reason": "worker_environment_failure",
+        "finalized_utc": "2026-09-24T16:19:10.374580+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0016/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161901_UTC_humble_discovery_preflight/drones/D0016/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "updated_utc": "2026-09-24T16:19:11.690043+00:00"
+}

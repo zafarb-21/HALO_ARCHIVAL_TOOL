@@ -1,0 +1,122 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_170120_UTC_five_drone_30s_rosbag_px4",
+  "mission_start_utc": "2026-09-24T17:01:26.659605+00:00",
+  "events": [
+    {
+      "timestamp_utc": "2026-09-24T17:01:26.659605+00:00",
+      "event": "archive_created"
+    },
+    {
+      "timestamp_utc": "2026-09-24T17:01:26.713854+00:00",
+      "event": "launcher_preflight",
+      "drone_id": "D0012",
+      "results": {
+        "ssh": {
+          "ok": true,
+          "detail": "m0054\n192.168.0.20 192.168.168.100 \n192.168.0.20",
+          "recorded_utc": "2026-09-24T17:01:20.667091+00:00"
+        },
+        "clock_sync": {
+          "ok": true,
+          "detail": "ground_reference_epoch=1790269280; 2026-09-24T17:01:20.004805572Z",
+          "recorded_utc": "2026-09-24T17:01:21.080791+00:00"
+        },
+        "microdds": {
+          "ok": true,
+          "detail": "active",
+          "recorded_utc": "2026-09-24T17:01:21.550681+00:00"
+        }
+      }
+    },
+    {
+      "timestamp_utc": "2026-09-24T17:01:26.714109+00:00",
+      "event": "launcher_preflight",
+      "drone_id": "D0013",
+      "results": {
+        "ssh": {
+          "ok": true,
+          "detail": "m0054\n192.168.0.21 192.168.168.100 \n192.168.0.21",
+          "recorded_utc": "2026-09-24T17:01:21.937362+00:00"
+        },
+        "clock_sync": {
+          "ok": true,
+          "detail": "ground_reference_epoch=1790269280; 2026-09-24T17:01:20.002427447Z",
+          "recorded_utc": "2026-09-24T17:01:22.340181+00:00"
+        },
+        "microdds": {
+          "ok": true,
+          "detail": "active",
+          "recorded_utc": "2026-09-24T17:01:22.770149+00:00"
+        }
+      }
+    },
+    {
+      "timestamp_utc": "2026-09-24T17:01:26.714318+00:00",
+      "event": "launcher_preflight",
+      "drone_id": "D0014",
+      "results": {
+        "ssh": {
+          "ok": true,
+          "detail": "m0054\n192.168.0.22 192.168.168.100 \n192.168.0.22",
+          "recorded_utc": "2026-09-24T17:01:23.173291+00:00"
+        },
+        "clock_sync": {
+          "ok": true,
+          "detail": "ground_reference_epoch=1790269280; 2026-09-24T17:01:20.005006614Z",
+          "recorded_utc": "2026-09-24T17:01:23.604241+00:00"
+        },
+        "microdds": {
+          "ok": true,
+          "detail": "active",
+          "recorded_utc": "2026-09-24T17:01:24.073975+00:00"
+        }
+      }
+    },
+    {
+      "timestamp_utc": "2026-09-24T17:01:26.714509+00:00",
+      "event": "launcher_preflight",
+      "drone_id": "D0015",
+      "results": {
+        "ssh": {
+          "ok": true,
+          "detail": "m0054\n192.168.7.2 192.168.0.23 \n192.168.0.23",
+          "recorded_utc": "2026-09-24T17:01:24.470698+00:00"
+        },
+        "clock_sync": {
+          "ok": true,
+          "detail": "ground_reference_epoch=1790269280; 2026-09-24T17:01:20.002498645Z",
+          "recorded_utc": "2026-09-24T17:01:24.862806+00:00"
+        },
+        "microdds": {
+          "ok": true,
+          "detail": "active",
+          "recorded_utc": "2026-09-24T17:01:25.308029+00:00"
+        }
+      }
+    },
+    {
+      "timestamp_utc": "2026-09-24T17:01:26.714696+00:00",
+      "event": "launcher_preflight",
+      "drone_id": "D0016",
+      "results": {
+        "ssh": {
+          "ok": true,
+          "detail": "m0054\n192.168.7.2 192.168.0.24 192.168.8.1 \n192.168.0.24",
+          "recorded_utc": "2026-09-24T17:01:25.755401+00:00"
+        },
+        "clock_sync": {
+          "ok": true,
+          "detail": "ground_reference_epoch=1790269280; 2026-09-24T17:01:20.003853385Z",
+          "recorded_utc": "2026-09-24T17:01:26.172093+00:00"
+        },
+        "microdds": {
+          "ok": true,
+          "detail": "active",
+          "recorded_utc": "2026-09-24T17:01:26.596819+00:00"
+        }
+      }
+    }
+  ],
+  "safety": "Passive archive station only; no arm, flight, land, disarm, or trajectory commands."
+}

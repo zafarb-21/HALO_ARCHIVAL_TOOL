@@ -1,0 +1,30 @@
+{
+  "drone_id": "D0016",
+  "start_epoch": 1790269286.659605,
+  "end_epoch": 1790269522.981331,
+  "files": [
+    {
+      "remote_path": "/data/px4/log/sess125/log100.ulg",
+      "bytes": 1227034,
+      "mtime": 1790269354.532,
+      "sha256": "5dad2164dcd03645f95f74e830f168abd7a2063f7a3e2781d3e5639e6e132ad3",
+      "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0016/px4_logs/all_mission_logs/sess125/log100.ulg",
+      "copy_return_code": 0,
+      "local_sha256": "5dad2164dcd03645f95f74e830f168abd7a2063f7a3e2781d3e5639e6e132ad3",
+      "hash_matches": true,
+      "ulog_magic_ok": true
+    },
+    {
+      "remote_path": "/data/px4/log/sess125/log101.ulg",
+      "bytes": 13821329,
+      "mtime": 1790269433.284,
+      "sha256": "842289200b21a713a8fda83815e2ff794a8bbf2cc13796558f00bcb01a35a654",
+      "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0016/px4_logs/all_mission_logs/sess125/log101.ulg",
+      "copy_return_code": 0,
+      "local_sha256": "842289200b21a713a8fda83815e2ff794a8bbf2cc13796558f00bcb01a35a654",
+      "hash_matches": true,
+      "ulog_magic_ok": true
+    }
+  ],
+  "errors": []
+}

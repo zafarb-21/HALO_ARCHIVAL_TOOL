@@ -1,0 +1,19 @@
+{
+  "name": "one_command_preflight_check",
+  "operator": "vmbasvi",
+  "archive_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives",
+  "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+  "duration": 600,
+  "workspace": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash",
+  "preflight_only": true,
+  "enable_audio": false,
+  "pid": 177267,
+  "process_token": "27011424",
+  "mission_dir": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check",
+  "log": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/.pipeline/20260924_171622_196555_UTC_one_command_preflight_check/pipeline.log",
+  "phase": "COMPLETE",
+  "updated_utc": "2026-09-24T17:17:03.226551+00:00",
+  "readiness_passed": true,
+  "launcher_exit_code": 0,
+  "verification_exit_code": 0
+}

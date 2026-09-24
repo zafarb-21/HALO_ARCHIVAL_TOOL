@@ -1,0 +1,337 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+  "collection_status": "complete_with_drone_failures",
+  "drones": {
+    "D0012": {
+      "status": "FAILED_PREFLIGHT",
+      "phase": "FAILED_PREFLIGHT",
+      "worker_status": {
+        "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+        "drone_id": "D0012",
+        "ip_address": "192.168.0.20",
+        "ros_domain_id": 3,
+        "static_peer": "192.168.0.20",
+        "state": "FAILED_PREFLIGHT",
+        "phase": "FAILED_PREFLIGHT",
+        "ground_preflight": {
+          "visible_topics": [
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "",
+          "sensor_combined_type": "",
+          "vehicle_status_echo": {
+            "available": false,
+            "armed": null,
+            "landed": null,
+            "error": "Could not determine the type for the passed topic"
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": false,
+          "px4_msgs_decode_ok": false,
+          "warnings": [],
+          "errors": [
+            "Ground ROS preflight did not find /fmu/out/vehicle_status",
+            "Ground ROS preflight did not find /fmu/out/sensor_combined",
+            "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+            "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+            "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+          ]
+        },
+        "warnings": [],
+        "errors": [
+          "Ground ROS preflight did not find /fmu/out/vehicle_status",
+          "Ground ROS preflight did not find /fmu/out/sensor_combined",
+          "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+          "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+          "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+        ],
+        "termination_reason": "ground_ros_preflight_failed"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0012/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0012/metadata/collection_manifest.json",
+      "collection_status": "failed",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [
+        "Ground ROS preflight did not find /fmu/out/vehicle_status",
+        "Ground ROS preflight did not find /fmu/out/sensor_combined",
+        "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+        "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+        "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+      ]
+    },
+    "D0013": {
+      "status": "FAILED_PREFLIGHT",
+      "phase": "FAILED_PREFLIGHT",
+      "worker_status": {
+        "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+        "drone_id": "D0013",
+        "ip_address": "192.168.0.21",
+        "ros_domain_id": 4,
+        "static_peer": "192.168.0.21",
+        "state": "FAILED_PREFLIGHT",
+        "phase": "FAILED_PREFLIGHT",
+        "ground_preflight": {
+          "visible_topics": [
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "",
+          "sensor_combined_type": "",
+          "vehicle_status_echo": {
+            "available": false,
+            "armed": null,
+            "landed": null,
+            "error": "Could not determine the type for the passed topic"
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": false,
+          "px4_msgs_decode_ok": false,
+          "warnings": [],
+          "errors": [
+            "Ground ROS preflight did not find /fmu/out/vehicle_status",
+            "Ground ROS preflight did not find /fmu/out/sensor_combined",
+            "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+            "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+            "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+          ]
+        },
+        "warnings": [],
+        "errors": [
+          "Ground ROS preflight did not find /fmu/out/vehicle_status",
+          "Ground ROS preflight did not find /fmu/out/sensor_combined",
+          "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+          "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+          "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+        ],
+        "termination_reason": "ground_ros_preflight_failed"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0013/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0013/metadata/collection_manifest.json",
+      "collection_status": "failed",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [
+        "Ground ROS preflight did not find /fmu/out/vehicle_status",
+        "Ground ROS preflight did not find /fmu/out/sensor_combined",
+        "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+        "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+        "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+      ]
+    },
+    "D0014": {
+      "status": "FAILED_PREFLIGHT",
+      "phase": "FAILED_PREFLIGHT",
+      "worker_status": {
+        "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+        "drone_id": "D0014",
+        "ip_address": "192.168.0.22",
+        "ros_domain_id": 5,
+        "static_peer": "192.168.0.22",
+        "state": "FAILED_PREFLIGHT",
+        "phase": "FAILED_PREFLIGHT",
+        "ground_preflight": {
+          "visible_topics": [
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "",
+          "sensor_combined_type": "",
+          "vehicle_status_echo": {
+            "available": false,
+            "armed": null,
+            "landed": null,
+            "error": "Could not determine the type for the passed topic"
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": false,
+          "px4_msgs_decode_ok": false,
+          "warnings": [],
+          "errors": [
+            "Ground ROS preflight did not find /fmu/out/vehicle_status",
+            "Ground ROS preflight did not find /fmu/out/sensor_combined",
+            "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+            "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+            "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+          ]
+        },
+        "warnings": [],
+        "errors": [
+          "Ground ROS preflight did not find /fmu/out/vehicle_status",
+          "Ground ROS preflight did not find /fmu/out/sensor_combined",
+          "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+          "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+          "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+        ],
+        "termination_reason": "ground_ros_preflight_failed"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0014/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0014/metadata/collection_manifest.json",
+      "collection_status": "failed",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [
+        "Ground ROS preflight did not find /fmu/out/vehicle_status",
+        "Ground ROS preflight did not find /fmu/out/sensor_combined",
+        "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+        "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+        "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+      ]
+    },
+    "D0015": {
+      "status": "FAILED_PREFLIGHT",
+      "phase": "FAILED_PREFLIGHT",
+      "worker_status": {
+        "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+        "drone_id": "D0015",
+        "drone_host": "halo-d0015",
+        "drone_ip": "192.168.0.23",
+        "ros_domain_id": 6,
+        "static_peer": "192.168.0.23",
+        "state": "FAILED_PREFLIGHT",
+        "phase": "FAILED_PREFLIGHT",
+        "drone_ros_check": {
+          "drone_id": "D0015",
+          "ip_address": "192.168.0.23",
+          "ros_domain_id": 6,
+          "static_peer": "192.168.0.23",
+          "state": "FAILED_PREFLIGHT",
+          "ok": false,
+          "errors": [
+            "Drone ROS preflight did not find /fmu/out/vehicle_status",
+            "Drone ROS preflight did not find /fmu/out/sensor_combined",
+            "Drone ROS preflight found no /fmu topics"
+          ],
+          "warnings": [],
+          "command_result": {
+            "command": "ssh -o BatchMode=yes -o ConnectTimeout=10 halo-d0015 'LC_ALL=C LANG=C bash -lc '\"'\"'set -e\nsource /opt/ros/foxy/setup.bash\nexport ROS_DOMAIN_ID=6\nexport ROS_LOCALHOST_ONLY=0\nexport RMW_IMPLEMENTATION=rmw_fastrtps_cpp\nros2 daemon stop >/dev/null 2>&1 || true\nros2 daemon start >/dev/null 2>&1 || true\nsleep 1\necho __T__\nros2 topic list -t\necho __E__\necho __Y__\nros2 topic type /fmu/out/vehicle_status\necho __Z__\necho __S__\nros2 topic type /fmu/out/sensor_combined\necho __Q__'\"'\"''",
+            "return_code": 0,
+            "stdout": "__T__\n/parameter_events [rcl_interfaces/msg/ParameterEvent]\n/rosout [rcl_interfaces/msg/Log]\n__E__\n__Y__\npx4_msgs/msg/VehicleStatus\n__Z__\n__S__\npx4_msgs/msg/SensorCombined\n__Q__",
+            "stderr": "",
+            "ok": true
+          },
+          "visible_topics": [
+            "/parameter_events",
+            "/rosout"
+          ],
+          "vehicle_status_type": "px4_msgs/msg/VehicleStatus",
+          "sensor_combined_type": "px4_msgs/msg/SensorCombined",
+          "px4_msgs_decode_ok": true
+        },
+        "ground_ros_check": null,
+        "drone_ros_ok": false,
+        "ground_ros_ok": false,
+        "px4_msgs_decode_ok": true,
+        "warnings": [],
+        "errors": [
+          "Drone ROS preflight did not find /fmu/out/vehicle_status",
+          "Drone ROS preflight did not find /fmu/out/sensor_combined",
+          "Drone ROS preflight found no /fmu topics"
+        ],
+        "termination_reason": "drone_ros_preflight_failed",
+        "finalized_utc": "2026-09-24T16:19:53.963901+00:00"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0015/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0015/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0016": {
+      "status": "FAILED_PREFLIGHT",
+      "phase": "FAILED_PREFLIGHT",
+      "worker_status": {
+        "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+        "drone_id": "D0016",
+        "ip_address": "192.168.0.24",
+        "ros_domain_id": 7,
+        "static_peer": "192.168.0.24",
+        "state": "FAILED_PREFLIGHT",
+        "phase": "FAILED_PREFLIGHT",
+        "ground_preflight": {
+          "visible_topics": [
+            "/parameter_events",
+            "/rosout"
+          ],
+          "topic_types": {
+            "/parameter_events": "rcl_interfaces/msg/ParameterEvent",
+            "/rosout": "rcl_interfaces/msg/Log"
+          },
+          "vehicle_status_type": "",
+          "sensor_combined_type": "",
+          "vehicle_status_echo": {
+            "available": false,
+            "armed": null,
+            "landed": null,
+            "error": "Could not determine the type for the passed topic"
+          },
+          "vehicle_land_detected_available": false,
+          "drone_ros_ok": true,
+          "ground_ros_ok": false,
+          "px4_msgs_decode_ok": false,
+          "warnings": [],
+          "errors": [
+            "Ground ROS preflight did not find /fmu/out/vehicle_status",
+            "Ground ROS preflight did not find /fmu/out/sensor_combined",
+            "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+            "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+            "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+          ]
+        },
+        "warnings": [],
+        "errors": [
+          "Ground ROS preflight did not find /fmu/out/vehicle_status",
+          "Ground ROS preflight did not find /fmu/out/sensor_combined",
+          "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+          "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+          "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+        ],
+        "termination_reason": "ground_ros_preflight_failed"
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0016/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161936_UTC_humble_discovery_preflight/drones/D0016/metadata/collection_manifest.json",
+      "collection_status": "failed",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": [
+        "Ground ROS preflight did not find /fmu/out/vehicle_status",
+        "Ground ROS preflight did not find /fmu/out/sensor_combined",
+        "Ground ROS preflight could not confirm px4_msgs vehicle_status decoding",
+        "Ground ROS preflight could not confirm px4_msgs sensor_combined decoding",
+        "Ground ROS vehicle_status message check failed: Could not determine the type for the passed topic"
+      ]
+    }
+  },
+  "updated_utc": "2026-09-24T16:20:08.047513+00:00"
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_161821_UTC_humble_discovery_preflight",
+  "collection_status": "complete",
+  "drones": {
+    "D0012": {
+      "status": "NOT_STARTED",
+      "phase": null,
+      "worker_status": {},
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0012/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0012/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0013": {
+      "status": "NOT_STARTED",
+      "phase": null,
+      "worker_status": {},
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0013/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0013/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0014": {
+      "status": "NOT_STARTED",
+      "phase": null,
+      "worker_status": {},
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0014/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0014/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0015": {
+      "status": "NOT_STARTED",
+      "phase": null,
+      "worker_status": {},
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0015/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0015/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    },
+    "D0016": {
+      "status": "NOT_STARTED",
+      "phase": null,
+      "worker_status": {},
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0016/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_161821_UTC_humble_discovery_preflight/drones/D0016/metadata/collection_manifest.json",
+      "collection_status": "pending",
+      "bag": {},
+      "selected_ulog": null,
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "updated_utc": "2026-09-24T16:18:29.767639+00:00"
+}

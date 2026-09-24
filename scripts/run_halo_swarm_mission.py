@@ -1834,9 +1834,9 @@ def main() -> int:
 
 
 # Passive ground-side five-worker implementation.
-_SW_JAZZY="/opt/ros/jazzy/setup.bash"
+_SW_HUMBLE="/opt/ros/humble/setup.bash"
 _SW_FOXY="/opt/ros/foxy/setup.bash"
-_SW_PX4=str(Path.home()/"MIC_ARRAY_ROS"/"px4_ros2_jazzy_ws"/"install"/"setup.bash")
+_SW_PX4=os.environ.get("HALO_PX4_MSGS_SETUP", str(Path(__file__).resolve().parents[1]/"runtime"/"px4_ros2_humble_ws"/"install"/"setup.bash"))
 _SW_STATUS="/fmu/out/vehicle_status"
 _SW_LAND="/fmu/out/vehicle_land_detected"
 _SW_SIGNAL=None
@@ -1967,7 +1967,7 @@ def _sw_normalize(path,root):
 def _sw_preflight(drone):
     result={"drone_id":drone["drone_id"],"ip_address":drone["ip_address"],"ros_domain_id":drone["ros_domain_id"],"static_peer":drone["ip_address"],"state":"CHECKING_DRONE_ROS","ok":False,"errors":list(drone["config_errors"]),"warnings":[]}
     if result["errors"] or not isinstance(drone["ros_domain_id"],int): result["state"]="FAILED_PREFLIGHT"; return result
-    shell=(f"set -u\nsource {_SW_FOXY}\nexport ROS_DOMAIN_ID={drone['ros_domain_id']}\nexport ROS_LOCALHOST_ONLY=0\nexport ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET\nexport ROS_STATIC_PEERS={drone['ip_address']}\nexport RMW_IMPLEMENTATION=rmw_fastrtps_cpp\nros2 daemon stop >/dev/null 2>&1 || true\nros2 daemon start >/dev/null 2>&1 || true\nsleep 1\necho __T__\nros2 topic list -t\necho __E__\necho __Y__\nros2 topic type /fmu/out/vehicle_status\necho __Z__\necho __S__\nros2 topic type /fmu/out/sensor_combined\necho __Q__")
+    shell=(f"set -e\nsource {_SW_FOXY}\nexport ROS_DOMAIN_ID={drone['ros_domain_id']}\nexport ROS_LOCALHOST_ONLY=0\nexport RMW_IMPLEMENTATION=rmw_fastrtps_cpp\nros2 daemon stop >/dev/null 2>&1 || true\nros2 daemon start >/dev/null 2>&1 || true\nsleep 1\necho __T__\nros2 topic list --no-daemon --spin-time 5 -t\necho __E__\necho __Y__\nros2 topic type /fmu/out/vehicle_status\necho __Z__\necho __S__\nros2 topic type /fmu/out/sensor_combined\necho __Q__")
     run=_sw_run(_sw_ssh(drone["ssh_host"],shell),35); result["command_result"]=run
     if not run["ok"]: result["errors"].append("Drone ROS preflight failed: "+failure_detail(run)); result["state"]="FAILED_PREFLIGHT"; return result
     out=run["stdout"]; block=out.split("__T__",1); block=block[1].split("__E__",1)[0] if len(block)==2 else ""; typ=out.split("__Y__",1); typ=typ[1].split("__Z__",1)[0].strip() if len(typ)==2 else ""; sensor_typ=out.split("__S__",1); sensor_typ=sensor_typ[1].split("__Q__",1)[0].strip() if len(sensor_typ)==2 else ""
@@ -2041,10 +2041,12 @@ def _sw_worker(args):
     root=Path(args.drone_dir); meta=root/"metadata"; status_dir=root/"status_logs"; meta.mkdir(parents=True,exist_ok=True); status_dir.mkdir(parents=True,exist_ok=True)
     status_path=Path(getattr(args,"status_path",status_dir/"worker_status.json")); final_path=meta/"worker_final.json"; bag=root/"ros_bags"/f"{args.mission_id}__{args.drone_id}_ground_rosbag"
     state={"bag_path":str(bag),"bag_process":None,"bag_prepared":False,"bag_started":False,"audio_pid":None,"audio_started_utc":None,"audio_stopped_utc":None,"connection_loss_events":[]}; warnings=[]; errors=[]
-    save_json_atomic(meta/"worker_start.json",{"mission_id":args.mission_id,"drone_id":args.drone_id,"ip_address":args.ip_address,"ros_domain_id":args.ros_domain_id,"static_peer":args.ip_address,"worker_pid":os.getpid(),"safety":"Passive observer only; no flight-control commands.","environment":{k:os.environ.get(k) for k in ("ROS_DOMAIN_ID","ROS_LOCALHOST_ONLY","ROS_AUTOMATIC_DISCOVERY_RANGE","ROS_STATIC_PEERS","RMW_IMPLEMENTATION")}})
+    save_json_atomic(meta/"worker_start.json",{"mission_id":args.mission_id,"drone_id":args.drone_id,"ip_address":args.ip_address,"ros_domain_id":args.ros_domain_id,"static_peer":args.ip_address,"worker_pid":os.getpid(),"safety":"Passive observer only; no flight-control commands.","environment":{k:os.environ.get(k) for k in ("ROS_DOMAIN_ID","ROS_LOCALHOST_ONLY","FASTRTPS_DEFAULT_PROFILES_FILE","RMW_IMPLEMENTATION")}})
     save_json_atomic(status_path,{"mission_id":args.mission_id,"drone_id":args.drone_id,"ip_address":args.ip_address,"ros_domain_id":args.ros_domain_id,"static_peer":args.ip_address,"state":"CHECKING_GROUND_ROS","phase":"CHECKING_GROUND_ROS"})
     _sw_run(["ros2","daemon","stop"],env=os.environ.copy()); _sw_run(["ros2","daemon","start"],env=os.environ.copy())
-    topics_run=_sw_run(["ros2","topic","list","-t"],20,os.environ.copy()); topics=_sw_topics(topics_run.get("stdout","")); types=_sw_types(topics_run.get("stdout","")); status_type=types.get(_SW_STATUS,"") or _sw_run(["ros2","topic","type",_SW_STATUS],env=os.environ.copy()).get("stdout",""); sensor_type=types.get("/fmu/out/sensor_combined","") or _sw_run(["ros2","topic","type","/fmu/out/sensor_combined"],env=os.environ.copy()).get("stdout",""); vehicle=_sw_echo(_SW_STATUS,8); land_available=_SW_LAND in topics and "px4_msgs" in types.get(_SW_LAND,"")
+    topics_run=_sw_run(["ros2","topic","list","--no-daemon","--spin-time","5","-t"],20,os.environ.copy()); topics=_sw_topics(topics_run.get("stdout","")); types=_sw_types(topics_run.get("stdout","")); status_type=types.get(_SW_STATUS,"") or _sw_run(["ros2","topic","type",_SW_STATUS],env=os.environ.copy()).get("stdout",""); sensor_type=types.get("/fmu/out/sensor_combined","") or _sw_run(["ros2","topic","type","/fmu/out/sensor_combined"],env=os.environ.copy()).get("stdout",""); vehicle=_sw_echo(_SW_STATUS,8); land_available=_SW_LAND in topics and "px4_msgs" in types.get(_SW_LAND,"")
+    sensor_sample = _sw_run(["ros2", "topic", "echo", "/fmu/out/sensor_combined", "--once", "--qos-reliability", "best_effort"], 8, os.environ.copy())
+    decode_ok = bool(vehicle.get("available") and sensor_sample["ok"] and "px4_msgs" in status_type and "px4_msgs" in sensor_type)
     pre_errors=[]; pre_warnings=[]
     if not topics_run["ok"]: pre_errors.append("Ground ROS discovery failed: "+failure_detail(topics_run))
     if _SW_STATUS not in topics: pre_errors.append(f"Ground ROS preflight did not find {_SW_STATUS}")
@@ -2052,13 +2054,20 @@ def _sw_worker(args):
     if "px4_msgs" not in status_type: pre_errors.append("Ground ROS preflight could not confirm px4_msgs vehicle_status decoding")
     if "px4_msgs" not in sensor_type: pre_errors.append("Ground ROS preflight could not confirm px4_msgs sensor_combined decoding")
     if not vehicle.get("available"): pre_errors.append("Ground ROS vehicle_status message check failed: "+str(vehicle.get("error")))
+    if not sensor_sample["ok"]: pre_errors.append("Ground ROS sensor_combined message check failed: " + failure_detail(sensor_sample))
     if _SW_LAND in topics and not land_available: pre_warnings.append("vehicle_land_detected unavailable; using ARMED-to-DISARMED fallback")
     state["bag_prepared"]=not pre_errors; state["land_available"]=land_available
-    ground={"visible_topics":topics,"topic_types":types,"vehicle_status_type":status_type,"sensor_combined_type":sensor_type,"vehicle_status_echo":vehicle,"vehicle_land_detected_available":land_available,"drone_ros_ok":getattr(args,"drone_ros_ok",None),"ground_ros_ok":not pre_errors,"px4_msgs_decode_ok":"px4_msgs" in status_type and "px4_msgs" in sensor_type,"warnings":pre_warnings,"errors":pre_errors}
+    ground={"visible_topics":topics,"topic_types":types,"vehicle_status_type":status_type,"sensor_combined_type":sensor_type,"vehicle_status_echo":vehicle,"sensor_combined_echo":sensor_sample,"vehicle_land_detected_available":land_available,"drone_ros_ok":getattr(args,"drone_ros_ok",None),"ground_ros_ok":not pre_errors,"px4_msgs_decode_ok":decode_ok,"warnings":pre_warnings,"errors":pre_errors}
     if pre_errors:
         final={"mission_id":args.mission_id,"drone_id":args.drone_id,"ip_address":args.ip_address,"ros_domain_id":args.ros_domain_id,"static_peer":args.ip_address,"state":"FAILED_PREFLIGHT","phase":"FAILED_PREFLIGHT","ground_preflight":ground,"warnings":pre_warnings,"errors":pre_errors,"termination_reason":"ground_ros_preflight_failed"}
         save_json_atomic(final_path,final); save_json_atomic(status_path,final); return 2
-    ready_utc=utc_now(); save_json_atomic(status_path,{"mission_id":args.mission_id,"drone_id":args.drone_id,"ip_address":args.ip_address,"ros_domain_id":args.ros_domain_id,"static_peer":args.ip_address,"state":"READY","phase":"READY","drone_ros_ok":getattr(args,"drone_ros_ok",None),"ground_ros_ok":True,"px4_msgs_decode_ok":"px4_msgs" in status_type and "px4_msgs" in sensor_type,"visible_topics":topics,"ready_utc":ready_utc,"bag":{"prepared":True,"path":str(bag)},"audio":{"enabled":args.enable_audio,"started":False}})
+    ready_utc=utc_now(); save_json_atomic(status_path,{"mission_id":args.mission_id,"drone_id":args.drone_id,"ip_address":args.ip_address,"ros_domain_id":args.ros_domain_id,"static_peer":args.ip_address,"state":"READY","phase":"READY","drone_ros_ok":getattr(args,"drone_ros_ok",None),"ground_ros_ok":True,"px4_msgs_decode_ok":decode_ok,"visible_topics":topics,"ready_utc":ready_utc,"bag":{"prepared":True,"path":str(bag)},"audio":{"enabled":args.enable_audio,"started":False}})
+    if getattr(args, "preflight_only", False):
+        save_json_atomic(final_path, {"mission_id": args.mission_id, "drone_id": args.drone_id,
+            "state": "READY", "phase": "READY", "ground_preflight": ground,
+            "warnings": pre_warnings, "errors": [], "termination_reason": "preflight_only",
+            "bag": {"started": False}, "ready_utc": ready_utc})
+        return 0
     _sw_audio_start(args,state,warnings)
     previous=None; armed_seen=False; landed_seen=False; landed={"landed":None}; phase="WAITING_FOR_ARM"; stop_at=None; started=time.monotonic(); status_failures=0; land_failures=0; termination=None; arm_utc=None; arm_px4_ts=None; land_utc=None; land_px4_ts=None; disarm_utc=None; disarm_px4_ts=None; bag_start=None; bag_stop=None; bag_trigger=None; bag_code=None; bag_handle=None; bag_proc=None
     try:
@@ -2132,11 +2141,11 @@ def _sw_archive(args,drones,swarm,profile):
 
 
 def _sw_launch(args,drone):
-    env=os.environ.copy(); env.update({"ROS_DOMAIN_ID":str(drone["ros_domain_id"]),"ROS_LOCALHOST_ONLY":"0","ROS_AUTOMATIC_DISCOVERY_RANGE":"SUBNET","ROS_STATIC_PEERS":drone["ip_address"],"RMW_IMPLEMENTATION":"rmw_fastrtps_cpp"})
+    env=os.environ.copy(); env.update({"ROS_DOMAIN_ID":str(drone["ros_domain_id"]),"ROS_LOCALHOST_ONLY":"0","FASTRTPS_DEFAULT_PROFILES_FILE":str(Path(__file__).resolve().parents[1]/"config"/"fastdds"/f"humble_{drone['drone_id']}.xml"),"RMW_IMPLEMENTATION":"rmw_fastrtps_cpp"})
     command=[sys.executable,str(Path(__file__).resolve()),"--worker","--mission-id",args.mission_id,"--drone-id",drone["drone_id"],"--drone-dir",drone["local_dir"],"--ip-address",drone["ip_address"],"--ros-domain-id",str(drone["ros_domain_id"]),"--post-landing-record-s",str(drone["post_landing_record_s"]),"--duration",str(args.duration),"--status-interval-s",str(args.status_interval_s),"--ssh-host",drone["ssh_host"],"--remote-mission-dir",drone["remote_mission_dir"],"--px4-msgs-workspace",args.px4_msgs_workspace,"--audio-device",drone["audio_device"],"--sample-rate",str(drone["sample_rate"]),"--channels",str(drone["channels"]),"--sample-format",drone["sample_format"]]
     if args.enable_ground_rosbag: command.append("--enable-ground-rosbag")
     if args.enable_audio: command.append("--enable-audio")
-    shell=f"set -e\nsource {shlex.quote(_SW_JAZZY)}\nsource {shlex.quote(args.px4_msgs_workspace)}\nexport ROS_DOMAIN_ID={drone['ros_domain_id']}\nexport ROS_LOCALHOST_ONLY=0\nexport ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET\nexport ROS_STATIC_PEERS={shlex.quote(drone['ip_address'])}\nexport RMW_IMPLEMENTATION=rmw_fastrtps_cpp\nexec "+shlex.join(command)
+    shell=f"set -e\nsource {shlex.quote(_SW_HUMBLE)}\nsource {shlex.quote(args.px4_msgs_workspace)}\nexport ROS_DOMAIN_ID={drone['ros_domain_id']}\nexport ROS_LOCALHOST_ONLY=0\nexport FASTRTPS_DEFAULT_PROFILES_FILE={shlex.quote(env['FASTRTPS_DEFAULT_PROFILES_FILE'])}\nexport RMW_IMPLEMENTATION=rmw_fastrtps_cpp\nexec "+shlex.join(command)
     console=(Path(drone["local_dir"])/"status_logs"/"worker_console.log").open("a",encoding="utf-8"); drone["console"]=console; drone["process"]=subprocess.Popen(["bash","-lc",shell],stdout=console,stderr=subprocess.STDOUT,env=env,start_new_session=True,text=True)
 
 
@@ -2211,7 +2220,7 @@ def _swarm_v2_main():
     for drone in drones: print(f"{drone['drone_id']} | ip={drone['ip_address']} | domain={drone['ros_domain_id'] if drone['ros_domain_id'] is not None else 'MISSING'} | required={str(drone['required']).lower()}")
     if args.dry_run:
         print("DRY RUN: no archive, SSH, ROS, bag, audio, or flight command was started.")
-        for drone in drones: print(f"{drone['drone_id']}: NOT READY - "+"; ".join(drone["config_errors"]) if drone["config_errors"] else f"{drone['drone_id']}: worker env will use ROS_STATIC_PEERS={drone['ip_address']}")
+        for drone in drones: print(f"{drone['drone_id']}: NOT READY - "+"; ".join(drone["config_errors"]) if drone["config_errors"] else f"{drone['drone_id']}: worker Humble DDS peer={drone['ip_address']}")
         return 0
     args.created_utc=utc_now(); mission,meta,manifest_path=_sw_archive(args,drones,swarm_path,profile_path); enabled=[d for d in drones if d["enabled"]]; pf=_sw_parallel(enabled,_sw_preflight); failed=[]
     for drone in drones:

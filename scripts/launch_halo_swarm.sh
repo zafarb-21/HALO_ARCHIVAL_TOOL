@@ -10,7 +10,7 @@ WORKER="$SCRIPT_DIR/run_halo_drone_worker.py"
 SWARM_CONFIG="$REPO_ROOT/drones/swarm_lab.yaml"
 PROFILE="$REPO_ROOT/profiles/audio_px4_sync_test.yaml"
 ARCHIVE_ROOT="${HALO_ARCHIVE_ROOT:-$HOME/MIC_ARRAY_ROS/HALO_ARCHIVE}"
-PX4_WORKSPACE="$HOME/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash"
+PX4_WORKSPACE="${HALO_PX4_MSGS_SETUP:-$REPO_ROOT/runtime/px4_ros2_humble_ws/install/setup.bash}"
 MISSION_NAME="lab_swarm_test_001"
 OPERATOR="${USER:-operator}"
 MISSION_ID=""
@@ -122,7 +122,7 @@ if (( DRY_RUN == 1 )); then
   echo "DRY RUN: no SSH, clock sync, microdds restart, archive, ROS, bag, audio, or flight command will run."
   for index in "${!DRONE_IDS[@]}"; do
     echo "${DRONE_IDS[$index]} | ${DRONE_IPS[$index]} | ROS_DOMAIN_ID=${DRONE_DOMAINS[$index]} | ${DRONE_HOSTS[$index]}"
-    echo "  ROS_STATIC_PEERS=${DRONE_IPS[$index]}"
+    echo "  FASTRTPS_DEFAULT_PROFILES_FILE=$REPO_ROOT/config/fastdds/humble_${DRONE_IDS[$index]}.xml"
   done
   exit 0
 fi
@@ -238,7 +238,6 @@ handle_interrupt() {
   exit 130
 }
 
-GROUND_EPOCH="$(date -u +%s)"
 for index in "${!DRONE_IDS[@]}"; do
   drone_id="${DRONE_IDS[$index]}"; host="${DRONE_HOSTS[$index]}"; ip="${DRONE_IPS[$index]}"
   if detail="$(ssh "${SSH_OPTS[@]}" "$host" "hostname; hostname -I; hostname -I | tr ' ' '\\n' | grep -Fx '$ip'" 2>&1)"; then
@@ -246,6 +245,7 @@ for index in "${!DRONE_IDS[@]}"; do
   else
     append_result "$drone_id" ssh false "$detail"; echo "$drone_id SSH/IP FAILED | $detail" >&2
   fi
+  GROUND_EPOCH="$(date -u +%s.%N)"
   if detail="$(ssh "${SSH_OPTS[@]}" "$host" "date -u -s '@${GROUND_EPOCH}' >/dev/null && date -u +%Y-%m-%dT%H:%M:%S.%NZ" 2>&1)"; then
     append_result "$drone_id" clock_sync true "ground_reference_epoch=$GROUND_EPOCH; $detail"; echo "$drone_id UTC SYNC OK | $detail"
   else
@@ -288,18 +288,19 @@ launch_worker() {
   (( ENABLE_AUDIO == 1 )) && worker_command+=(--enable-audio)
   (( PREFLIGHT_ONLY == 1 )) && worker_command+=(--preflight-only)
 
-  printf 'Fixed worker: %s | ROS_DOMAIN_ID=%s | ROS_STATIC_PEERS=%s\n' "$drone_id" "$domain" "$ip" \
+  printf 'Fixed worker: %s | ROS_DOMAIN_ID=%s | DDS_PEER=%s\n' "$drone_id" "$domain" "$ip" \
     > "$MISSION_DIR/drones/$drone_id/status_logs/worker_launch_command.sh"
   # The parentheses and the trailing & are the process-isolation boundary.
   (
     set -euo pipefail
     cd "$REPO_ROOT"
-    source /opt/ros/jazzy/setup.bash
+    set +u  # ROS setup scripts reference optional unset variables.
+    source /opt/ros/humble/setup.bash
     source "$PX4_WORKSPACE"
+    set -u
     export ROS_DOMAIN_ID="$domain"
     export ROS_LOCALHOST_ONLY=0
-    export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
-    export ROS_STATIC_PEERS="$ip"
+    export FASTRTPS_DEFAULT_PROFILES_FILE="$REPO_ROOT/config/fastdds/humble_${drone_id}.xml"
     export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
     exec "${worker_command[@]}"
   ) > "$worker_log" 2>&1 &
@@ -332,7 +333,10 @@ while (( SECONDS < readiness_deadline )); do
       echo "$drone_id | PID ${WORKER_PIDS[$drone_id]} | $phase | domain=${DRONE_DOMAINS[$index]} | $vehicle | bag $bag_size${remaining:+ | $remaining}"
       LAST_STATUS["$drone_id"]="$phase"
     }
-    [[ "$phase" == READY ]] && (( ready_count += 1 ))
+    if [[ "$phase" == READY || "$phase" == WAITING_FOR_ARM || "$phase" == RECORDING || "$phase" == LANDED_POSTROLL ]] && { (( PREFLIGHT_ONLY == 1 )) || pid_alive "${WORKER_PIDS[$drone_id]}"; }; then
+      (( ready_count += 1 ))
+      continue
+    fi
     if [[ "$phase" == DONE || "$phase" == FAILED_PREFLIGHT || "$phase" == FAILED_ENVIRONMENT ]]; then
       (( terminal_count += 1 )); [[ "$phase" == READY ]] || dead_before_ready+=("$drone_id")
     elif ! pid_alive "${WORKER_PIDS[$drone_id]}"; then
@@ -365,7 +369,14 @@ else
 fi
 
 if (( PREFLIGHT_ONLY == 1 )); then
-  signal_workers INT; wait_for_workers; finish_mission "preflight_only"
+  wait_for_workers
+  for drone_id in "${DRONE_IDS[@]}"; do
+    if [[ "${WORKER_EXIT_CODES[$drone_id]:-1}" != 0 ]]; then
+      finish_mission "preflight_collection_failed"
+      exit 1
+    fi
+  done
+  finish_mission "preflight_only"
   echo "Preflight-only run complete; no flight command was issued."; exit 0
 fi
 
@@ -401,3 +412,5 @@ for drone_id in "${DRONE_IDS[@]}"; do
 done
 if (( failed_exit == 0 )); then finish_mission "workers_completed"; else finish_mission "completed_with_worker_failures"; fi
 echo "Swarm archive complete: $MISSION_DIR"
+
+exit "$failed_exit"

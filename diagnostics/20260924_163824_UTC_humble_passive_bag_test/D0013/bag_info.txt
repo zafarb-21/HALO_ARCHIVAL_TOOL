@@ -1,0 +1,12 @@
+
+Files:             bag_0.db3
+Bag size:          265.9 KiB
+Storage id:        sqlite3
+Duration:          14.397242901s
+Start:             Sep 24 2026 12:38:30.751360918 (1790267910.751360918)
+End:               Sep 24 2026 12:38:45.148603819 (1790267925.148603819)
+Messages:          2774
+Topic information: Topic: /fmu/out/vehicle_status | Type: px4_msgs/msg/VehicleStatus | Count: 28 | Serialization Format: cdr
+                   Topic: /fmu/out/timesync_status | Type: px4_msgs/msg/TimesyncStatus | Count: 144 | Serialization Format: cdr
+                   Topic: /fmu/out/sensor_combined | Type: px4_msgs/msg/SensorCombined | Count: 2602 | Serialization Format: cdr
+

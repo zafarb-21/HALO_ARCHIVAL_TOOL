@@ -19,7 +19,7 @@ except ImportError:
     from scripts.run_halo_swarm_mission import _sw_collect, _sw_epoch, _sw_preflight, _sw_worker
 
 
-JAZZY_SETUP = "/opt/ros/jazzy/setup.bash"
+HUMBLE_SETUP = "/opt/ros/humble/setup.bash"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -55,8 +55,7 @@ def _fixed_environment(args: argparse.Namespace) -> dict[str, str]:
         {
             "ROS_DOMAIN_ID": str(args.ros_domain_id),
             "ROS_LOCALHOST_ONLY": "0",
-            "ROS_AUTOMATIC_DISCOVERY_RANGE": "SUBNET",
-            "ROS_STATIC_PEERS": args.drone_ip,
+            "FASTRTPS_DEFAULT_PROFILES_FILE": str(Path(__file__).resolve().parents[1] / "config" / "fastdds" / f"humble_{args.drone_id}.xml"),
             "RMW_IMPLEMENTATION": "rmw_fastrtps_cpp",
             "HALO_FIXED_WORKER_ENV": "1",
         }
@@ -71,12 +70,11 @@ def _ensure_fixed_environment(args: argparse.Namespace) -> None:
         command = [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:], "--_env-ready"]
         shell = (
             "set -e; "
-            f"source {shlex.quote(JAZZY_SETUP)}; "
+            f"source {shlex.quote(HUMBLE_SETUP)}; "
             f"source {shlex.quote(workspace)}; "
             f"export ROS_DOMAIN_ID={shlex.quote(expected['ROS_DOMAIN_ID'])}; "
             "export ROS_LOCALHOST_ONLY=0; "
-            "export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET; "
-            f"export ROS_STATIC_PEERS={shlex.quote(expected['ROS_STATIC_PEERS'])}; "
+            f"export FASTRTPS_DEFAULT_PROFILES_FILE={shlex.quote(expected['FASTRTPS_DEFAULT_PROFILES_FILE'])}; "
             "export RMW_IMPLEMENTATION=rmw_fastrtps_cpp; "
             "export HALO_FIXED_WORKER_ENV=1; "
             "exec " + shlex.join(command)
@@ -207,7 +205,7 @@ def run_worker(args: argparse.Namespace) -> int:
     if expected is None:
         raise ValueError(f"Unknown lab drone_id: {args.drone_id}")
     for field, actual in (("drone-host", args.drone_host), ("drone-ip", args.drone_ip), ("ros-domain-id", args.ros_domain_id)):
-        key = field.replace("-", "_")
+        key = {"drone-host": "ssh_host", "drone-ip": "ip_address", "ros-domain-id": "ros_domain_id"}[field]
         if actual != expected[key]:
             raise ValueError(f"{args.drone_id}: --{field} must be {expected[key]!r}; found {actual!r}")
     if args.ros_domain_id not in range(1, 8):

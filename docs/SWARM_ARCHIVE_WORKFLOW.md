@@ -23,7 +23,7 @@ Do not guess or change these values:
     D0015  192.168.0.23  halo-d0015  ROS_DOMAIN_ID=6
     D0016  192.168.0.24  halo-d0016  ROS_DOMAIN_ID=7
 
-Every worker also uses its own drone IP as `ROS_STATIC_PEERS`.
+Every worker uses a Humble Fast DDS XML initial-peer profile for its drone.
 `ros_domain_id` is required in both `drones/swarm_lab.yaml` and the matching
 drone YAML. Missing or mismatched values fail validation; the launcher never
 guesses a domain.
@@ -32,24 +32,22 @@ guesses a domain.
 
 The launcher establishes this environment independently inside each worker:
 
-    source /opt/ros/jazzy/setup.bash
-    source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+    source /opt/ros/humble/setup.bash
+    source ~/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash
     export ROS_DOMAIN_ID=<that drone's domain>
     export ROS_LOCALHOST_ONLY=0
-    export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
-    export ROS_STATIC_PEERS=<that drone's IP>
+    export FASTRTPS_DEFAULT_PROFILES_FILE="$REPO_ROOT/config/fastdds/humble_<drone_id>.xml"
     export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 The launcher does not continuously switch domains in one ROS process. It starts
 five background jobs using separate Bash subshells:
 
     (
-        source /opt/ros/jazzy/setup.bash
-        source ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+        source /opt/ros/humble/setup.bash
+        source ~/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash
         export ROS_DOMAIN_ID=3
         export ROS_LOCALHOST_ONLY=0
-        export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
-        export ROS_STATIC_PEERS=192.168.0.20
+        export FASTRTPS_DEFAULT_PROFILES_FILE="$REPO_ROOT/config/fastdds/humble_D0012.xml"
         export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
         exec python3 scripts/run_halo_drone_worker.py ...
     ) > "$MISSION_DIR/drones/D0012/status_logs/worker_console.log" 2>&1 &
@@ -67,7 +65,7 @@ From the archive repository on Ground Station B:
 
 Confirm the workspace setup file exists:
 
-    test -f ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash
+    test -f ~/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash
 
 Confirm the swarm configuration without contacting drones:
 
@@ -320,3 +318,6 @@ The final five-drone launcher has been validated with:
       --mission-name "validation" --operator "validation"
 
 No automatic Git commit or flight command is part of the launcher.
+
+For the current Humble network diagnosis and verification commands, see
+[Humble discovery troubleshooting](HUMBLE_DISCOVERY.md).

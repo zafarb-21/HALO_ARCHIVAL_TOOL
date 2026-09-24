@@ -159,7 +159,7 @@ def ground_rosbag_setup_lines(args: argparse.Namespace) -> list[str]:
     """Build the shell setup used by ground-side ROS2 commands."""
     lines = [
         "set -e",
-        "source /opt/ros/jazzy/setup.bash",
+        "source /opt/ros/humble/setup.bash",
     ]
     if args.px4_msgs_workspace:
         workspace = str(Path(args.px4_msgs_workspace).expanduser())
@@ -168,9 +168,13 @@ def ground_rosbag_setup_lines(args: argparse.Namespace) -> list[str]:
         [
             "export ROS_DOMAIN_ID={0}".format(args.ros_domain_id),
             "export ROS_LOCALHOST_ONLY=0",
-            "export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET",
+            "export RMW_IMPLEMENTATION=rmw_fastrtps_cpp",
         ]
     )
+    # Fixed lab domains map to the checked-in Humble unicast profiles.
+    profile = Path(__file__).resolve().parents[1] / "config" / "fastdds" / f"humble_D{args.ros_domain_id + 9:04d}.xml"
+    if profile.is_file():
+        lines.append("export FASTRTPS_DEFAULT_PROFILES_FILE=" + shlex.quote(str(profile)))
     return lines
 
 
@@ -897,7 +901,8 @@ def _run_mission() -> int:
     )
     parser.add_argument(
         "--px4-msgs-workspace",
-        help="Optional px4_msgs setup.bash to source for ground ROS2 commands.",
+        default=os.environ.get("HALO_PX4_MSGS_SETUP", str(Path(__file__).resolve().parents[1] / "runtime" / "px4_ros2_humble_ws" / "install" / "setup.bash")),
+        help="PX4 message setup.bash; defaults to the firmware-matched repository workspace.",
     )
     parser.add_argument(
         "--rosbag-topics",

@@ -1,0 +1,60 @@
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1790269356.471208912] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1790269356.472276186] [rosbag2_storage]: Opened database '/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0016/ros_bags/20260924_170120_UTC_five_drone_30s_rosbag_px4__D0016_ground_rosbag/20260924_170120_UTC_five_drone_30s_rosbag_px4__D0016_ground_rosbag_0.db3' for READ_WRITE.
+[INFO] [1790269356.472683800] [rosbag2_recorder]: Listening for topics...
+[INFO] [1790269356.472723489] [rosbag2_recorder]: Event publisher thread: Starting
+[INFO] [1790269356.473197925] [rosbag2_recorder]: Subscribed to topic '/rosout'
+[INFO] [1790269356.473581634] [rosbag2_recorder]: Subscribed to topic '/events/write_split'
+[INFO] [1790269356.473627075] [rosbag2_recorder]: Recording...
+[INFO] [1790269356.574454983] [rosbag2_recorder]: Subscribed to topic '/parameter_events'
+[INFO] [1790269356.676192107] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_attitude'
+[INFO] [1790269356.676701652] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_status'
+[INFO] [1790269356.677143554] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_odometry'
+[INFO] [1790269356.677670546] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_local_position'
+[INFO] [1790269356.678123899] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_gps_position'
+[INFO] [1790269356.678586039] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_control_mode'
+[INFO] [1790269356.679030196] [rosbag2_recorder]: Subscribed to topic '/fmu/out/timesync_status'
+[INFO] [1790269356.679522231] [rosbag2_recorder]: Subscribed to topic '/fmu/out/failsafe_flags'
+[INFO] [1790269356.679958781] [rosbag2_recorder]: Subscribed to topic '/fmu/out/sensor_combined'
+[INFO] [1790269356.680466174] [rosbag2_recorder]: Subscribed to topic '/fmu/out/battery_status'
+[INFO] [1790269356.680944857] [rosbag2_recorder]: Subscribed to topic '/fmu/out/position_setpoint_triplet'
+[37;1m2026-09-24 13:02:37.599 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:37.716 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:37.792 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:37.827 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:37.953 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.081 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.203 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.308 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.335 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.458 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.594 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.704 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.825 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.832 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:38.953 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.082 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.201 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.330 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.342 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.454 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.599 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.704 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.829 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.860 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:39.953 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.078 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.201 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.334 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.453 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.459 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.588 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.703 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.831 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.954 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:40.978 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '92' bytes is larger than the history payload size of '87' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:41.077 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:41.203 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-09-24 13:02:41.331 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '148' bytes is larger than the history payload size of '143' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[INFO] [1790269361.401473077] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1790269361.402613480] [rosbag2_recorder]: Event publisher thread: Exiting
+[INFO] [1790269361.402695616] [rosbag2_recorder]: Recording stopped

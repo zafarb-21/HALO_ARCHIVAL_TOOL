@@ -1,0 +1,64 @@
+D0012 | 192.168.0.20 | ROS_DOMAIN_ID=3 | halo-d0012
+D0013 | 192.168.0.21 | ROS_DOMAIN_ID=4 | halo-d0013
+D0014 | 192.168.0.22 | ROS_DOMAIN_ID=5 | halo-d0014
+D0015 | 192.168.0.23 | ROS_DOMAIN_ID=6 | halo-d0015
+D0016 | 192.168.0.24 | ROS_DOMAIN_ID=7 | halo-d0016
+SWARM CONFIGURATION OK
+D0012 SSH/IP OK | halo-d0012 | 192.168.0.20
+D0012 UTC SYNC OK | 2026-09-24T17:16:22.719870011Z
+D0012 microdds OK | active
+D0013 SSH/IP OK | halo-d0013 | 192.168.0.21
+D0013 UTC SYNC OK | 2026-09-24T17:16:23.956313595Z
+D0013 microdds OK | active
+D0014 SSH/IP OK | halo-d0014 | 192.168.0.22
+D0014 UTC SYNC OK | 2026-09-24T17:16:25.203178127Z
+D0014 microdds OK | active
+D0015 SSH/IP OK | halo-d0015 | 192.168.0.23
+D0015 UTC SYNC OK | 2026-09-24T17:16:26.441865358Z
+D0015 microdds OK | active
+D0016 SSH/IP OK | halo-d0016 | 192.168.0.24
+D0016 UTC SYNC OK | 2026-09-24T17:16:27.737601352Z
+D0016 microdds OK | active
+Common mission ID: 20260924_171622_196555_UTC_one_command_preflight_check
+Mission archive: /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check
+D0012 background worker started | PID=177356 | domain=3 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0012/status_logs/worker_console.log
+D0013 background worker started | PID=177364 | domain=4 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0013/status_logs/worker_console.log
+D0014 background worker started | PID=177372 | domain=5 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0014/status_logs/worker_console.log
+D0015 background worker started | PID=177380 | domain=6 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0015/status_logs/worker_console.log
+D0016 background worker started | PID=177388 | domain=7 | log=/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0016/status_logs/worker_console.log
+Worker inspection: jobs -l
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0012/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0013/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0014/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0015/status_logs/worker_console.log
+Worker log: tail -f /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check/drones/D0016/status_logs/worker_console.log
+D0012 | PID 177356 | NOT_STARTED | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 177364 | NOT_STARTED | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 177372 | NOT_STARTED | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 177380 | NOT_STARTED | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 177388 | NOT_STARTED | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 177356 | CHECKING_DRONE_ROS | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 177364 | CHECKING_DRONE_ROS | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 177372 | CHECKING_DRONE_ROS | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 177380 | CHECKING_DRONE_ROS | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 177388 | CHECKING_DRONE_ROS | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 177356 | CHECKING_GROUND_ROS | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 177364 | CHECKING_GROUND_ROS | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 177372 | CHECKING_GROUND_ROS | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 177380 | CHECKING_GROUND_ROS | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 177388 | CHECKING_GROUND_ROS | domain=7 | UNKNOWN | bag 0.0 MB
+D0012 | PID 177356 | READY | domain=3 | UNKNOWN | bag 0.0 MB
+D0013 | PID 177364 | READY | domain=4 | UNKNOWN | bag 0.0 MB
+D0014 | PID 177372 | READY | domain=5 | UNKNOWN | bag 0.0 MB
+D0015 | PID 177380 | READY | domain=6 | UNKNOWN | bag 0.0 MB
+D0016 | PID 177388 | READY | domain=7 | UNKNOWN | bag 0.0 MB
+================================================
+              SWARM ARCHIVE READY
+================================================
+D0012 READY | PID=177356 | domain=3 | 192.168.0.20
+D0013 READY | PID=177364 | domain=4 | 192.168.0.21
+D0014 READY | PID=177372 | domain=5 | 192.168.0.22
+D0015 READY | PID=177380 | domain=6 | 192.168.0.23
+D0016 READY | PID=177388 | domain=7 | 192.168.0.24
+Preflight-only run complete; no flight command was issued.
+COMPLETE: /home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_171622_196555_UTC_one_command_preflight_check

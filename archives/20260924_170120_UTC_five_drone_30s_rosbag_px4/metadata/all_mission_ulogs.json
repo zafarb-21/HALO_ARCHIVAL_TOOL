@@ -1,0 +1,108 @@
+[
+  {
+    "drone_id": "D0012",
+    "start_epoch": 1790269286.659605,
+    "end_epoch": 1790269522.981331,
+    "files": [
+      {
+        "remote_path": "/data/px4/log/sess156/log101.ulg",
+        "bytes": 20847266,
+        "mtime": 1790269443.472,
+        "sha256": "9cabdf6cc5e9ec1e766d42f55db823c3ab8f8c76ec834089ddcb52f26671aa0c",
+        "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0012/px4_logs/all_mission_logs/sess156/log101.ulg",
+        "copy_return_code": 0,
+        "local_sha256": "9cabdf6cc5e9ec1e766d42f55db823c3ab8f8c76ec834089ddcb52f26671aa0c",
+        "hash_matches": true,
+        "ulog_magic_ok": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "drone_id": "D0013",
+    "start_epoch": 1790269286.659605,
+    "end_epoch": 1790269522.981331,
+    "files": [
+      {
+        "remote_path": "/data/px4/log/sess118/log100.ulg",
+        "bytes": 16031969,
+        "mtime": 1790269431.488,
+        "sha256": "2c4ec30090d5425fbfebe90f7facdfe0a9225fd7a68a8308473f5df221c6ea1b",
+        "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0013/px4_logs/all_mission_logs/sess118/log100.ulg",
+        "copy_return_code": 0,
+        "local_sha256": "2c4ec30090d5425fbfebe90f7facdfe0a9225fd7a68a8308473f5df221c6ea1b",
+        "hash_matches": true,
+        "ulog_magic_ok": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "drone_id": "D0014",
+    "start_epoch": 1790269286.659605,
+    "end_epoch": 1790269522.981331,
+    "files": [
+      {
+        "remote_path": "/data/px4/log/sess133/log100.ulg",
+        "bytes": 15560499,
+        "mtime": 1790269432.552,
+        "sha256": "e207bfbc091788bd904950e99dc9c9a87671a2bbb4ad1ec94683fb4219b24f6b",
+        "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0014/px4_logs/all_mission_logs/sess133/log100.ulg",
+        "copy_return_code": 0,
+        "local_sha256": "e207bfbc091788bd904950e99dc9c9a87671a2bbb4ad1ec94683fb4219b24f6b",
+        "hash_matches": true,
+        "ulog_magic_ok": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "drone_id": "D0015",
+    "start_epoch": 1790269286.659605,
+    "end_epoch": 1790269522.981331,
+    "files": [
+      {
+        "remote_path": "/data/px4/log/sess125/log100.ulg",
+        "bytes": 9233959,
+        "mtime": 1790269444.468,
+        "sha256": "b04d803cd4b5ff5610d28ac9c550615ae3bd67d9b360ed43a798bd4c4e5df835",
+        "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0015/px4_logs/all_mission_logs/sess125/log100.ulg",
+        "copy_return_code": 0,
+        "local_sha256": "b04d803cd4b5ff5610d28ac9c550615ae3bd67d9b360ed43a798bd4c4e5df835",
+        "hash_matches": true,
+        "ulog_magic_ok": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "drone_id": "D0016",
+    "start_epoch": 1790269286.659605,
+    "end_epoch": 1790269522.981331,
+    "files": [
+      {
+        "remote_path": "/data/px4/log/sess125/log100.ulg",
+        "bytes": 1227034,
+        "mtime": 1790269354.532,
+        "sha256": "5dad2164dcd03645f95f74e830f168abd7a2063f7a3e2781d3e5639e6e132ad3",
+        "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0016/px4_logs/all_mission_logs/sess125/log100.ulg",
+        "copy_return_code": 0,
+        "local_sha256": "5dad2164dcd03645f95f74e830f168abd7a2063f7a3e2781d3e5639e6e132ad3",
+        "hash_matches": true,
+        "ulog_magic_ok": true
+      },
+      {
+        "remote_path": "/data/px4/log/sess125/log101.ulg",
+        "bytes": 13821329,
+        "mtime": 1790269433.284,
+        "sha256": "842289200b21a713a8fda83815e2ff794a8bbf2cc13796558f00bcb01a35a654",
+        "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0016/px4_logs/all_mission_logs/sess125/log101.ulg",
+        "copy_return_code": 0,
+        "local_sha256": "842289200b21a713a8fda83815e2ff794a8bbf2cc13796558f00bcb01a35a654",
+        "hash_matches": true,
+        "ulog_magic_ok": true
+      }
+    ],
+    "errors": []
+  }
+]

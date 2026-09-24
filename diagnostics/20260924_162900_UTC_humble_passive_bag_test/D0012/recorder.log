@@ -1,0 +1,12 @@
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1790267346.359061944] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1790267346.360099014] [rosbag2_storage]: Opened database '/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_162900_UTC_humble_passive_bag_test/D0012/bag/bag_0.db3' for READ_WRITE.
+[INFO] [1790267346.360524578] [rosbag2_recorder]: Listening for topics...
+[INFO] [1790267346.360560204] [rosbag2_recorder]: Event publisher thread: Starting
+[INFO] [1790267346.360609612] [rosbag2_recorder]: Recording...
+[INFO] [1790267346.562741551] [rosbag2_recorder]: Subscribed to topic '/fmu/out/sensor_combined'
+[INFO] [1790267346.563182858] [rosbag2_recorder]: Subscribed to topic '/fmu/out/timesync_status'
+[INFO] [1790267346.563673870] [rosbag2_recorder]: Subscribed to topic '/fmu/out/vehicle_status'
+[INFO] [1790267346.563688122] [rosbag2_recorder]: All requested topics are subscribed. Stopping discovery...
+[INFO] [1790267361.110135231] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1790267361.111263604] [rosbag2_recorder]: Event publisher thread: Exiting
+[INFO] [1790267361.111342119] [rosbag2_recorder]: Recording stopped

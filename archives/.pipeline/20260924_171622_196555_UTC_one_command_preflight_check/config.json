@@ -1,0 +1,10 @@
+{
+  "name": "one_command_preflight_check",
+  "operator": "vmbasvi",
+  "archive_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives",
+  "mission_id": "20260924_171622_196555_UTC_one_command_preflight_check",
+  "duration": 600,
+  "workspace": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash",
+  "preflight_only": true,
+  "enable_audio": false
+}

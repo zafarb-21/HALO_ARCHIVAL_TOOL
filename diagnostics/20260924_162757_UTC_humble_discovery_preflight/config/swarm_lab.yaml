@@ -1,0 +1,44 @@
+# HALO lab swarm inventory. Every ssh_host must exist in ~/.ssh/config.
+# See docs/MULTI_DRONE_SSH_SETUP.md. Add a future sixth drone only after its
+# assigned IP address and SSH alias are known.
+drones:
+  - drone_id: D0012
+    config: drones/D0012.yaml
+    ssh_host: halo-d0012
+    ip_address: 192.168.0.20
+    ros_domain_id: 3
+    enabled: true
+    required: true
+    post_landing_record_s: 3
+  - drone_id: D0013
+    config: drones/D0013.yaml
+    ssh_host: halo-d0013
+    ip_address: 192.168.0.21
+    ros_domain_id: 4
+    enabled: true
+    required: true
+    post_landing_record_s: 3
+  - drone_id: D0014
+    config: drones/D0014.yaml
+    ssh_host: halo-d0014
+    ip_address: 192.168.0.22
+    ros_domain_id: 5
+    enabled: true
+    required: true
+    post_landing_record_s: 3
+  - drone_id: D0015
+    config: drones/D0015.yaml
+    ssh_host: halo-d0015
+    ip_address: 192.168.0.23
+    ros_domain_id: 6
+    enabled: true
+    required: true
+    post_landing_record_s: 3
+  - drone_id: D0016
+    config: drones/D0016.yaml
+    ssh_host: halo-d0016
+    ip_address: 192.168.0.24
+    ros_domain_id: 7
+    enabled: true
+    required: true
+    post_landing_record_s: 3

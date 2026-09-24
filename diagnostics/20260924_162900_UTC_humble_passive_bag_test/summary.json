@@ -1,0 +1,67 @@
+{
+  "test": "passive ground recording; no flight commands, no audio, no ULog expected",
+  "archive": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_162900_UTC_humble_passive_bag_test",
+  "all_passed": false,
+  "drones": [
+    {
+      "drone_id": "D0012",
+      "domain": 3,
+      "record_seconds": 15,
+      "topics": {},
+      "errors": [
+        "failed to deserialize ROS message: Fast CDR exception deserializing message of type px4_msgs::msg::dds_::VehicleStatus_., at ./src/type_support_common.cpp:118"
+      ],
+      "recorder_exit_code": 0,
+      "bag_info_ok": true,
+      "ok": false
+    },
+    {
+      "drone_id": "D0013",
+      "domain": 4,
+      "record_seconds": 15,
+      "topics": {},
+      "errors": [
+        "failed to deserialize ROS message: Fast CDR exception deserializing message of type px4_msgs::msg::dds_::VehicleStatus_., at ./src/type_support_common.cpp:118"
+      ],
+      "recorder_exit_code": 0,
+      "bag_info_ok": true,
+      "ok": false
+    },
+    {
+      "drone_id": "D0014",
+      "domain": 5,
+      "record_seconds": 15,
+      "topics": {},
+      "errors": [
+        "failed to deserialize ROS message: Fast CDR exception deserializing message of type px4_msgs::msg::dds_::VehicleStatus_., at ./src/type_support_common.cpp:118"
+      ],
+      "recorder_exit_code": 0,
+      "bag_info_ok": true,
+      "ok": false
+    },
+    {
+      "drone_id": "D0015",
+      "domain": 6,
+      "record_seconds": 15,
+      "topics": {},
+      "errors": [
+        "failed to deserialize ROS message: Fast CDR exception deserializing message of type px4_msgs::msg::dds_::VehicleStatus_., at ./src/type_support_common.cpp:118"
+      ],
+      "recorder_exit_code": 0,
+      "bag_info_ok": true,
+      "ok": false
+    },
+    {
+      "drone_id": "D0016",
+      "domain": 7,
+      "record_seconds": 15,
+      "topics": {},
+      "errors": [
+        "failed to deserialize ROS message: Fast CDR exception deserializing message of type px4_msgs::msg::dds_::VehicleStatus_., at ./src/type_support_common.cpp:118"
+      ],
+      "recorder_exit_code": 0,
+      "bag_info_ok": true,
+      "ok": false
+    }
+  ]
+}

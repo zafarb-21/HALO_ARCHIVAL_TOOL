@@ -1,0 +1,17 @@
+{
+  "hostname": "mae-11194-l.sabu.mtu.edu",
+  "username": "vmbasvi",
+  "timestamp_utc": "2026-09-24T16:28:04.820122+00:00",
+  "current_working_directory": "/home/vmbasvi/HALO_ARCHIVAL_TOOL",
+  "code_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL",
+  "git_repo_root": "/home/vmbasvi/HALO_ARCHIVAL_TOOL",
+  "git_branch": "main",
+  "git_commit": "1973b4bed7a898f0a794b9292e1a160e693a5894",
+  "git_commit_hash": "1973b4bed7a898f0a794b9292e1a160e693a5894",
+  "git_status_short": " M README.md\n M docs/AUTOMATED_MISSION_WORKFLOW.md\n M docs/SWARM_ARCHIVE_WORKFLOW.md\n M scripts/launch_halo_swarm.sh\n M scripts/run_halo_drone_worker.py\n M scripts/run_halo_mission.py\n M scripts/run_halo_swarm_mission.py\n?? config/\n?? diagnostics/\n?? docs/HUMBLE_DISCOVERY.md\n?? scripts/__pycache__/create_mission_archive.cpython-310.pyc\n?? scripts/__pycache__/halo_swarm_common.cpython-310.pyc\n?? scripts/__pycache__/run_halo_drone_worker.cpython-310.pyc\n?? scripts/__pycache__/run_halo_mission.cpython-310.pyc\n?? scripts/__pycache__/run_halo_swarm_mission.cpython-310.pyc",
+  "has_uncommitted_changes": true,
+  "python_version": "3.10.12",
+  "script_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/scripts/halo_swarm_common.py",
+  "script_sha256": "6acb8d1ea0307a05a6c6294058d0d7eedbd1b3b52dc9a013c0be0232184cb2f9",
+  "capture_warnings": []
+}

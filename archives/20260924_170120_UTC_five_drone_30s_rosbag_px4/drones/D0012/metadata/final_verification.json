@@ -1,0 +1,148 @@
+{
+  "drone_id": "D0012",
+  "bag": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0012/ros_bags/20260924_170120_UTC_five_drone_30s_rosbag_px4__D0012_ground_rosbag",
+  "metadata_exists": true,
+  "bag_return_code": 0,
+  "topics": {
+    "/rosout": {
+      "type": "rcl_interfaces/msg/Log",
+      "count": 17,
+      "sample_decodes": true
+    },
+    "/events/write_split": {
+      "type": "rosbag2_interfaces/msg/WriteSplitEvent",
+      "count": 0
+    },
+    "/parameter_events": {
+      "type": "rcl_interfaces/msg/ParameterEvent",
+      "count": 0
+    },
+    "/fmu/out/position_setpoint_triplet": {
+      "type": "px4_msgs/msg/PositionSetpointTriplet",
+      "count": 0
+    },
+    "/fmu/out/battery_status": {
+      "type": "px4_msgs/msg/BatteryStatus",
+      "count": 2143,
+      "sample_decodes": true
+    },
+    "/fmu/out/sensor_combined": {
+      "type": "px4_msgs/msg/SensorCombined",
+      "count": 8172,
+      "sample_decodes": true
+    },
+    "/fmu/out/failsafe_flags": {
+      "type": "px4_msgs/msg/FailsafeFlags",
+      "count": 0
+    },
+    "/fmu/out/timesync_status": {
+      "type": "px4_msgs/msg/TimesyncStatus",
+      "count": 607,
+      "sample_decodes": true
+    },
+    "/fmu/out/vehicle_control_mode": {
+      "type": "px4_msgs/msg/VehicleControlMode",
+      "count": 121,
+      "sample_decodes": true
+    },
+    "/fmu/out/vehicle_attitude": {
+      "type": "px4_msgs/msg/VehicleAttitude",
+      "count": 8143,
+      "sample_decodes": true
+    },
+    "/fmu/out/vehicle_local_position": {
+      "type": "px4_msgs/msg/VehicleLocalPosition",
+      "count": 4501,
+      "sample_decodes": true
+    },
+    "/fmu/out/vehicle_odometry": {
+      "type": "px4_msgs/msg/VehicleOdometry",
+      "count": 4500,
+      "sample_decodes": true
+    },
+    "/fmu/out/vehicle_status": {
+      "type": "px4_msgs/msg/VehicleStatus",
+      "count": 121,
+      "sample_decodes": true
+    }
+  },
+  "errors": [],
+  "warnings": [
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable",
+    "Vehicle status communication unavailable"
+  ],
+  "connection_loss_events": [
+    {
+      "detected_utc": "2026-09-24T17:02:28.929503+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:02:31.598788+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:02:35.550177+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:02:39.490076+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:03:22.520742+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:03:30.472621+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:03:33.126775+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:03:37.064411+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:04:04.987373+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:04:07.598655+00:00",
+      "phase": "RECORDING"
+    },
+    {
+      "detected_utc": "2026-09-24T17:04:11.506351+00:00",
+      "phase": "RECORDING"
+    }
+  ],
+  "armed_utc": "2026-09-24T17:02:03.059348+00:00",
+  "disarmed_utc": "2026-09-24T17:04:18.354067+00:00",
+  "detected_armed_seconds": 135.294719,
+  "sqlite_integrity": "ok",
+  "recorded_seconds": 134.9448772,
+  "message_count": 28325,
+  "ulogs": [
+    {
+      "remote_path": "/data/px4/log/sess156/log101.ulg",
+      "bytes": 20847266,
+      "mtime": 1790269443.472,
+      "sha256": "9cabdf6cc5e9ec1e766d42f55db823c3ab8f8c76ec834089ddcb52f26671aa0c",
+      "local_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/archives/20260924_170120_UTC_five_drone_30s_rosbag_px4/drones/D0012/px4_logs/all_mission_logs/sess156/log101.ulg",
+      "copy_return_code": 0,
+      "local_sha256": "9cabdf6cc5e9ec1e766d42f55db823c3ab8f8c76ec834089ddcb52f26671aa0c",
+      "hash_matches": true,
+      "ulog_magic_ok": true
+    }
+  ]
+}

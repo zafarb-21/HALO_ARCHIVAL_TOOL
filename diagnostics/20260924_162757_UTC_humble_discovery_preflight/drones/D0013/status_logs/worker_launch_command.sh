@@ -1,0 +1,1 @@
+Fixed worker: D0013 | ROS_DOMAIN_ID=4 | DDS_PEER=192.168.0.21

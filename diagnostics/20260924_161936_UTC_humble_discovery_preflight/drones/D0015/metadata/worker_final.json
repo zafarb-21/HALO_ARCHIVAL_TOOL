@@ -1,0 +1,50 @@
+{
+  "mission_id": "20260924_161936_UTC_humble_discovery_preflight",
+  "drone_id": "D0015",
+  "drone_host": "halo-d0015",
+  "drone_ip": "192.168.0.23",
+  "ros_domain_id": 6,
+  "static_peer": "192.168.0.23",
+  "state": "FAILED_PREFLIGHT",
+  "phase": "FAILED_PREFLIGHT",
+  "drone_ros_check": {
+    "drone_id": "D0015",
+    "ip_address": "192.168.0.23",
+    "ros_domain_id": 6,
+    "static_peer": "192.168.0.23",
+    "state": "FAILED_PREFLIGHT",
+    "ok": false,
+    "errors": [
+      "Drone ROS preflight did not find /fmu/out/vehicle_status",
+      "Drone ROS preflight did not find /fmu/out/sensor_combined",
+      "Drone ROS preflight found no /fmu topics"
+    ],
+    "warnings": [],
+    "command_result": {
+      "command": "ssh -o BatchMode=yes -o ConnectTimeout=10 halo-d0015 'LC_ALL=C LANG=C bash -lc '\"'\"'set -e\nsource /opt/ros/foxy/setup.bash\nexport ROS_DOMAIN_ID=6\nexport ROS_LOCALHOST_ONLY=0\nexport RMW_IMPLEMENTATION=rmw_fastrtps_cpp\nros2 daemon stop >/dev/null 2>&1 || true\nros2 daemon start >/dev/null 2>&1 || true\nsleep 1\necho __T__\nros2 topic list -t\necho __E__\necho __Y__\nros2 topic type /fmu/out/vehicle_status\necho __Z__\necho __S__\nros2 topic type /fmu/out/sensor_combined\necho __Q__'\"'\"''",
+      "return_code": 0,
+      "stdout": "__T__\n/parameter_events [rcl_interfaces/msg/ParameterEvent]\n/rosout [rcl_interfaces/msg/Log]\n__E__\n__Y__\npx4_msgs/msg/VehicleStatus\n__Z__\n__S__\npx4_msgs/msg/SensorCombined\n__Q__",
+      "stderr": "",
+      "ok": true
+    },
+    "visible_topics": [
+      "/parameter_events",
+      "/rosout"
+    ],
+    "vehicle_status_type": "px4_msgs/msg/VehicleStatus",
+    "sensor_combined_type": "px4_msgs/msg/SensorCombined",
+    "px4_msgs_decode_ok": true
+  },
+  "ground_ros_check": null,
+  "drone_ros_ok": false,
+  "ground_ros_ok": false,
+  "px4_msgs_decode_ok": true,
+  "warnings": [],
+  "errors": [
+    "Drone ROS preflight did not find /fmu/out/vehicle_status",
+    "Drone ROS preflight did not find /fmu/out/sensor_combined",
+    "Drone ROS preflight found no /fmu topics"
+  ],
+  "termination_reason": "drone_ros_preflight_failed",
+  "finalized_utc": "2026-09-24T16:19:53.963901+00:00"
+}

@@ -1,0 +1,324 @@
+{
+  "schema_version": 3,
+  "mission_id": "20260924_163825_UTC_humble_discovery_preflight",
+  "collection_status": "complete",
+  "drones": {
+    "D0012": {
+      "status": "READY",
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_163825_UTC_humble_discovery_preflight",
+        "drone_id": "D0012",
+        "ip_address": "192.168.0.20",
+        "ros_domain_id": 3,
+        "static_peer": "192.168.0.20",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T16:38:54.371046+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0012/ros_bags/20260924_163825_UTC_humble_discovery_preflight__D0012_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0012/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0012/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": []
+    },
+    "D0013": {
+      "status": "READY",
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_163825_UTC_humble_discovery_preflight",
+        "drone_id": "D0013",
+        "ip_address": "192.168.0.21",
+        "ros_domain_id": 4,
+        "static_peer": "192.168.0.21",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T16:38:54.146625+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0013/ros_bags/20260924_163825_UTC_humble_discovery_preflight__D0013_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0013/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0013/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": []
+    },
+    "D0014": {
+      "status": "READY",
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_163825_UTC_humble_discovery_preflight",
+        "drone_id": "D0014",
+        "ip_address": "192.168.0.22",
+        "ros_domain_id": 5,
+        "static_peer": "192.168.0.22",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T16:38:54.108724+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0014/ros_bags/20260924_163825_UTC_humble_discovery_preflight__D0014_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0014/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0014/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": []
+    },
+    "D0015": {
+      "status": "READY",
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_163825_UTC_humble_discovery_preflight",
+        "drone_id": "D0015",
+        "ip_address": "192.168.0.23",
+        "ros_domain_id": 6,
+        "static_peer": "192.168.0.23",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T16:38:54.143401+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0015/ros_bags/20260924_163825_UTC_humble_discovery_preflight__D0015_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0015/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0015/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": []
+    },
+    "D0016": {
+      "status": "READY",
+      "phase": "READY",
+      "worker_status": {
+        "mission_id": "20260924_163825_UTC_humble_discovery_preflight",
+        "drone_id": "D0016",
+        "ip_address": "192.168.0.24",
+        "ros_domain_id": 7,
+        "static_peer": "192.168.0.24",
+        "state": "READY",
+        "phase": "READY",
+        "drone_ros_ok": true,
+        "ground_ros_ok": true,
+        "px4_msgs_decode_ok": true,
+        "visible_topics": [
+          "/fmu/in/obstacle_distance",
+          "/fmu/in/offboard_control_mode",
+          "/fmu/in/onboard_computer_status",
+          "/fmu/in/sensor_optical_flow",
+          "/fmu/in/telemetry_status",
+          "/fmu/in/trajectory_setpoint",
+          "/fmu/in/vehicle_attitude_setpoint",
+          "/fmu/in/vehicle_command",
+          "/fmu/in/vehicle_mocap_odometry",
+          "/fmu/in/vehicle_rates_setpoint",
+          "/fmu/in/vehicle_trajectory_bezier",
+          "/fmu/in/vehicle_trajectory_waypoint",
+          "/fmu/in/vehicle_visual_odometry",
+          "/fmu/out/battery_status",
+          "/fmu/out/failsafe_flags",
+          "/fmu/out/position_setpoint_triplet",
+          "/fmu/out/sensor_combined",
+          "/fmu/out/timesync_status",
+          "/fmu/out/vehicle_attitude",
+          "/fmu/out/vehicle_control_mode",
+          "/fmu/out/vehicle_gps_position",
+          "/fmu/out/vehicle_local_position",
+          "/fmu/out/vehicle_odometry",
+          "/fmu/out/vehicle_status",
+          "/parameter_events",
+          "/rosout"
+        ],
+        "ready_utc": "2026-09-24T16:38:54.048663+00:00",
+        "bag": {
+          "prepared": true,
+          "path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0016/ros_bags/20260924_163825_UTC_humble_discovery_preflight__D0016_ground_rosbag"
+        },
+        "audio": {
+          "enabled": false,
+          "started": false
+        }
+      },
+      "worker_status_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0016/metadata/worker_status.json",
+      "collection_manifest_path": "/home/vmbasvi/HALO_ARCHIVAL_TOOL/diagnostics/20260924_163825_UTC_humble_discovery_preflight/drones/D0016/metadata/collection_manifest.json",
+      "collection_status": "complete_with_warnings",
+      "bag": {
+        "started": false
+      },
+      "selected_ulog": null,
+      "warnings": [
+        "No PX4 ULog candidate was modified after mission start"
+      ],
+      "errors": []
+    }
+  },
+  "updated_utc": "2026-09-24T16:39:06.364356+00:00"
+}

@@ -154,7 +154,7 @@ compatibility even when no WAV was requested.
 ## Ground-PC ROS bag capture with PX4 ULog collection
 
 When PX4 topics are published with `ROS_DOMAIN_ID=3`, enable ground-side capture
-before the partner arms/offboards. The orchestrator sources Jazzy and the optional
+before the partner arms/offboards. The orchestrator sources Humble and the optional
 `px4_msgs` workspace, runs `ros2 topic list -t`, then starts `ros2 bag record -a` in
 `drone_data/ros_bags/`. The ground bag is stopped with SIGINT before ULog collection
 so MCAP metadata is finalized.
@@ -172,7 +172,7 @@ python3 scripts/run_halo_mission.py \
   --duration 300 \
   --enable-ground-rosbag \
   --ros-domain-id 3 \
-  --px4-msgs-workspace ~/MIC_ARRAY_ROS/px4_ros2_jazzy_ws/install/setup.bash \
+  --px4-msgs-workspace ~/HALO_ARCHIVAL_TOOL/runtime/px4_ros2_humble_ws/install/setup.bash \
   --auto-ulog
 ```
 
